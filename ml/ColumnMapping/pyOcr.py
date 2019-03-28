@@ -57,7 +57,7 @@ def get_Ocr_Info(filePath):
     headers = {
         # Request headers
         'Content-Type': 'application/octet-stream',
-        'Ocp-Apim-Subscription-Key': 'c4af1927bf124533bcf2bcc92fd4c63d',
+        'Ocp-Apim-Subscription-Key': '8de603dad7a94fa1a0bccdcaf8cd4dc6',
     }
 
     params = urllib.parse.urlencode({
