@@ -4823,7 +4823,7 @@ exports.selectDocIdLabelDefList = function (req, done) {
 		try {
 			conn = await oracledb.getConnection(dbConfig);
             let query = 'select SEQNUM, DOCID, KORNM, ENGNM, LABELTYPE, AMOUNT, VALID, STATUS, ESSENTIALVAL from tbl_icr_label_def where docid = :docid ';
-            console.log(req);
+            //console.log(req);
 			let result = await conn.execute(query, req);
 			
 			return done(null, result.rows);
@@ -4850,8 +4850,8 @@ exports.selectLabelTrainDataList = function (req, done) {
             let query = "SELECT OCR_TEXT, LOCATION_X, LOCATION_Y, CLASS FROM TBL_NEW_BATCH_LABEL_MAPPING WHERE DOCTYPE =:DOCTYPE ";
             //console.log("DOCTYPE : "+req);
 			let result = await conn.execute(query,req);
-            console.log("result.rows");
-            console.log(result.rows);
+            //console.log("result.rows");
+            //console.log(result.rows);
 			return done(null, result.rows);
 		} catch (err) { // catches errors in getConnection and the query
 			reject(err);
@@ -4876,8 +4876,8 @@ exports.selectTrainDataList = function (req, done) {
             let query = "SELECT CLASS, DOCTYPE, OCR_TEXT, OCR_TEXT_X, OCR_TEXT_Y FROM TBL_NEW_BATCH_COLUMN_MAPPING WHERE DOCTYPE = '"+req+"' ";
             //console.log("DOCTYPE : "+req);
 			let result = await conn.execute(query);
-            console.log("selectTrainDataList.rows");
-            console.log(result.rows);
+            //console.log("selectTrainDataList.rows");
+            //console.log(result.rows);
 			return done(null, result.rows);
 		} catch (err) { // catches errors in getConnection and the query
 			reject(err);

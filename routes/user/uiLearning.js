@@ -145,7 +145,7 @@ function uiLearnTraining_new(filepath, callback) {
             var resPyStr = sync.await(PythonShell.run('pyOcr.py', pythonConfig.columnMappingOptions, sync.defer()));
             var testStr = resPyStr[0].replace('b', '');
             testStr = testStr.replace(/'/g, '');
-            var decode = new Buffer(testStr, 'base64').toString('utf-8');
+            var decode = Buffer.from(testStr, 'base64').toString('utf-8');
             var resPyArr = JSON.parse(decode);
             var retData = {};
             var retDataList = [];

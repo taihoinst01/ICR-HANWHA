@@ -141,7 +141,7 @@ function refindDocTopType(req, done) {
                     break;
                 }
             }
-            console.log(text.length +" |||| "+text);
+            //console.log(text.length +" |||| "+text);
             if(text.length > 0)
             {
                 strText = text.substring(0, text.length -1).toLowerCase();

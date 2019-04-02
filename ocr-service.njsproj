@@ -853,6 +853,7 @@
     <Compile Include="routes\proxy\proxy.js" />
     <Compile Include="routes\user\adminLearning.js" />
     <Compile Include="routes\user\batchLearning.js" />
+    <Compile Include="routes\user\batchLearningTest.js" />
     <Compile Include="routes\user\documentCheck.js" />
     <Compile Include="routes\user\invoiceProcessingStatus.js" />
     <Compile Include="routes\user\invoiceRegistration.js" />
