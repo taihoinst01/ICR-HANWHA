@@ -31,6 +31,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="app.js" />
+    <Compile Include="config\correctEntry.js" />
     <Compile Include="config\dbConfig.js" />
     <Compile Include="config\propertiesConfig.js" />
     <Compile Include="config\pythonConfig.js" />
@@ -914,6 +915,8 @@
     <Content Include="ml\ColumnMapping\eval4.py" />
     <Content Include="ml\ColumnMapping\iris_test.csv" />
     <Content Include="ml\ColumnMapping\iris_training.csv" />
+    <Content Include="ml\ColumnMapping\pyOcr.py" />
+    <Content Include="ml\ColumnMapping\pySplitLabel.py" />
     <Content Include="ml\ColumnMapping\train.py" />
     <Content Include="ml\ColumnMapping\uiClassify.py" />
     <Content Include="ml\ColumnMapping\__pycache__\batchUtil.cpython-35.pyc" />

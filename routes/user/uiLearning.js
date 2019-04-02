@@ -78,12 +78,11 @@ router.post('/uiLearnTraining', function (req, res) {
         var correctUiData;
         uiData = sync.await(uiLearnTraining_new(filepath, sync.defer()));
 
-        
+        /* 오타수정
         for (var i=0; i<uiData.length; i++) {
-            //두연작업중
-            console.log(' correctEntryFnc gogo ');
             uiData[i] = sync.await(ocrJs.correctEntryFnc(uiData[i], sync.defer()));
         }
+        */
         res.send({ data: uiData });
         /*
         for (var i = 0; i < filepath.length; i++) {
@@ -164,7 +163,7 @@ function uiLearnTraining_new(filepath, callback) {
                 retData.fileinfo = { filepath: "C:/ICR/uploads/"+resPyArr[i].fileName };
                 retDataList.push(retData);
             }
-            console.log(retDataList);
+            //console.log(retDataList);
             // resPyArr = sync.await(transPantternVar.trans(resPyArr, sync.defer()));
 
             // retData = resPyArr;
