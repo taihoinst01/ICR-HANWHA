@@ -155,7 +155,7 @@ function uiLearnTraining_new(filepath, callback) {
                     docCategory = resPyArr[i].docCategory;
                 }
                 resPyArr[i].docCategory = docCategory;
-                retData = sync.await(mlclassify.classify(resPyArr[i], sync.defer()));
+                retData = sync.await(mlclassify.classify(resPyArr[i], sync.defer())); // 오타수정 및 엔트리 추출
                 var labelData = sync.await(oracle.selectIcrLabelDef(retData.docCategory.DOCTOPTYPE, sync.defer()));
                 var docName = sync.await(oracle.selectDocName(retData.docCategory.DOCTYPE, sync.defer()));
                 retData.docCategory.DOCNAME = docName[0].DOCNAME;

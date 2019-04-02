@@ -869,6 +869,7 @@
     <Compile Include="routes\util\largeExcelRead.js" />
     <Compile Include="routes\util\listProc.js" />
     <Compile Include="routes\util\logger.js" />
+    <Compile Include="routes\util\mlClassify.js" />
     <Compile Include="routes\util\mlStudio.js" />
     <Compile Include="routes\util\myApproval.js" />
     <Compile Include="routes\util\ocr.js" />
