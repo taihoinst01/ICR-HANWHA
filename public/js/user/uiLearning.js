@@ -1423,32 +1423,12 @@ function modifyTextData() {
         afterData.data.push({ 'location': location, 'text': text, 'colLbl': colLbl, 'colType': colType });
     });
 
+    var predLabelData = predLabel(beforeData, afterData);
+    var predEntryData = predEntry(beforeData, afterData);
+
     // find an array of data with the same filename
     $.ajax({
         url: '/common/modifyBatchUiTextData',
-        type: 'post',
-        datatype: "json",
-        data: JSON.stringify({ 'beforeData': beforeData, 'afterData': afterData }),
-        contentType: 'application/json; charset=UTF-8',
-        beforeSend: function () {
-            $("#progressMsgTitle").html("retrieving learn data...");
-            progressId = showProgressBar();
-        },
-        success: function (data) {
-            fn_alert('alert', "success training");
-            endProgressBar(progressId);
-        },
-        error: function (err) {
-            console.log(err);
-        }
-    });
-
-    /*
-     var predLabelData = predLabel(beforeData, afterData);
-     var predEntryData = predEntry(beforeData, afterData);
-
-     $.ajax({
-        url: '/common/modifyBatchUiTextDataV2',
         type: 'post',
         datatype: "json",
         data: JSON.stringify({
@@ -1468,7 +1448,7 @@ function modifyTextData() {
             console.log(err);
         }
     });
-     */
+
 }
 
 function predLabel(beforeData, afterData) {
@@ -2434,7 +2414,12 @@ $(document).on('change', '#uiDocTopType', function(){
                 for(var i = 0; i < labelList.length; i++) {
                     appendSelectOptionHtml += '<option value="' + labelList[i].SEQNUM + '">' + labelList[i].ENGNM + '</option>';
                 }
-                $('.docLabel').empty().append(appendSelectOptionHtml);
+                var appendSelectLEOptionHtml = '<option value="U">Unknown</option>';
+                appendSelectLEOptionHtml += '<option value="L">Label</option>';
+                appendSelectLEOptionHtml += '<option value="E">Entry</option>';
+
+                $('.docLabel:even').empty().append(appendSelectLEOptionHtml);
+                $('.docLabel:odd').empty().append(appendSelectOptionHtml);
 
             } else {
                 fn_alert('alert', data.message);
