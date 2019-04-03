@@ -78,12 +78,11 @@ router.post('/uiLearnTraining', function (req, res) {
         var correctUiData;
         uiData = sync.await(uiLearnTraining_new(filepath, sync.defer()));
 
-        
+        /* 오타수정
         for (var i=0; i<uiData.length; i++) {
-            //두연작업중
-            console.log(' correctEntryFnc gogo ');
             uiData[i] = sync.await(ocrJs.correctEntryFnc(uiData[i], sync.defer()));
         }
+        */
         res.send({ data: uiData });
         /*
         for (var i = 0; i < filepath.length; i++) {
@@ -146,7 +145,7 @@ function uiLearnTraining_new(filepath, callback) {
             var resPyStr = sync.await(PythonShell.run('pyOcr.py', pythonConfig.columnMappingOptions, sync.defer()));
             var testStr = resPyStr[0].replace('b', '');
             testStr = testStr.replace(/'/g, '');
-            var decode = new Buffer(testStr, 'base64').toString('utf-8');
+            var decode = Buffer.from(testStr, 'base64').toString('utf-8');
             var resPyArr = JSON.parse(decode);
             var retData = {};
             var retDataList = [];
@@ -156,7 +155,7 @@ function uiLearnTraining_new(filepath, callback) {
                     docCategory = resPyArr[i].docCategory;
                 }
                 resPyArr[i].docCategory = docCategory;
-                retData = sync.await(mlclassify.classify(resPyArr[i], sync.defer()));
+                retData = sync.await(mlclassify.classify(resPyArr[i], sync.defer())); // 오타수정 및 엔트리 추출
                 var labelData = sync.await(oracle.selectIcrLabelDef(retData.docCategory.DOCTOPTYPE, sync.defer()));
                 var docName = sync.await(oracle.selectDocName(retData.docCategory.DOCTYPE, sync.defer()));
                 retData.docCategory.DOCNAME = docName[0].DOCNAME;
@@ -164,7 +163,7 @@ function uiLearnTraining_new(filepath, callback) {
                 retData.fileinfo = { filepath: "C:/ICR/uploads/"+resPyArr[i].fileName };
                 retDataList.push(retData);
             }
-            console.log(retDataList);
+            //console.log(retDataList);
             // resPyArr = sync.await(transPantternVar.trans(resPyArr, sync.defer()));
 
             // retData = resPyArr;

@@ -604,6 +604,65 @@ router.post('/modifyBatchUiTextData', function (req, res) {
                         afterData.data[i].sid = sync.await(oracle.selectSid(beforeData.data[j], sync.defer()));
                         //라벨이 변경된 경우만 트레이닝 insert
                         if ((afterData.data[i].colLbl != beforeData.data[j].colLbl && beforeData.data[j].colLbl >= -1) || (beforeData.data[j].entryLbl != afterData.data[i].colLbl && beforeData.data[j].entryLbl > 0)) {
+                            // 현재소스
+                            var itemLoc = beforeData.data[j].location.split(",");
+                            var yData = [];
+                            var xData = [];
+
+                            for (var k in beforeData.data) {
+                                if (k == j) continue;
+                                var compareData = beforeData.data[k];
+                                var dataLoc = compareData.location.split(",");
+                                var inputOcrData;
+
+                                if (afterData.data[i].colType == 'L') { // label
+                                    //위로 2개 문장 가져오기
+                                    if (bottomCheck(itemLoc[1], dataLoc[1], 50) && locationCheck(itemLoc[0], dataLoc[0], 10, -20, 'label') && yData.length < 2) {
+                                        yData.push(compareData["text"]);
+                                    }
+                                    //왼쪽으로 2개 문장 가져오기
+                                    if (bottomCheck(itemLoc[1], dataLoc[1], 50) && locationCheck(itemLoc[1], dataLoc[1], 0, -20, 'label') && xData.length < 2) {
+                                        xData.push(compareData["text"]);
+                                    }
+                                } else if (afterData.data[i].colType == 'E'){ // entry
+                                    //아래로 4개 문장 가져오기
+                                    if (bottomCheck(itemLoc[1], dataLoc[1], 10) && locationCheck(itemLoc[0], dataLoc[0], 10, -10, 'column') && yData.length < 4) {
+                                        yData.push(compareData["text"]);
+                                    }
+                                    //오른쪽으로 4개 문장 가져오기
+                                    if (bottomCheck(itemLoc[1], dataLoc[1], 10) && locationCheck(itemLoc[1], dataLoc[1], 10, -10, 'column') && xData.length < 4) {
+                                        xData.push(compareData["text"]);
+                                    }
+                                }
+                            }
+
+                            if (afterData.data[i].colType == 'L') {
+                                inputOcrData = [docType, beforeData.data[j].text, itemLoc[0], itemLoc[1], afterData.data[i].colLbl];
+                            } else if (afterData.data[i].colType == 'E'){
+                                inputOcrData = [docType, beforeData.data[j].text, itemLoc[0] + ',' + itemLoc[2], itemLoc[1] + ',' + itemLoc[3], docTopType];
+                            }
+                            for (var q = 0; q < 4; q++) {
+                                if (q < xData.length) {
+                                    inputOcrData.push(xData[q])
+                                } else {
+                                    inputOcrData.push(null)
+                                }
+                            }
+                            for (var q = 0; q < 4; q++) {
+                                if (q < yData.length) {
+                                    inputOcrData.push(yData[q])
+                                } else {
+                                    inputOcrData.push(null)
+                                }
+                            }
+
+                            beforeData.data[j].inputOcrData = afterData.data[i].inputOcrData = inputOcrData;
+                            beforeData.data[j].yData = afterData.data[i].yData = yData;
+                            beforeData.data[j].xData = afterData.data[i].xData = xData;
+
+                            sync.await(oracle.insertBatchColumnMapping(afterData.data[i], docType, beforeData.data[j], sync.defer()));
+
+                            /* 기존소스
                             var itemLoc = beforeData.data[j].location.split(",");
                             var yData = [];
                             var xData = [];
@@ -622,7 +681,6 @@ router.post('/modifyBatchUiTextData', function (req, res) {
 
                             beforeData.data[j].isLabel = afterData.data[i].isLabel = isLabel;
 
-
                             for (var k in beforeData.data) {
                                 if (k==j) {
                                     continue;
@@ -631,17 +689,13 @@ router.post('/modifyBatchUiTextData', function (req, res) {
                                 var dataLoc = compareData.location.split(",");
 
                                 if (isLabel) {
-                                    /*
-                                    //debug용도 
-                                    if (k=="25") {
-                                        console.log(compareData)
-                                    }
-                                    */
+
                                     //위로 2개 문장 가져오기
                                     if ( bottomCheck(itemLoc[1], dataLoc[1], 50) && locationCheck(itemLoc[0], dataLoc[0], 10, -20, 'label') && yData.length < 2 ) {
                                         yData.push(compareData["text"]);
                                     }
                                     //왼쪽으로 2개 문장 가져오기
+
                                     if ( bottomCheck(itemLoc[1], dataLoc[1], 50) && locationCheck(itemLoc[1], dataLoc[1], 0, -20, 'label') && xData.length < 2 ) {
                                         xData.push(compareData["text"]);
                                     }
@@ -681,23 +735,61 @@ router.post('/modifyBatchUiTextData', function (req, res) {
                                 }
                             }
 
-                            console.log(yData);
-                            console.log(xData);
                             beforeData.data[j].inputOcrData = afterData.data[i].inputOcrData = inputOcrData;
                             beforeData.data[j].yData = afterData.data[i].yData = yData;
                             beforeData.data[j].xData = afterData.data[i].xData = xData;
 
-                            
-                            
-                            
-                            //return false;
-
-
                             sync.await(oracle.insertBatchColumnMapping(afterData.data[i], docType, beforeData.data[j], sync.defer()));
+                            */
                         }
                     }
                 }
             }
+
+            returnObj = { code: 200, message: 'modify textData success' };
+
+        } catch (e) {
+            console.log(e);
+            returnObj = { code: 500, error: e };
+        } finally {
+            res.send(returnObj);
+        }
+    });
+});
+
+router.post('/modifyBatchUiTextDataV2', function (req, res) {
+    var beforeData = req.body.beforeData;
+    var afterData = req.body.afterData;
+    var predLabelData = req.body.predLabelData;
+    var predEntryData = req.body.predEntryData;
+    //var filepath = req.body.beforeData.fileinfo.filepath;
+
+    var returnObj;
+    sync.fiber(function () {
+        try {
+
+            for (var i in afterData.data) {
+                for (var j in beforeData.data) {
+                    if (afterData.data[i].location == beforeData.data[j].location) {
+                        //사용자가 글자를 직접 수정한 경우 TBL_CONTRACT_MAPPING에 insert
+                        if (afterData.data[i].text != beforeData.data[j].text) {
+                            var item = [beforeData.data[j].originText, '', afterData.data[i].text, ''];
+                            sync.await(oracle.insertContractMapping(item, sync.defer()));
+                            sync.await(oracle.insertSymspell(afterData.data[i], sync.defer()));
+                        }
+                        //사용자가 지정한 컬럼라벨의 텍스트가 유효한 컬럼의 경우 OcrSymspell에 before text(중요!!) insert
+                        if (afterData.data[i].colLbl >= 1) {
+                            sync.await(oracle.insertOcrSymsSingle(beforeData.data[j], sync.defer()));
+                        }
+                        afterData.data[i].sid = sync.await(oracle.selectSid(beforeData.data[j], sync.defer()));                       
+                    }
+                }
+            }
+
+            //label insert
+            sync.await(oracle.insertPredLabelMapping(predLabelData, sync.defer()));    
+            //entry insert
+            sync.await(oracle.insertPredEntryMapping(predEntryData, sync.defer()));    
 
             returnObj = { code: 200, message: 'modify textData success' };
 
