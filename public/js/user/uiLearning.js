@@ -1444,14 +1444,6 @@ function modifyTextData() {
     });
 }
 
-function predLabel() {
-
-}
-
-function predEntry() {
-
-}
-
 function makeTrainingData() {
     var trainData = {};
     trainData.data = [];
