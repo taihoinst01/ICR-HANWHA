@@ -604,6 +604,65 @@ router.post('/modifyBatchUiTextData', function (req, res) {
                         afterData.data[i].sid = sync.await(oracle.selectSid(beforeData.data[j], sync.defer()));
                         //라벨이 변경된 경우만 트레이닝 insert
                         if ((afterData.data[i].colLbl != beforeData.data[j].colLbl && beforeData.data[j].colLbl >= -1) || (beforeData.data[j].entryLbl != afterData.data[i].colLbl && beforeData.data[j].entryLbl > 0)) {
+                            // 현재소스
+                            var itemLoc = beforeData.data[j].location.split(",");
+                            var yData = [];
+                            var xData = [];
+
+                            for (var k in beforeData.data) {
+                                if (k == j) continue;
+                                var compareData = beforeData.data[k];
+                                var dataLoc = compareData.location.split(",");
+                                var inputOcrData;
+
+                                if (afterData.data[i].colType == 'L') { // label
+                                    //위로 2개 문장 가져오기
+                                    if (bottomCheck(itemLoc[1], dataLoc[1], 50) && locationCheck(itemLoc[0], dataLoc[0], 10, -20, 'label') && yData.length < 2) {
+                                        yData.push(compareData["text"]);
+                                    }
+                                    //왼쪽으로 2개 문장 가져오기
+                                    if (bottomCheck(itemLoc[1], dataLoc[1], 50) && locationCheck(itemLoc[1], dataLoc[1], 0, -20, 'label') && xData.length < 2) {
+                                        xData.push(compareData["text"]);
+                                    }
+                                } else if (afterData.data[i].colType == 'E'){ // entry
+                                    //아래로 4개 문장 가져오기
+                                    if (bottomCheck(itemLoc[1], dataLoc[1], 10) && locationCheck(itemLoc[0], dataLoc[0], 10, -10, 'column') && yData.length < 4) {
+                                        yData.push(compareData["text"]);
+                                    }
+                                    //오른쪽으로 4개 문장 가져오기
+                                    if (bottomCheck(itemLoc[1], dataLoc[1], 10) && locationCheck(itemLoc[1], dataLoc[1], 10, -10, 'column') && xData.length < 4) {
+                                        xData.push(compareData["text"]);
+                                    }
+                                }
+                            }
+
+                            if (afterData.data[i].colType == 'L') {
+                                inputOcrData = [docType, beforeData.data[j].text, itemLoc[0], itemLoc[1], afterData.data[i].colLbl];
+                            } else if (afterData.data[i].colType == 'E'){
+                                inputOcrData = [docType, beforeData.data[j].text, itemLoc[0] + ',' + itemLoc[2], itemLoc[1] + ',' + itemLoc[3], docTopType];
+                            }
+                            for (var q = 0; q < 4; q++) {
+                                if (q < xData.length) {
+                                    inputOcrData.push(xData[q])
+                                } else {
+                                    inputOcrData.push(null)
+                                }
+                            }
+                            for (var q = 0; q < 4; q++) {
+                                if (q < yData.length) {
+                                    inputOcrData.push(yData[q])
+                                } else {
+                                    inputOcrData.push(null)
+                                }
+                            }
+
+                            beforeData.data[j].inputOcrData = afterData.data[i].inputOcrData = inputOcrData;
+                            beforeData.data[j].yData = afterData.data[i].yData = yData;
+                            beforeData.data[j].xData = afterData.data[i].xData = xData;
+
+                            sync.await(oracle.insertBatchColumnMapping(afterData.data[i], docType, beforeData.data[j], sync.defer()));
+
+                            /* 기존소스
                             var itemLoc = beforeData.data[j].location.split(",");
                             var yData = [];
                             var xData = [];
@@ -622,7 +681,6 @@ router.post('/modifyBatchUiTextData', function (req, res) {
 
                             beforeData.data[j].isLabel = afterData.data[i].isLabel = isLabel;
 
-
                             for (var k in beforeData.data) {
                                 if (k==j) {
                                     continue;
@@ -631,17 +689,13 @@ router.post('/modifyBatchUiTextData', function (req, res) {
                                 var dataLoc = compareData.location.split(",");
 
                                 if (isLabel) {
-                                    /*
-                                    //debug용도 
-                                    if (k=="25") {
-                                        console.log(compareData)
-                                    }
-                                    */
+
                                     //위로 2개 문장 가져오기
                                     if ( bottomCheck(itemLoc[1], dataLoc[1], 50) && locationCheck(itemLoc[0], dataLoc[0], 10, -20, 'label') && yData.length < 2 ) {
                                         yData.push(compareData["text"]);
                                     }
                                     //왼쪽으로 2개 문장 가져오기
+
                                     if ( bottomCheck(itemLoc[1], dataLoc[1], 50) && locationCheck(itemLoc[1], dataLoc[1], 0, -20, 'label') && xData.length < 2 ) {
                                         xData.push(compareData["text"]);
                                     }
@@ -681,19 +735,12 @@ router.post('/modifyBatchUiTextData', function (req, res) {
                                 }
                             }
 
-                            console.log(yData);
-                            console.log(xData);
                             beforeData.data[j].inputOcrData = afterData.data[i].inputOcrData = inputOcrData;
                             beforeData.data[j].yData = afterData.data[i].yData = yData;
                             beforeData.data[j].xData = afterData.data[i].xData = xData;
 
-                            
-                            
-                            
-                            //return false;
-
-
                             sync.await(oracle.insertBatchColumnMapping(afterData.data[i], docType, beforeData.data[j], sync.defer()));
+                            */
                         }
                     }
                 }

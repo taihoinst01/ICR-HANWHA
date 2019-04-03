@@ -1400,6 +1400,8 @@ function uiTrainEvent() {
 function modifyTextData() {
     var beforeData = [modifyData];
     var afterData = {};
+    var predLabelData = [];
+    var predEntryData = [];
     afterData.data = [];
     beforeData = beforeData.slice(0);
 
@@ -1416,8 +1418,9 @@ function modifyTextData() {
     $('#textResultTbl > dl').each(function (index, el) {
         var location = $(el).find('label').children().eq(1).val();
         var text = $(el).find('label').children().eq(0).val();
-        var colLbl = $(el).find('select').find('option:selected').val();
-        afterData.data.push({ 'location': location, 'text': text, 'colLbl': colLbl });
+        var colType = $(el).find('select').eq(0).find('option:selected').val();
+        var colLbl = $(el).find('select').eq(1).find('option:selected').val();
+        afterData.data.push({ 'location': location, 'text': text, 'colLbl': colLbl, 'colType': colType });
     });
 
     // find an array of data with the same filename
@@ -1439,6 +1442,14 @@ function modifyTextData() {
             console.log(err);
         }
     });
+}
+
+function predLabel() {
+
+}
+
+function predEntry() {
+
 }
 
 function makeTrainingData() {
@@ -1957,6 +1968,18 @@ function appendSelOptionHtml(targetColumn, columns, docTopType) {
     return selectHTML;
 }
 
+function appendSelOptionHtmlFromLabel(type) {
+
+    var selectHTML = '<select class="docLabel">';
+    selectHTML += '<option value="U">Unknown</option>';
+    if (type == 'L') selectHTML += '<option value="L" selected>Label</option>';
+    else selectHTML += '<option value="L">Label</option>';
+    if (type == 'E') selectHTML += '<option value="E" selected>Entry</option>';
+    else selectHTML += '<option value="E">Entry</option>';
+    selectHTML += '</select>';
+
+    return selectHTML;
+}
 // UI 레이어 화면 구성 함수
 function uiLayerHtml(data) {
     var mlData = data.data[0].data;
@@ -2100,12 +2123,15 @@ function uiLayerHtml(data) {
                 tblTag += '<input type="hidden" value="' + filePath + '" />';
                 tblTag += '</label>';
                 tblTag += '</dt>';
-                tblTag += '<dd>';
+                tblTag += '<dd class="columnSelect" style="width:20.9% !important;">';
+                tblTag += appendSelOptionHtmlFromLabel('E');
+                tblTag += '</dd>';
+                tblTag += '<dd style="width:0.1% !important;">';
                 tblTag += '<input type="checkbox" style="display:none" class="entryChk" checked>';
                 tblTag += '</dd>';
                 tblTag += '<dd class="columnSelect" style="display:none">';
                 tblTag += '</dd>';
-                tblTag += '<dd class="entrySelect">';
+                tblTag += '<dd class="entrySelect" style="width:27% !important;">';
                 tblTag += appendSelOptionHtml((mlData[i].entryLbl + '') ? mlData[i].entryLbl : 999, labelData, docToptype);
                 tblTag += '</dd>';
                 tblTag += '</dl>';
@@ -2118,10 +2144,13 @@ function uiLayerHtml(data) {
                 tblSortTag += '<input type="hidden" value="' + filePath + '" />';
                 tblSortTag += '</label>';
                 tblSortTag += '</dt>';
-                tblSortTag += '<dd>';
+                tblSortTag += '<dd class="columnSelect" style="width:20.9% !important;">';
+                tblSortTag += appendSelOptionHtmlFromLabel('L');
+                tblSortTag += '</dd>';
+                tblSortTag += '<dd style="width:0.1% !important;">';
                 tblSortTag += '';
                 tblSortTag += '</dd>';
-                tblSortTag += '<dd class="columnSelect">';
+                tblSortTag += '<dd class="columnSelect" style="width:27% !important;">';
                 tblSortTag += appendSelOptionHtml((mlData[i].colLbl + '') ? mlData[i].colLbl : 999, labelData, docToptype);
                 tblSortTag += '</dd>';
                 tblSortTag += '<dd class="entrySelect" style="display:none">';
@@ -2136,10 +2165,13 @@ function uiLayerHtml(data) {
                 tblSortTag += '<input type="hidden" value="' + filePath + '" />';
                 tblSortTag += '</label>';
                 tblSortTag += '</dt>';
-                tblSortTag += '<dd>';
+                tblSortTag += '<dd class="columnSelect" style="width:20.9% !important;">';
+                tblSortTag += appendSelOptionHtmlFromLabel();
+                tblSortTag += '</dd>';
+                tblSortTag += '<dd style="width:0.1% !important;">';
                 tblSortTag += '';
                 tblSortTag += '</dd>';
-                tblSortTag += '<dd class="columnSelect">';
+                tblSortTag += '<dd class="columnSelect" style="width:27% !important;">';
                 tblSortTag += appendSelOptionHtml((mlData[i].colLbl + '') ? mlData[i].colLbl : 999, labelData, docToptype);
                 tblSortTag += '</dd>';
                 tblSortTag += '<dd class="entrySelect" style="display:none">';

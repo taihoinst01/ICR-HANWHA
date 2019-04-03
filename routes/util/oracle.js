@@ -506,9 +506,9 @@ exports.insertBatchColumnMapping = function (req, docTopType, before, done) {
 
 
            var ocrData = req.inputOcrData;
-            if (req.isLabel) {
+            if (req.colType == 'L') {
                 await conn.execute(insertNewSqlLabelText, [ocrData[0]+"", ocrData[1], ocrData[2], ocrData[3], ocrData[4], ocrData[5], ocrData[6], ocrData[7], ocrData[8], ocrData[9], ocrData[10], ocrData[11], ocrData[12]]);
-            } else {
+            } else if (req.colType == 'E') {
                 await conn.execute(insertNewSqlText, [req.colLbl+"", ocrData[0]+"", ocrData[1], ocrData[2], ocrData[3]
                 //, ocrData[5], ocrData[6], ocrData[7], ocrData[8], ocrData[9], ocrData[10], ocrData[11], ocrData[12]
                 //, ocrData[13], ocrData[14], ocrData[15], ocrData[16], ocrData[17]
