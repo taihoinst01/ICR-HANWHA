@@ -4915,3 +4915,60 @@ exports.selectIcrSymspell = function (req, done) {
 		}
 	});
 };
+
+exports.insertPredLabelMapping = function (req, done) {
+    return new Promise(async function (resolve, reject) {
+        let conn;
+
+        try {
+            conn = await oracledb.getConnection(dbConfig);
+            let query = "INSERT INTO TBL_PRED_LABEL_MAPPING(SEQNUM, DOCTYPE, LOCATION, OCRTEXT, CLASS, REGDATE, LEFTTEXT, DOWNTEXT, STATUS) VALUES " +
+                "(SEQ_PRED_LABEL_MAPPING.NEXTVAL, :docType, :location, :ocrText, :class, sysdate, :leftText, :downText, '0')";
+            for (var i in req) {
+                await conn.execute(query, [req[i].docType, req[i].location, req[i].ocrText, req[i].class, req[i].leftText, req[i].downText]);
+            }
+            return done(null, null);
+        } catch (err) { // catches errors in getConnection and the query
+            reject(err);
+        } finally {
+            if (conn) {   // the conn assignment worked, must release
+                try {
+                    await conn.release();
+                } catch (e) {
+                    console.error(e);
+                }
+            }
+        }
+    });
+};
+
+exports.insertPredEntryMapping = function (req, done) {
+    return new Promise(async function (resolve, reject) {
+        let conn;
+
+        try {
+            conn = await oracledb.getConnection(dbConfig);
+            let query = "INSERT INTO TBL_PRED_ENTRY_MAPPING(SEQNUM, DOCTYPE, LOCATION, OCRTEXT" +
+                ", CLASS, REGDATE, LEFTLABEL, LEFTLOCX, LEFTLOCY, UPLABEL, UPLOCX, UPLOCY" +
+                ", DIAGONALLABEL, DIAGONALLOCX, DIAGONALLOCY, STATUS) VALUES " +
+                "(SEQ_PRED_ENTRY_MAPPING.NEXTVAL, :docType, :location, :ocrText, :class, sysdate, :leftLabel, :leftLocX, :leftLocY" +
+                ", :upLabel, :upLocX, :upLocY, :diagonalLabel, :diagonalLocX, :diagonaltLocY, '0')";
+            for (var i in req) {
+                await conn.execute(query, [req[i].docType, req[i].location, req[i].ocrText, req[i].class,
+                    req[i].leftLabel, req[i].leftLocX, req[i].leftLocY, req[i].upLabel, req[i].upLocX, req[i].upLocY,
+                    req[i].diagonalLabel, req[i].diagonalLocX, req[i].diagonaltLocY]);
+            }
+            return done(null, null);
+        } catch (err) { // catches errors in getConnection and the query
+            reject(err);
+        } finally {
+            if (conn) {   // the conn assignment worked, must release
+                try {
+                    await conn.release();
+                } catch (e) {
+                    console.error(e);
+                }
+            }
+        }
+    });
+};

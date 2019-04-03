@@ -1442,6 +1442,221 @@ function modifyTextData() {
             console.log(err);
         }
     });
+
+    /*
+     var predLabelData = predLabel(beforeData, afterData);
+     var predEntryData = predEntry(beforeData, afterData);
+
+     $.ajax({
+        url: '/common/modifyBatchUiTextDataV2',
+        type: 'post',
+        datatype: "json",
+        data: JSON.stringify({
+            'beforeData': beforeData, 'afterData': afterData,
+            'predLabelData': predLabelData, 'predEntryData': predEntryData
+        }),
+        contentType: 'application/json; charset=UTF-8',
+        beforeSend: function () {
+            $("#progressMsgTitle").html("retrieving learn data...");
+            progressId = showProgressBar();
+        },
+        success: function (data) {
+            fn_alert('alert', "success training");
+            endProgressBar(progressId);
+        },
+        error: function (err) {
+            console.log(err);
+        }
+    });
+     */
+}
+
+function predLabel(beforeData, afterData) {
+    var ocrData = afterData.data;
+    var dbInsertData = []; // DB insert json array
+
+    for (var i in ocrData) {
+        if (ocrData[i].colType == 'L' && ocrData[i].colLbl && ocrData[i].colLbl != -1) { // label
+            var insertItem = {};
+            insertItem.docType = beforeData.docCategory.DOCTYPE;
+            insertItem.location = ocrData[i].location;
+            insertItem.ocrText = ocrData[i].text;
+            insertItem.class = ocrData[i].colLbl;
+            insertItem.leftText = scanTextFromLabel(ocrData, ocrData[i], "LEFT");
+            insertItem.downText = scanTextFromLabel(ocrData, ocrData[i], "DOWN");
+            dbInsertData.push(insertItem);
+        }
+    }
+
+    return dbInsertData;
+}
+
+function scanTextFromLabel(ocrData, target, type) {
+    var returnObj = ''
+    var minDist = 3000;
+    if (type == 'LEFT') {
+        var yPadding = 0;
+        var targetLoc = target.location.split(",");
+        var targetLeftTopLoc = Number(targetLoc[1]) - yPadding; // 좌상단 y좌표
+        var targetLeftBottomLoc = Number(targetLoc[1]) + Number(targetLoc[3]) + yPadding; // 좌하단 y좌표
+        var targetXPoint = Number(targetLoc[0]); // x좌표 기준점
+        var targetYPoint = Number(targetLoc[1]) + (Number(targetLoc[3]) / 2); // y좌표 기준점
+
+        for (var i in ocrData) {
+            var itemLoc = ocrData[i].location.split(",");
+            var itemXPoint = Number(itemLoc[0]) + Number(itemLoc[2]);
+            var itemYPoint = Number(itemLoc[1]) + (Number(itemLoc[3]) / 2);
+            if (target != ocrData[i] && itemYPoint >= targetLeftTopLoc && itemYPoint <= targetLeftBottomLoc && itemXPoint < targetXPoint) {
+                var dx = targetXPoint - itemXPoint;
+                var dy = targetYPoint - itemYPoint;
+                var currentDist = Math.sqrt((dx * dx) + (dy * dy));
+                if (currentDist < minDist) {
+                    minDist = currentDist;
+                    returnObj = ocrData[i].text;
+                }
+            }
+        }
+    } else if (type == 'DOWN') {
+        var xPadding = 0;
+        var targetLoc = target.location.split(",");
+        var targetLeftTopLoc = Number(targetLoc[0]) - xPadding; // 좌상단 x좌표
+        var targetRightTopLoc = Number(targetLoc[0]) + Number(targetLoc[2]) + xPadding; // 우상단 x좌표
+        var targetXPoint = Number(targetLoc[0]) + (Number(targetLoc[2]) / 2); // x좌표 기준점
+        var targetYPoint = Number(targetLoc[1]) + Number(targetLoc[3]); // y좌표 기준점
+
+        for (var i in ocrData) {
+            var itemLoc = ocrData[i].location.split(",");
+            var itemXPoint = Number(itemLoc[0]) + (Number(itemLoc[2]) / 2);
+            var itemYPoint = Number(itemLoc[1]);
+            if (target != ocrData[i] && itemXPoint >= targetLeftTopLoc && itemXPoint <= targetRightTopLoc && itemYPoint > targetYPoint) {
+                var dx = targetXPoint - itemXPoint;
+                var dy = targetYPoint - itemYPoint;
+                var currentDist = Math.sqrt((dx * dx) + (dy * dy));
+                if (currentDist < minDist) {
+                    minDist = currentDist;
+                    returnObj = ocrData[i].text;
+                }
+            }
+        }
+    }
+
+    if (returnObj == '') returnObj = null;
+    else returnObj = returnObj.replace(/ /g, "");
+
+    return returnObj;
+}
+
+function predEntry(beforeData, afterData) {
+    var ocrData = afterData.data;
+    var dbInsertData = []; // DB insert json array
+
+    for (var i in ocrData) {
+        if (ocrData[i].colType == 'E') { // entry            
+            var insertItem = {};
+            insertItem.docType = beforeData.docCategory.DOCTYPE;
+            insertItem.location = ocrData[i].location;
+            insertItem.ocrText = ocrData[i].text;
+            insertItem.class = ocrData[i].colLbl;
+            insertItem = scanTextFromEntry(ocrData, ocrData[i], insertItem, "LEFT");
+            insertItem = scanTextFromEntry(ocrData, ocrData[i], insertItem, "UP");
+            insertItem = scanTextFromEntry(ocrData, ocrData[i], insertItem, "DIAGONAL");
+            dbInsertData.push(insertItem);
+        }
+    }
+    return dbInsertData;
+}
+
+function scanTextFromEntry(ocrData, target, insertItem, type) {
+    var resultObj = {};
+    var minDist = 3000;
+    if (type == 'LEFT') {
+        var yPadding = 0;
+        var targetLoc = target.location.split(",");
+        var targetLeftTopLoc = Number(targetLoc[1]) - yPadding; // 좌상단 y좌표
+        var targetLeftBottomLoc = Number(targetLoc[1]) + Number(targetLoc[3]) + yPadding; // 좌하단 y좌표
+        var targetXPoint = Number(targetLoc[0]); // x좌표 기준점
+        var targetYPoint = Number(targetLoc[1]) + (Number(targetLoc[3]) / 2); // y좌표 기준점
+
+        for (var i in ocrData) {
+            var itemLoc = ocrData[i].location.split(",");
+            var itemXPoint = Number(itemLoc[0]) + Number(itemLoc[2]);
+            var itemYPoint = Number(itemLoc[1]) + (Number(itemLoc[3]) / 2);
+            if (target != ocrData[i] && itemYPoint >= targetLeftTopLoc && itemYPoint <= targetLeftBottomLoc && itemXPoint < targetXPoint) {
+                var dx = targetXPoint - itemXPoint;
+                var dy = targetYPoint - itemYPoint;
+                var currentDist = Math.sqrt((dx * dx) + (dy * dy));
+                if (currentDist < minDist && (ocrData[i].colType == 'L' && ocrData[i].colLbl && ocrData[i].colLbl != -1 && ocrData[i].colLbl != 380)) {
+                    minDist = currentDist;
+                    resultObj.text = ocrData[i].text;
+                    resultObj.xLoc = itemXPoint - targetXPoint;
+                    resultObj.yLoc = itemYPoint - targetYPoint;
+                }
+            }
+        }
+
+        insertItem.leftLabel = (resultObj.text != undefined) ? resultObj.text.replace(/ /g, "") : null;
+        insertItem.leftLocX = (resultObj.xLoc != undefined) ? resultObj.xLoc : null;
+        insertItem.leftLocY = (resultObj.yLoc != undefined) ? resultObj.yLoc : null;
+    } else if (type == 'UP') {
+        var xPadding = 0;
+        var targetLoc = target.location.split(",");
+        var targetLeftTopLoc = Number(targetLoc[0]) - xPadding; // 좌상단 x좌표
+        var targetRightTopLoc = Number(targetLoc[0]) + Number(targetLoc[2]) + xPadding; // 우상단 x좌표
+        var targetXPoint = Number(targetLoc[0]) + (Number(targetLoc[2]) / 2); // x좌표 기준점
+        var targetYPoint = Number(targetLoc[1]); // y좌표 기준점
+
+        for (var i in ocrData) {
+            var itemLoc = ocrData[i].location.split(",");
+            var itemXPoint = Number(itemLoc[0]) + (Number(itemLoc[2]) / 2);
+            var itemYPoint = Number(itemLoc[1]) + Number(itemLoc[3]);
+            if (target != ocrData[i] && itemXPoint >= targetLeftTopLoc && itemXPoint <= targetRightTopLoc && itemYPoint < targetYPoint) {
+                var dx = targetXPoint - itemXPoint;
+                var dy = targetYPoint - itemYPoint;
+                var currentDist = Math.sqrt((dx * dx) + (dy * dy));
+                if (currentDist < minDist && (ocrData[i].colType == 'L' && ocrData[i].colLbl && ocrData[i].colLbl != -1 && ocrData[i].colLbl != 380)) {
+                    minDist = currentDist;
+                    resultObj.text = ocrData[i].text;
+                    resultObj.xLoc = itemXPoint - targetXPoint;
+                    resultObj.yLoc = itemYPoint - targetYPoint;
+                }
+            }
+        }
+
+        insertItem.upLabel = (resultObj.text != undefined) ? resultObj.text.replace(/ /g, "") : null;
+        insertItem.upLocX = (resultObj.xLoc != undefined) ? resultObj.xLoc : null;
+        insertItem.upLocY = (resultObj.yLoc != undefined) ? resultObj.yLoc : null;
+    } else if (type == 'DIAGONAL') {
+        var xPadding = 0;
+        var yPadding = 0;
+        var targetLoc = target.location.split(",");
+        var targetLeftTopXLoc = Number(targetLoc[0]) + xPadding; // 좌상단 x좌표
+        var targetLeftTopYLoc = Number(targetLoc[1]) + yPadding; // 좌상단 y좌표
+        var targetXPoint = Number(targetLoc[0]); // x좌표 기준점
+        var targetYPoint = Number(targetLoc[1]); // y좌표 기준점
+
+        for (var i in ocrData) {
+            var itemLoc = ocrData[i].location.split(",");
+            var itemXPoint = Number(itemLoc[0]) + Number(itemLoc[2]);
+            var itemYPoint = Number(itemLoc[1]) + Number(itemLoc[3]);
+            if (target != ocrData[i] && itemXPoint < targetLeftTopXLoc && itemYPoint < targetLeftTopYLoc) {
+                var dx = targetXPoint - itemXPoint;
+                var dy = targetYPoint - itemYPoint;
+                var currentDist = Math.sqrt((dx * dx) + (dy * dy));
+                if (currentDist < minDist && (ocrData[i].colType == 'L' && ocrData[i].colLbl && ocrData[i].colLbl != -1 && ocrData[i].colLbl != 380)) {
+                    minDist = currentDist;
+                    resultObj.text = ocrData[i].text;
+                    resultObj.xLoc = itemXPoint - targetXPoint;
+                    resultObj.yLoc = itemYPoint - targetYPoint;
+                }
+            }
+        }
+
+        insertItem.diagonalLabel = (resultObj.text != undefined) ? resultObj.text.replace(/ /g, "") : null;
+        insertItem.diagonalLocX = (resultObj.xLoc != undefined) ? resultObj.xLoc : null;
+        insertItem.diagonalLocY = (resultObj.yLoc != undefined) ? resultObj.yLoc : null;
+    }
+
+    return insertItem;
 }
 
 function makeTrainingData() {
