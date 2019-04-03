@@ -4921,10 +4921,24 @@ exports.insertPredLabelMapping = function (req, done) {
         let conn;
 
         try {
+            /* CASE
+            1. unknown -> label : label mapping table insert
+            2. entry -> label : entry mapping table status 1 update, label mapping table insert
+            */
             conn = await oracledb.getConnection(dbConfig);
-            let query = "INSERT INTO TBL_PRED_LABEL_MAPPING(SEQNUM, DOCTYPE, LOCATION, OCRTEXT, CLASS, REGDATE, LEFTTEXT, DOWNTEXT, STATUS) VALUES " +
+            let query = "SELECT DOCTYPE, LOCATION, OCRTEXT FROM TBL_PRED_ENTRY_MAPPING WHERE STATUS = '0'";
+            let result = await conn.execute(query);
+            let entryQuery = "UPDATE TBL_PRED_ENTRY_MAPPING SET STATUS = '1' WHERE docType = :docType and location = :location and ocrText = :ocrText";
+
+            query = "INSERT INTO TBL_PRED_LABEL_MAPPING(SEQNUM, DOCTYPE, LOCATION, OCRTEXT, CLASS, REGDATE, LEFTTEXT, DOWNTEXT, STATUS) VALUES " +
                 "(SEQ_PRED_LABEL_MAPPING.NEXTVAL, :docType, :location, :ocrText, :class, sysdate, :leftText, :downText, '0')";
             for (var i in req) {
+                for (var j in result.rows) {
+                    if (req[i].docType == result.rows[j].DOCTYPE && req[i].location == result.rows[j].LOCATION && req[i].ocrText == result.rows[j].OCRTEXT) {
+                        await conn.execute(entryQuery, [req[i].docType, req[i].location, req[i].ocrText]);
+                        break;
+                    }
+                }
                 await conn.execute(query, [req[i].docType, req[i].location, req[i].ocrText, req[i].class, req[i].leftText, req[i].downText]);
             }
             return done(null, null);
@@ -4947,13 +4961,27 @@ exports.insertPredEntryMapping = function (req, done) {
         let conn;
 
         try {
+            /* CASE
+            1. unknown -> entry : label mapping table insert
+            2. label -> entry : label mapping table status 1 update, entry mapping table insert
+            */
             conn = await oracledb.getConnection(dbConfig);
+            let query = "SELECT DOCTYPE, LOCATION, OCRTEXT FROM TBL_PRED_LABEL_MAPPING WHERE STATUS = '0'";
+            let result = await conn.execute(query);
+            let labelQuery = "UPDATE TBL_PRED_LABEL_MAPPING SET STATUS = '1' WHERE docType = :docType and location = :location and ocrText = :ocrText";
+
             let query = "INSERT INTO TBL_PRED_ENTRY_MAPPING(SEQNUM, DOCTYPE, LOCATION, OCRTEXT" +
                 ", CLASS, REGDATE, LEFTLABEL, LEFTLOCX, LEFTLOCY, UPLABEL, UPLOCX, UPLOCY" +
                 ", DIAGONALLABEL, DIAGONALLOCX, DIAGONALLOCY, STATUS) VALUES " +
                 "(SEQ_PRED_ENTRY_MAPPING.NEXTVAL, :docType, :location, :ocrText, :class, sysdate, :leftLabel, :leftLocX, :leftLocY" +
                 ", :upLabel, :upLocX, :upLocY, :diagonalLabel, :diagonalLocX, :diagonaltLocY, '0')";
             for (var i in req) {
+                for (var j in result.rows) {
+                    if (req[i].docType == result.rows[j].DOCTYPE && req[i].location == result.rows[j].LOCATION && req[i].ocrText == result.rows[j].OCRTEXT) {
+                        await conn.execute(labelQuery, [req[i].docType, req[i].location, req[i].ocrText]);
+                        break;
+                    }
+                }
                 await conn.execute(query, [req[i].docType, req[i].location, req[i].ocrText, req[i].class,
                     req[i].leftLabel, req[i].leftLocX, req[i].leftLocY, req[i].upLabel, req[i].upLocX, req[i].upLocY,
                     req[i].diagonalLabel, req[i].diagonalLocX, req[i].diagonaltLocY]);
