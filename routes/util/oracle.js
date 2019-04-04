@@ -4970,7 +4970,7 @@ exports.insertPredEntryMapping = function (req, done) {
             let result = await conn.execute(query);
             let labelQuery = "UPDATE TBL_PRED_LABEL_MAPPING SET STATUS = '1' WHERE docType = :docType and location = :location and ocrText = :ocrText";
 
-            let query = "INSERT INTO TBL_PRED_ENTRY_MAPPING(SEQNUM, DOCTYPE, LOCATION, OCRTEXT" +
+            query = "INSERT INTO TBL_PRED_ENTRY_MAPPING(SEQNUM, DOCTYPE, LOCATION, OCRTEXT" +
                 ", CLASS, REGDATE, LEFTLABEL, LEFTLOCX, LEFTLOCY, UPLABEL, UPLOCX, UPLOCY" +
                 ", DIAGONALLABEL, DIAGONALLOCX, DIAGONALLOCY, STATUS) VALUES " +
                 "(SEQ_PRED_ENTRY_MAPPING.NEXTVAL, :docType, :location, :ocrText, :class, sysdate, :leftLabel, :leftLocX, :leftLocY" +
