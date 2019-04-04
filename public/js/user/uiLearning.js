@@ -1425,8 +1425,8 @@ function modifyTextData() {
         afterData.data.push({ 'location': location, 'text': text, 'colLbl': colLbl, 'colType': colType });
     });
 
-    beforeData.decCategory.DOCTYPE = ($('#docType').val() != '') ? $('#docType').val() : beforeData.decCategory.DOCTYPE;
-    beforeData.decCategory.DOCTOPTYPE = ($('#docTopType').val() != '') ? $('#docTopType').val() : beforeData.decCategory.DOCTOPTYPE;
+    beforeData.docCategory.DOCTYPE = ($('#docType').val() != '') ? Number($('#docType').val()) : beforeData.docCategory.DOCTYPE;
+    beforeData.docCategory.DOCTOPTYPE = ($('#docTopType').val() != '') ? Number($('#docTopType').val()) : beforeData.docCategory.DOCTOPTYPE;
     var predLabelData = predLabel(beforeData, afterData);
     var predEntryData = predEntry(beforeData, afterData);
 

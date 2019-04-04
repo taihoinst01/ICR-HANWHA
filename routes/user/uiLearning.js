@@ -1304,12 +1304,12 @@ router.post('/insertDoctypeMapping', function (req, res) {
 			pythonConfig.columnMappingOptions.args = [];
 			pythonConfig.columnMappingOptions.args.push(encode);
 
-			console.log("pythonConfig.documentSentenceOptions");
-			console.log(pythonConfig.columnMappingOptions);
-			console.log("pythonConfig.documentSentenceOptions");
+			//console.log("pythonConfig.documentSentenceOptions");
+			//console.log(pythonConfig.columnMappingOptions);
+			//console.log("pythonConfig.documentSentenceOptions");
 
 			var retResult = sync.await(PythonShell.run('docSentenceClassify.py', pythonConfig.columnMappingOptions, sync.defer()));
-			console.log(retResult);
+			//console.log(retResult);
 		} catch (e) {
 			console.log(e);
 			returnObj = { code: 500, message: e };

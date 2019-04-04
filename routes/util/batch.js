@@ -34,8 +34,8 @@ function insertDoctypeMapping(req, done) {
             var convertedFilepath;
             var bannedWord;
 
-			console.log(data.docSentenceList);
-			console.log(data.docSentenceList[1]);
+			//console.log(data.docSentenceList);
+			//console.log(data.docSentenceList[1]);
 
 			if (data.docSentenceList.length > 0) {
 
@@ -72,7 +72,7 @@ function insertDoctypeMapping(req, done) {
 
                 //20180911 TBL_FORM_MAPPING 에 5개문장의 sid 와 doctype값 insert
 				//insertFormMapping(topSentenses, docType);
-				console.log(data.docTopType);
+				//console.log(data.docTopType);
 				docTopType = data.docTopType;
 				insertDocumentSentence(similarSentences, docType, similarSentences.length, docTopType);
             } else if (data.radioType == '3') {
