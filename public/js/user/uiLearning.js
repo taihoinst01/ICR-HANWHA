@@ -148,6 +148,8 @@ function popUpRunEvent() {
                 // 해당 로우 화면상 테이블에서 삭제
                 endProgressBar(progressId);
                 var rowNum = $('#batchListRowNum').val();
+                $('#docType').val(data.docType);
+                $('#docTopType').val(data.docTopType);
                 //$('#leftRowNum_' + rowNum).find('td:eq(2) a').html(data.docName);
                 //$('#leftRowNum_' + rowNum).find('td:eq(2) input[name=docType]').val(data.docType);
                 $('#docName').html(data.docName);
@@ -1423,6 +1425,8 @@ function modifyTextData() {
         afterData.data.push({ 'location': location, 'text': text, 'colLbl': colLbl, 'colType': colType });
     });
 
+    beforeData.decCategory.DOCTYPE = ($('#docType').val() != '') ? $('#docType').val() : beforeData.decCategory.DOCTYPE;
+    beforeData.decCategory.DOCTOPTYPE = ($('#docTopType').val() != '') ? $('#docTopType').val() : beforeData.decCategory.DOCTOPTYPE;
     var predLabelData = predLabel(beforeData, afterData);
     var predEntryData = predEntry(beforeData, afterData);
 
@@ -2420,7 +2424,7 @@ $(document).on('change', '#uiDocTopType', function(){
 
                 $('.docLabel:even').empty().append(appendSelectLEOptionHtml);
                 $('.docLabel:odd').empty().append(appendSelectOptionHtml);
-
+                $('#docTopType').val($('#uiDocTopType').val());
             } else {
                 fn_alert('alert', data.message);
             }

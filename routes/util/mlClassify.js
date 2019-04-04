@@ -184,7 +184,7 @@ function findEntry(req,docTypeVal, docTopTypeVal, done) {
             var variLabel = [];
             let docTopTypeParam = [docTopTypeVal];
             let docTypeParam = [docTypeVal];
-            
+            /*
             let labelRows = sync.await(oracle.selectDocIdLabelDefList(docTopTypeParam, sync.defer()));
             
             for(var i in labelRows)
@@ -212,7 +212,7 @@ function findEntry(req,docTypeVal, docTopTypeVal, done) {
                     variLabel.push(labelRows[i].SEQNUM);
                 }
             }    
-
+            */
             //label data 추출
             let labelTrainRows = sync.await(oracle.selectLabelTrainDataList(docTypeParam, sync.defer()));
 
