@@ -581,6 +581,8 @@ router.post('/modifyTextData', function (req, res) {
 router.post('/modifyBatchUiTextData', function (req, res) {
     var beforeData = req.body.beforeData;
     var afterData = req.body.afterData;
+    var predLabelData = req.body.predLabelData;
+    var predEntryData = req.body.predEntryData;
     //var filepath = req.body.beforeData.fileinfo.filepath;
     var docTopType = beforeData.docCategory.DOCTOPTYPE;
     var docType = beforeData.docCategory.DOCTYPE;
@@ -660,7 +662,7 @@ router.post('/modifyBatchUiTextData', function (req, res) {
                             beforeData.data[j].yData = afterData.data[i].yData = yData;
                             beforeData.data[j].xData = afterData.data[i].xData = xData;
 
-                            sync.await(oracle.insertBatchColumnMapping(afterData.data[i], docType, beforeData.data[j], sync.defer()));
+                            sync.await(oracle.insertBatchColumnMapping(afterData.data[i], docType, beforeData.data[j], sync.defer()));  
 
                             /* 기존소스
                             var itemLoc = beforeData.data[j].location.split(",");
@@ -745,6 +747,11 @@ router.post('/modifyBatchUiTextData', function (req, res) {
                     }
                 }
             }
+
+            //label prediction ML DB insert
+            sync.await(oracle.insertPredLabelMapping(predLabelData, sync.defer()));
+            //entry prediction ML DB insert
+            sync.await(oracle.insertPredEntryMapping(predEntryData, sync.defer()));
 
             returnObj = { code: 200, message: 'modify textData success' };
 

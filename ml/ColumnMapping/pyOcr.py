@@ -14,6 +14,9 @@ from glob import glob
 from difflib import SequenceMatcher
 from pdf2image import convert_from_path, convert_from_bytes
 
+import lineDeleteAndNoiseDelete as lineDel
+
+
 # pdf 에서 png 변환 함수
 def convertPdfToImage(upload_path, pdf_file):
 
@@ -226,6 +229,8 @@ def findDocType(ocrData):
         strText = ''
 
         file = open('./ml/ColumnMapping/docSentence.txt','r', encoding="UTF8")
+        # file = open('C:/Users/user/source/repos/ICR-DAERIM/ml/ColumnMapping/docSentence.txt', 'r', encoding="UTF8")
+
         sentenceList = []
 
         for line in file:
@@ -291,6 +296,7 @@ def splitLabel(ocrData):
 
         # sep_keyword 파일 추출
         file = open("./ml/ColumnMapping/splitLabel.txt", "r", encoding="UTF8")
+        # file = open("C:/Users/user/source/repos/ICR-DAERIM/ml/ColumnMapping/splitLabel.txt", "r", encoding="UTF8")
         for line in file:
             sepKeyword = line.strip()
             sepKeywordList.append(sepKeyword)
@@ -407,6 +413,7 @@ def findExt(fileName):
     return ext
 
 def pyOcr(item):
+
     # MS ocr api 호출
     ocrData = get_Ocr_Info(item)
 
@@ -437,11 +444,20 @@ def pyOcr(item):
 
     return obj
 
+# encode
+def stringToBase64(s):
+    return base64.b64encode(s.encode('utf-8'))
+
+# decode
+def base64ToString(b):
+    return base64.b64decode(b).decode('utf-8')
+    
 if __name__ == '__main__':
     try:
         retResult = []
         filepath = sys.argv[1]
         # filepath = 'C:/ICR/uploads/woosung.jpg'
+        # filepath = 'C:/ICR/uploads/noise3.pdf'
 
         upload_path = filepath[:filepath.rfind("/")+1]
         fileName = filepath[filepath.rfind("/")+1:]
@@ -451,6 +467,8 @@ if __name__ == '__main__':
             fileNames = convertPdfToImage(upload_path, fileName)
             for item in fileNames:
                 imgResize(upload_path + item)
+                # lineDeleteAndNoiseDelete
+                lineDel.main(stringToBase64(upload_path + item))
                 obj = pyOcr(upload_path + item)
                 retResult.append(obj)
         else:

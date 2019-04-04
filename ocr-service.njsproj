@@ -891,6 +891,7 @@
     <Content Include="ml\ColumnMapping\columnClassicifyFromAzure.py" />
     <Content Include="ml\ColumnMapping\columnClassicify_backup.py" />
     <Content Include="ml\ColumnMapping\config.ini" />
+    <Content Include="ml\ColumnMapping\docSentenceClassify.py" />
     <Content Include="ml\ColumnMapping\eval.py" />
     <Content Include="ml\ColumnMapping\eval2.py" />
     <Content Include="ml\ColumnMapping\eval3.py" />
