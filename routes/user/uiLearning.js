@@ -158,7 +158,15 @@ function uiLearnTraining_new(filepath, callback) {
                 retData = sync.await(mlclassify.classify(resPyArr[i], sync.defer())); // 오타수정 및 엔트리 추출
                 var labelData = sync.await(oracle.selectIcrLabelDef(retData.docCategory.DOCTOPTYPE, sync.defer()));
                 var docName = sync.await(oracle.selectDocName(retData.docCategory.DOCTYPE, sync.defer()));
-                retData.docCategory.DOCNAME = docName[0].DOCNAME;
+
+				if (docName.length != 0) {
+					retData.docCategory.DOCNAME = docName[0].DOCNAME;
+				}
+				else {
+					retData.docCategory.DOCNAME = "unKnown";
+				}
+
+				
                 retData.labelData = labelData.rows;
                 retData.fileinfo = { filepath: "C:/ICR/uploads/"+resPyArr[i].fileName };
                 retDataList.push(retData);
@@ -1265,52 +1273,50 @@ router.post('/selectLikeDocCategory', function (req, res) {
 
 // 문서양식매핑
 router.post('/insertDoctypeMapping', function (req, res) {
-    var returnObj;
-    
-    var data = {
-        imgId: req.body.imgId,
-        filepath: req.body.filepath,
-        docName: req.body.docName,
-        radioType: req.body.radioType,
-        textList: req.body.textList
-    }
+	var returnObj;
 
-    sync.fiber(function () {
-        try {
-            var regExp = /[\{\}\[\]\/?.,;:|\)*~`!^\-_+<>@\#$%&\\\=\(\'\"]/gi;
-            let data = req.body;
-            returnObj = sync.await(batch.insertDoctypeMapping(data, sync.defer()));
-            
-            var  cnt = 0;
-            var sentences = "";
-            for (var i in returnObj.docSentenceList)
-            {
-                sentences = sentences + returnObj.docSentenceList[i].text.replace(regExp,"") + ",";
-                cnt ++;
-                if(cnt == 20) {break;}
-            }
-            sentences = sentences.substring(0, sentences.length -1);
-            sentences = sentences+"||"+returnObj.docType+"||"+returnObj.docTopType;
+	var data = {
+		imgId: req.body.imgId,
+		filepath: req.body.filepath,
+		docName: req.body.docName,
+		radioType: req.body.radioType,
+		textList: req.body.textList
+	}
 
-            pythonConfig.columnMappingOptions.args = [];
-            pythonConfig.columnMappingOptions.args.push(sentences);
-            // pythonConfig.documentSentenceOptions.args.push(returnObj.docTopType);
-            // pythonConfig.documentSentenceOptions.args.push(returnObj.docType);
-            // pythonConfig.documentSentenceOptions.args.push(returnObj.docSentenceList);
+	sync.fiber(function () {
+		try {
+			var regExp = /[\{\}\[\]\/?.,;:|\)*~`!^\-_+<>@\#$%&?\\\=\(\'\"]/gi;
+			let data = req.body;
+			returnObj = sync.await(batch.insertDoctypeMapping(data, sync.defer()));
 
-            console.log("pythonConfig.documentSentenceOptions");
-            console.log(pythonConfig.columnMappingOptions);
-            console.log("pythonConfig.documentSentenceOptions");
+			var cnt = 0;
+			var sentences = "";
+			for (var i in returnObj.docSentenceList) {
+				sentences = sentences + returnObj.docSentenceList[i].text.replace(regExp, "") + ",";
+				cnt++;
+				if (cnt == 20) { break; }
+			}
+			sentences = sentences.substring(0, sentences.length - 1);
+			sentences = sentences + "||" + returnObj.docType + "||" + returnObj.docTopType;
 
-            var retResult = sync.await(PythonShell.run('docSentenceClassify.py', pythonConfig.columnMappingOptions, sync.defer()));
-            console.log(retResult);
-        } catch (e) {
-            console.log(e);
-            returnObj = { code: 500, message: e };
-        } finally {
-            res.send(returnObj);
-        }
-    });
+
+			var encode = Buffer.from(sentences).toString("base64");
+			pythonConfig.columnMappingOptions.args = [];
+			pythonConfig.columnMappingOptions.args.push(encode);
+
+			console.log("pythonConfig.documentSentenceOptions");
+			console.log(pythonConfig.columnMappingOptions);
+			console.log("pythonConfig.documentSentenceOptions");
+
+			var retResult = sync.await(PythonShell.run('docSentenceClassify.py', pythonConfig.columnMappingOptions, sync.defer()));
+			console.log(retResult);
+		} catch (e) {
+			console.log(e);
+			returnObj = { code: 500, message: e };
+		} finally {
+			res.send(returnObj);
+		}
+	});
 });
 
 
