@@ -265,15 +265,15 @@ var fn_uploadFileEvent = function () {
                     //console.log('dtl 내용 :' + JSON.stringify(responseText.fileDtlInfo));
 
                     //totCount = responseText.fileInfo.length; 
-                    totCount = responseText.fileDtlInfo.length;
+                    totCount = responseText.fileInfoList.length;
                     // 문서 기본 정보 처리
                     fn_processBaseImage(responseText.fileInfo);
                     // 인식 결과 및 ML 처리
-                    for (var i = 0, x = responseText.fileDtlInfo.length; i < x; i++) {
-                        fn_processDtlImage(responseText.fileDtlInfo[i]);
+                    for (var i = 0, x = responseText.fileInfoList.length; i < x; i++) {
+                        fn_processDtlImage(responseText.fileInfoList[i]);
                     }
 
-                    endProgressBar();
+                    //endProgressBar();
                 },
                 error: function (e) {
                     console.log("업로드 에러");
@@ -1790,36 +1790,42 @@ var fn_processBaseImage = function (fileInfo) {
 
 // ML 및 인식결과 append
 var fn_processDtlImage = function (fileDtlInfo) {
-    var fileName = fileDtlInfo.oriFileName;
-    $('#progressMsgTitle').html('OCR 처리 중..');
-    addProgressBar(21, 30);
-    $.ajax({
-        url: '/common/ocr',
-        beforeSend: function (jqXHR) {
-            jqXHR.setRequestHeader("Content-Type", "application/json");
-        },
-        async: false,
-        type: "POST",
-        data: JSON.stringify({ 'fileInfo': fileDtlInfo }),
-    }).done(function (data) {
-        ocrCount++;
-        thumbImgs.push(fileName);
-        if (!data.code) { // 에러가 아니면
-            //thumbImgs.push(fileName);
-            $('#progressMsgTitle').html('OCR 처리 완료');
-            addProgressBar(31, 40);
-            appendOcrData(fileDtlInfo, fileName, data);
-            oriOcrData.push({ fileName: fileName, data: JSON.stringify(data) });
-        } else if (data.error) { //ocr 이외 에러이면
-            endProgressBar();
-            fn_alert('alert', data.error);
-        } else { // ocr 에러 이면
-            insertCommError(data.code, 'ocr');
-            endProgressBar();
-            fn_alert('alert', data.message);
-        }
-    }).fail(function (jqXHR, textStatus, errorThrown) {
-    });
+    // parameter 형태 변경 후 imgOcr 호출
+    var param = {
+        0: {filePath: fileDtlInfo.filePath}
+    };
+
+    imgOcr(param);
+    // var fileName = fileDtlInfo.oriFileName;
+    // $('#progressMsgTitle').html('OCR 처리 중..');
+    // addProgressBar(21, 30);
+    // $.ajax({
+    //     url: '/common/ocr',
+    //     beforeSend: function (jqXHR) {
+    //         jqXHR.setRequestHeader("Content-Type", "application/json");
+    //     },
+    //     async: false,
+    //     type: "POST",
+    //     data: JSON.stringify({ 'fileInfo': fileDtlInfo }),
+    // }).done(function (data) {
+    //     ocrCount++;
+    //     thumbImgs.push(fileName);
+    //     if (!data.code) { // 에러가 아니면
+    //         //thumbImgs.push(fileName);
+    //         $('#progressMsgTitle').html('OCR 처리 완료');
+    //         addProgressBar(31, 40);
+    //         appendOcrData(fileDtlInfo, fileName, data);
+    //         oriOcrData.push({ fileName: fileName, data: JSON.stringify(data) });
+    //     } else if (data.error) { //ocr 이외 에러이면
+    //         endProgressBar();
+    //         fn_alert('alert', data.error);
+    //     } else { // ocr 에러 이면
+    //         insertCommError(data.code, 'ocr');
+    //         endProgressBar();
+    //         fn_alert('alert', data.message);
+    //     }
+    // }).fail(function (jqXHR, textStatus, errorThrown) {
+    // });
 };
 
 
