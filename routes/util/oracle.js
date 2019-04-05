@@ -2788,14 +2788,14 @@ exports.insertNewDocument = function (req, done) {
     });
 };
 
-exports.selectDocumentCategory = function (req, done) {
+exports.selectDocumentCategory = function (req, docTopType, done) {
     return new Promise(async function (resolve, reject) {
         let conn;
         let result;
 
         try {
             conn = await oracledb.getConnection(dbConfig);
-            result = await conn.execute(queryConfig.batchLearningConfig.selectDocumentCategory, [req]);          
+            result = await conn.execute(queryConfig.batchLearningConfig.selectDocumentCategory, [req, docTopType]);          
 
             return done(null, result);
         } catch (err) { // catches errors in getConnection and the query

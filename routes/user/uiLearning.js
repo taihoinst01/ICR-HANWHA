@@ -1252,11 +1252,12 @@ router.post('/selectClassificationSt', function (req, res) {
 
 router.post('/selectLikeDocCategory', function (req, res) {
     var keyword = '%' + req.body.keyword + '%';
+    var docTopType = req.body.docTopType;
     var returnObj;
 
     sync.fiber(function () {
         try {
-            var result = sync.await(oracle.selectDocumentCategory(keyword, sync.defer()));
+            var result = sync.await(oracle.selectDocumentCategory(keyword, docTopType, sync.defer()));
             if (result.rows) {
                 returnObj = { data : result.rows };
             } else {

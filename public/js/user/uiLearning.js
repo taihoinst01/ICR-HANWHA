@@ -232,6 +232,7 @@ function popUpRunEvent() {
 function popUpSearchDocCategory() {
     $('#searchDocCategoryBtn').click(function () {
         var keyword = $('#searchDocCategoryKeyword').val().replace(/ /gi, '');
+        var docTopType = $('#uiDocTopType').val();
 
         if (keyword) {
             $('#docSearchResultImg_thumbCount').hide();
@@ -244,7 +245,7 @@ function popUpSearchDocCategory() {
                 url: '/uiLearning/selectLikeDocCategory',
                 type: 'post',
                 datatype: 'json',
-                data: JSON.stringify({ 'keyword': keyword }),
+                data: JSON.stringify({ 'keyword': keyword, 'docTopType': docTopType }),
                 contentType: 'application/json; charset=UTF-8',
                 success: function (data) {
                     data = data.data;
