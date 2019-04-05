@@ -470,7 +470,6 @@ router.post('/imgOcr', function (req, res) {
                 retData = sync.await(ocrJs.correctEntryFnc(retData, sync.defer()));
                 retDataList.push(retData);
             }
-
             // tbl_icr_label_def 조회
             var docToptype = retDataList[0].docCategory.DOCTOPTYPE;
             docLabelDefList = sync.await(oracle.selectDocLabelDefList(([docToptype]), sync.defer()));
