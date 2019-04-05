@@ -29,6 +29,12 @@ $(function () {
 function init() {
     $('.button_control').attr('disabled', true);
     //layer_open('layer1');
+
+    $('#searchDocCategoryKeyword').keydown(function (key) {
+        if (key.keyCode == 13) {
+            $('#searchDocCategoryBtn').click();
+        }
+    });
 }
 
 function docPopRadioEvent() {
@@ -255,6 +261,7 @@ function popUpSearchDocCategory() {
                     $('.button_control10').attr('disabled', true);
                     docPopImagesCurrentCount = 1;
                     if (data.length == 0) {
+                        $('#searchResultDocName').val('검색 결과가 없습니다.');
                         return false;
                     } else {
                         /**
@@ -2066,7 +2073,7 @@ function fn_viewDoctypePop(obj) {
 	//$('#div_view_image').empty().append(appendPngHtml);
 	$('#originImgDiv').empty().append(appendPngHtml);
 	$('#mlPredictionDocName').val(mlDocName);
-	$('#mlPredictionPercent').val(mlPercent);
+    $('#mlPredictionPercent').val($('#docPredictionScore').text()); 
 	//$('#mlData').val(data);
 	$('#imgNumIpt').val(1);
 	$('#imgTotalCnt').html(1);
