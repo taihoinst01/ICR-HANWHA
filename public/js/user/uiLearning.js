@@ -474,7 +474,7 @@ function processImage(fileInfo) {
         beforeSend: function (jqXHR) {
             jqXHR.setRequestHeader('Content-Type', 'application/json');
         },
-        async: false,
+        //async: false,
         type: 'POST',
         data: JSON.stringify({ 'fileInfo': fileInfo })
     }).success(function (data) {
