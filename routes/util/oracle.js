@@ -1891,13 +1891,14 @@ exports.selectSid = function (req, done) {
             var sid = "";
             locSplit = req.location.split(",");
             //need check
-            sid += locSplit[0] + "," + locSplit[1] + "," + (Number(locSplit[0]) + Number(locSplit[2]));
+            //sid += locSplit[0] + "," + locSplit[1] + "," + (Number(locSplit[0]) + Number(locSplit[2]));
 
             var regExp = /[\{\}\[\]\/?.,;:|\)*~`!^\-_+<>@\#$%&\\\=\(\'\"]/gi;
             let result = await conn.execute(sqltext, [req.text.replace(regExp,"")]);
 
             if (result.rows[0] != null) {
-                sid += "," + result.rows[0].SID;
+                //sid += "," + result.rows[0].SID;
+                sid += result.rows[0].SID;
             }
             return done(null, sid);
         } catch (err) {
