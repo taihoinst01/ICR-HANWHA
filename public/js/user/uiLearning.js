@@ -46,7 +46,7 @@ function docPopRadioEvent() {
             $('#newDocName').hide();
             $('#notInvoice').hide();
         } else if (chkValue == '2') {
-            $('#newDocName').show();
+            $('#newDocName').val('').show();
             $('#orgDocName').hide();
             $('#notInvoice').hide();
         } else if (chkValue == '3') {
@@ -54,7 +54,7 @@ function docPopRadioEvent() {
             $('#orgDocName').hide();
             $('#newDocName').hide();
         }
-    })
+    });
 }
 
 // 팝업 이벤트 모음
