@@ -2036,9 +2036,6 @@ function selectClassificationStOcr(filepath, currentImgCount) {
 function fn_viewDoctypePop(obj) {
     //20180910 filepath로 ocr 데이터 조회 후 text값만 가져올 것
 	//console.log(modifyData);
-    docPopImages = null;
-    $('#docSearchResultImg_thumbPrev').attr('disabled', true);
-    $('#docSearchResultImg_thumbNext').attr('disabled', true);
 
 	var data = obj.data[0];
 	layer4Data = obj.data[0];
@@ -2088,6 +2085,9 @@ function fn_viewDoctypePop(obj) {
 }
 
 function initLayer4() {
+    docPopImages = null;
+    $('#docSearchResultImg_thumbPrev').attr('disabled', true);
+    $('#docSearchResultImg_thumbNext').attr('disabled', true);
     $('#originImgDiv').empty();
     $('#mlPredictionDocName').val('');
     $('#docSearchResultImg_thumbCount').hide();
