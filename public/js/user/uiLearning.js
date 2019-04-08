@@ -268,7 +268,7 @@ function popUpSearchDocCategory() {
                          결과에 따른 이미지폼 만들기
                          */
                         docPopImages = data;
-						console.log(docPopImages);
+                        //console.log(docPopImages);
                         var searchResultImg = '<img id="searchResultImg" src="/sample/' + docPopImages[docPopImagesCurrentCount - 1].SAMPLEIMAGEPATH + '">';
 
                         $('#docSearchResult').empty().append(searchResultImg);
@@ -1910,7 +1910,7 @@ function changeDocPopupImage() {
         $('#docSearchResultImg_thumbPrev').attr('disabled', false);
         if (docPopImagesCurrentCount == totalCount) {
             return false;
-        } else {
+        } else {            
             docPopImagesCurrentCount++;
             $('#countCurrent').html(docPopImagesCurrentCount);
             $('#orgDocName').val(docPopImages[docPopImagesCurrentCount - 1].DOCNAME);
@@ -2036,6 +2036,10 @@ function selectClassificationStOcr(filepath, currentImgCount) {
 function fn_viewDoctypePop(obj) {
     //20180910 filepath로 ocr 데이터 조회 후 text값만 가져올 것
 	//console.log(modifyData);
+    docPopImages = null;
+    $('#docSearchResultImg_thumbPrev').attr('disabled', true);
+    $('#docSearchResultImg_thumbNext').attr('disabled', true);
+
 	var data = obj.data[0];
 	layer4Data = obj.data[0];
 	var filepath = data.fileinfo.filepath;
