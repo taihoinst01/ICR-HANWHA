@@ -72,6 +72,7 @@ router.post('/', function (req, res) {
 });
 
 router.post('/uiLearnTraining', function (req, res) {
+    req.setTimeout(120000);
     sync.fiber(function () {
         var filepath = req.body.fileInfo.filePath;
         var uiData;
