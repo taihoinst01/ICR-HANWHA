@@ -233,6 +233,7 @@ function findEntry(req,docTypeVal, docTopTypeVal, done) {
                             // console.log(mappingSid[1] +" || "+ trainRows[k].LOCATION_X);
                             // console.log(mappingSid[2] +" || "+ trainRows[k].LOCATION_Y);
                             req.data[j]["colLbl"] = labelTrainRows[k].CLASS;
+                            break;
                         }
                         else
                         {
