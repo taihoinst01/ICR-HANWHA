@@ -21,6 +21,7 @@ var oracle = require('../util/oracle.js');
 // const async = require("async");
 var sync = require('../util/sync.js');
 var difflib = require('difflib');
+var predRegionConfig = require(appRoot + '/config/predRegionConfig');
 
 //PKS 여기서부터 새로 시작
 
@@ -217,32 +218,26 @@ function findEntry(req,docTypeVal, docTopTypeVal, done) {
             //label data 추출
             let labelTrainRows = sync.await(oracle.selectLabelTrainDataList(docTypeParam, sync.defer()));
 
-            for(var j in req.data)
-            {
-                var mappingSid = req.data[j].mappingSid.split(",");
+            for(var j in req.data) {
+                //var mappingSid = req.data[j].mappingSid.split(",");
                 
                 //console.log("before : "+req.data[j].text + " X : "+mappingSid[1] + " Y : "+mappingSid[2]);
 
-                if(labelTrainRows.length > 0)
-                {
-                    for (var k in labelTrainRows)
-                    {
-                        if(mappingSid[1] == labelTrainRows[k].LOCATION_X && mappingSid[2] == labelTrainRows[k].LOCATION_Y )
-                        {
+                if(labelTrainRows.length > 0) {
+                    for (var k in labelTrainRows) {
+                        if (predictionColumn(req.docCategory, req.data[j], labelTrainRows[k], 'L')) {
                             // console.log("after : "+req.data[j].text + " X : "+mappingSid[1] + " Y : "+mappingSid[2]);
                             // console.log(mappingSid[1] +" || "+ trainRows[k].LOCATION_X);
                             // console.log(mappingSid[2] +" || "+ trainRows[k].LOCATION_Y);
                             req.data[j]["colLbl"] = labelTrainRows[k].CLASS;
                             break;
                         }
-                        else
-                        {
+                        else {
                             req.data[j]["colLbl"] = -1;
                         }
                     }
                 }
-                else
-                {
+                else {
                     req.data[j]["colLbl"] = -1;
                 }
             }
@@ -251,14 +246,22 @@ function findEntry(req,docTypeVal, docTopTypeVal, done) {
 
             //entry data 추출
             let entryTrainRows = sync.await(oracle.selectTrainDataList(docTypeParam, sync.defer()));
-            for(var j in req.data)
-            {
-                var location = req.data[j].location.split(",");
+            for(var j in req.data) {
+                //var location = req.data[j].location.split(",");
                 
                 //console.log("before : "+req.data[j].text + " X : "+location[0] + " width : "+location[2] + " Y : "+location[1] + " height : "+location[3] );
 
-                for (var k in entryTrainRows)
-                {
+                for (var k in entryTrainRows) {
+
+                    if (predictionColumn(req.docCategory, req.data[j], entryTrainRows[k], 'E')) {
+                        // console.log("after : "+req.data[j].text + " X : "+mappingSid[1] + " Y : "+mappingSid[2]);
+                        // console.log(mappingSid[1] +" || "+ trainRows[k].LOCATION_X);
+                        // console.log(mappingSid[2] +" || "+ trainRows[k].LOCATION_Y);
+                        req.data[j]["entryLbl"] = entryTrainRows[k].CLASS;
+                        delete req.data[j].colLbl;
+                        break;
+                    }
+                    /*
                     var locataionX = 0; var locataionWidth = 0; var locataionY = 0; var locataionHeight = 0;
 
                     locataionX = entryTrainRows[k].OCR_TEXT_X.split(",")[0];
@@ -285,6 +288,7 @@ function findEntry(req,docTypeVal, docTopTypeVal, done) {
                         req.data[j]["entryLbl"] = entryTrainRows[k].CLASS;
                         delete req.data[j].colLbl;
                     }
+                    */
                 }
             }
             retData["docCategory"] = req.docCategory;
@@ -304,4 +308,51 @@ function findEntry(req,docTypeVal, docTopTypeVal, done) {
 
 function similar(str, data) {
     return new difflib.SequenceMatcher(null,str, data).ratio();
+}
+
+// label, entry 예측 범위 지정 (기준점 : 좌상단, 우하단)
+function predictionColumn(docCategory, targetData, dbRowData, type) {
+    var mapJson = predRegionConfig;
+    var mappingSid = targetData.mappingSid.split(",");
+
+    // 좌상단 좌표를 기준으로 영역 계산
+    var upXLoc = Number(mappingSid[2]), rightXLoc = Number(mappingSid[1]), downXLoc = Number(mappingSid[2]), leftXLoc = Number(mappingSid[1]);
+    var dbXLoc = (type == 'L') ? Number(dbRowData.LOCATION_X.split(",")[0]) : Number(dbRowData.OCR_TEXT_X.split(",")[0]);
+    var dbYLoc = (type == 'L') ? Number(dbRowData.LOCATION_Y.split(",")[0]) : Number(dbRowData.OCR_TEXT_Y.split(",")[0]);
+
+    if (mapJson[docCategory.DOCTYPE] && mapJson[docCategory.DOCTYPE][dbRowData.CLASS] && mapJson[docCategory.DOCTYPE][dbRowData.CLASS]['LU']
+        && mapJson[docCategory.DOCTYPE][dbRowData.CLASS]['LU'][type]) {
+        upXLoc += mapJson[docCategory.DOCTYPE][dbRowData.CLASS]['LU'][type].up,
+            rightXLoc += mapJson[docCategory.DOCTYPE][dbRowData.CLASS]['LU'][type].right,
+            downXLoc += mapJson[docCategory.DOCTYPE][dbRowData.CLASS]['LU'][type].down,
+            leftXLoc += mapJson[docCategory.DOCTYPE][dbRowData.CLASS]['LU'][type].left;
+    } else {
+        upXLoc += mapJson['default']['LU'][type].up,
+            rightXLoc += mapJson['default']['LU'][type].right,
+            downXLoc += mapJson['default']['LU'][type].down,
+            leftXLoc += mapJson['default']['LU'][type].left;
+    }
+    var isLUCheck = (leftXLoc <= dbXLoc && dbXLoc <= rightXLoc) && (upXLoc <= dbYLoc && dbYLoc <= downXLoc);
+
+    // 우하단 좌표를 기준으로 영역 계산
+    var upXLoc = Number(mappingSid[2]) + Number(mappingSid[4]), rightXLoc = Number(mappingSid[1]) + Number(mappingSid[3]),
+        downXLoc = Number(mappingSid[2]) + Number(mappingSid[4]), leftXLoc = Number(mappingSid[1]) + Number(mappingSid[3]);
+    var dbXLoc = (type == 'L') ? Number(dbRowData.LOCATION_X.split(",")[0]) + Number(dbRowData.LOCATION_X.split(",")[1]) : Number(dbRowData.OCR_TEXT_X.split(",")[0]) + Number(dbRowData.OCR_TEXT_X.split(",")[1]);
+    var dbYLoc = (type == 'L') ? Number(dbRowData.LOCATION_Y.split(",")[0]) + Number(dbRowData.LOCATION_Y.split(",")[1]) : Number(dbRowData.OCR_TEXT_Y.split(",")[0]) + Number(dbRowData.OCR_TEXT_Y.split(",")[1]);
+
+    if (mapJson[docCategory.DOCTYPE] && mapJson[docCategory.DOCTYPE][dbRowData.CLASS] && mapJson[docCategory.DOCTYPE][dbRowData.CLASS]['RD']
+        && mapJson[docCategory.DOCTYPE][dbRowData.CLASS]['RD'][type]) {
+        upXLoc += mapJson[docCategory.DOCTYPE][dbRowData.CLASS]['RD'][type].up,
+            rightXLoc += mapJson[docCategory.DOCTYPE][dbRowData.CLASS]['RD'][type].right,
+            downXLoc += mapJson[docCategory.DOCTYPE][dbRowData.CLASS]['RD'][type].down,
+            leftXLoc += mapJson[docCategory.DOCTYPE][dbRowData.CLASS]['RD'][type].left;
+    } else {
+        upXLoc += mapJson['default']['RD'][type].up,
+            rightXLoc += mapJson['default']['RD'][type].right,
+            downXLoc += mapJson['default']['RD'][type].down,
+            leftXLoc += mapJson['default']['RD'][type].left;
+    }
+    var isRDCheck = (leftXLoc <= dbXLoc && dbXLoc <= rightXLoc) && (upXLoc <= dbYLoc && dbYLoc <= downXLoc);
+
+    return (isLUCheck || isRDCheck) ? true : false;
 }

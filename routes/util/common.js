@@ -639,7 +639,7 @@ router.post('/modifyBatchUiTextData', function (req, res) {
                             }
 
                             if (afterData.data[i].colType == 'L') {
-                                inputOcrData = [docType, beforeData.data[j].text, itemLoc[0], itemLoc[1], afterData.data[i].colLbl];
+                                inputOcrData = [docType, beforeData.data[j].text, itemLoc[0] + ',' + itemLoc[2], itemLoc[1] + ',' + itemLoc[3], afterData.data[i].colLbl];
                             } else if (afterData.data[i].colType == 'E'){
                                 inputOcrData = [docType, beforeData.data[j].text, itemLoc[0] + ',' + itemLoc[2], itemLoc[1] + ',' + itemLoc[3], docTopType];
                             }
@@ -752,51 +752,6 @@ router.post('/modifyBatchUiTextData', function (req, res) {
             sync.await(oracle.insertPredLabelMapping(predLabelData, sync.defer()));
             //entry prediction ML DB insert
             sync.await(oracle.insertPredEntryMapping(predEntryData, sync.defer()));
-
-            returnObj = { code: 200, message: 'modify textData success' };
-
-        } catch (e) {
-            console.log(e);
-            returnObj = { code: 500, error: e };
-        } finally {
-            res.send(returnObj);
-        }
-    });
-});
-
-router.post('/modifyBatchUiTextDataV2', function (req, res) {
-    var beforeData = req.body.beforeData;
-    var afterData = req.body.afterData;
-    var predLabelData = req.body.predLabelData;
-    var predEntryData = req.body.predEntryData;
-    //var filepath = req.body.beforeData.fileinfo.filepath;
-
-    var returnObj;
-    sync.fiber(function () {
-        try {
-
-            for (var i in afterData.data) {
-                for (var j in beforeData.data) {
-                    if (afterData.data[i].location == beforeData.data[j].location) {
-                        //사용자가 글자를 직접 수정한 경우 TBL_CONTRACT_MAPPING에 insert
-                        if (afterData.data[i].text != beforeData.data[j].text) {
-                            var item = [beforeData.data[j].originText, '', afterData.data[i].text, ''];
-                            sync.await(oracle.insertContractMapping(item, sync.defer()));
-                            sync.await(oracle.insertSymspell(afterData.data[i], sync.defer()));
-                        }
-                        //사용자가 지정한 컬럼라벨의 텍스트가 유효한 컬럼의 경우 OcrSymspell에 before text(중요!!) insert
-                        if (afterData.data[i].colLbl >= 1) {
-                            sync.await(oracle.insertOcrSymsSingle(beforeData.data[j], sync.defer()));
-                        }
-                        afterData.data[i].sid = sync.await(oracle.selectSid(beforeData.data[j], sync.defer()));                       
-                    }
-                }
-            }
-
-            //label insert
-            sync.await(oracle.insertPredLabelMapping(predLabelData, sync.defer()));    
-            //entry insert
-            sync.await(oracle.insertPredEntryMapping(predEntryData, sync.defer()));    
 
             returnObj = { code: 200, message: 'modify textData success' };
 

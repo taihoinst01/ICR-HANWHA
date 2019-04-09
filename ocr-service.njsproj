@@ -32,6 +32,7 @@
   <ItemGroup>
     <Compile Include="app.js" />
     <Compile Include="config\correctEntry.js" />
+    <Compile Include="config\predRegionConfig.js" />
     <Compile Include="config\dbConfig.js" />
     <Compile Include="config\propertiesConfig.js" />
     <Compile Include="config\pythonConfig.js" />
