@@ -45,44 +45,45 @@ var remoteFTP = function () {
 
 // 지정된 시간마다 FTP서버의 특정 디렉토리에서 파일 리스트를 가져와 DB와 비교하여 해당 row가 없으면 프로세스 수행, 있으면 continue
 var remoteFTP_v2 = function () {
+    cron.schedule('*/30 * * * * *', function () {
+        sync.fiber(function () {
+            try {
+                var execFileNames = [];
 
-    sync.fiber(function () {
-        try {
-            var execFileNames = [];
+                // TBL_FTP_FILE_LIST 데이터 조회
+                var fileNames = sync.await(getftpFileList(sync.defer()));
 
-            // TBL_FTP_FILE_LIST 데이터 조회
-            var fileNames = sync.await(getftpFileList(sync.defer()));
-
-            // FTP 파일 리스트와 DB데이터 비교
-            if (fileNames.length != 0) {
-                var result = sync.await(oracle.selectFtpFileList(fileNames, sync.defer()));
-                if (result.length != 0) {
-                    for (var i in fileNames) {
-                        var isOverlap = false;
-                        for (var j in result) {
-                            if (fileNames[i] === result[j].FILENAME) {
-                                isOverlap = true;
-                                break;
+                // FTP 파일 리스트와 DB데이터 비교
+                if (fileNames.length != 0) {
+                    var result = sync.await(oracle.selectFtpFileList(fileNames, sync.defer()));
+                    if (result.length != 0) {
+                        for (var i in fileNames) {
+                            var isOverlap = false;
+                            for (var j in result) {
+                                if (fileNames[i] === result[j].FILENAME) {
+                                    isOverlap = true;
+                                    break;
+                                }
                             }
+                            if (!isOverlap) execFileNames.push(fileNames[i]);
                         }
-                        if (!isOverlap) execFileNames.push(fileNames[i]);
+                    } else {
+                        execFileNames = fileNames;
                     }
-                } else {
-                    execFileNames = fileNames;
                 }
-            }
 
-            // ocr 및 ml 프로세스 실행
-            if (execFileNames.lenght != 0) {
-                //pyOcr.py
+                // ocr 및 ml 프로세스 실행
+                if (execFileNames.lenght != 0) {
+                    //pyOcr.py
 
-                //실행한 파일 TBL_FTP_FILE_LIST insert
-                sync.await(oracle.insertFtpFileList(ftpConfig.host + ftpDir, execFileNames, sync.defer()));
+                    //실행한 파일 TBL_FTP_FILE_LIST insert
+                    sync.await(oracle.insertFtpFileList(ftpConfig.host + ftpDir, execFileNames, sync.defer()));
+                }
+            } catch (e) {
+                console.log(e);
+            } finally {
             }
-        } catch (e) {
-            console.log(e);
-        } finally {
-        }
+        });
     });
 };
 
