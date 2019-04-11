@@ -3,8 +3,8 @@ var watch = require('node-watch');
 var cron = require('node-cron');
 var ftpClient = require('ftp-client');
 var ftp = require('ftp');
-var sync = require('./routes/util/sync.js')
-var oracle = require('./routes/util/oracle.js');
+var sync = require('./sync.js')
+var oracle = require('./oracle.js');
 
 //FTP 서버 정보
 var ftpConfig = {
@@ -67,6 +67,8 @@ var remoteFTP_v2 = function () {
                         }
                         if (!isOverlap) execFileNames.push(fileNames[i]);
                     }
+                } else {
+                    execFileNames = fileNames;
                 }
             }
 
