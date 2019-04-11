@@ -52,7 +52,7 @@ var xlsx = require('xlsx');
 //var listProc = require('./routes/util/listProc'); // legacy interface
 
 //auto scan
-//var auto = require('./auto');
+//var auto = require('./routes/util/auto');
 
 // 
 app.use('/tifTest', express.static(path.join(appRoot)));

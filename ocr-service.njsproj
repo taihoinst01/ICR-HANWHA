@@ -31,7 +31,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="app.js" />
-    <Compile Include="auto.js" />
+    <Compile Include="routes\util\auto.js" />
     <Compile Include="config\correctEntry.js" />
     <Compile Include="config\predRegionConfig.js" />
     <Compile Include="config\dbConfig.js" />
