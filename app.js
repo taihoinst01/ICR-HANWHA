@@ -51,6 +51,9 @@ var common = require('./routes/util/common');
 var xlsx = require('xlsx');
 //var listProc = require('./routes/util/listProc'); // legacy interface
 
+//auto scan
+//var auto = require('./auto');
+
 // 
 app.use('/tifTest', express.static(path.join(appRoot)));
 app.use('/tif', express.static(path.join(propertiesConfig.filepath.uploadsPath)));
@@ -120,5 +123,7 @@ app.use('/common', common);
 app.set('port', process.env.PORT || 80);
 var server = app.listen(app.get('port'), function () {
     console.log('Server Start!! port : ' + server.address().port); 
-});
 
+    //auto.local(); // local directory watch (update, remove type)
+    //auto.ftp(); // remote FTP file server schedule and file download
+});
