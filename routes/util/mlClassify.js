@@ -323,15 +323,15 @@ function predictionColumn(docCategory, targetData, dbRowData, type) {
 
     if (mapJson[docCategory.DOCTYPE] && mapJson[docCategory.DOCTYPE][dbRowData.CLASS] && mapJson[docCategory.DOCTYPE][dbRowData.CLASS]['LU']
         && mapJson[docCategory.DOCTYPE][dbRowData.CLASS]['LU'][type]) {
-        upYLoc += mapJson[docCategory.DOCTYPE][dbRowData.CLASS]['LU'][type].up,
+        upYLoc -= mapJson[docCategory.DOCTYPE][dbRowData.CLASS]['LU'][type].up,
             rightXLoc += mapJson[docCategory.DOCTYPE][dbRowData.CLASS]['LU'][type].right,
             downYLoc += mapJson[docCategory.DOCTYPE][dbRowData.CLASS]['LU'][type].down,
-            leftXLoc += mapJson[docCategory.DOCTYPE][dbRowData.CLASS]['LU'][type].left;
+            leftXLoc -= mapJson[docCategory.DOCTYPE][dbRowData.CLASS]['LU'][type].left;
     } else {
-        upYLoc += mapJson['default']['LU'][type].up,
+        upYLoc -= mapJson['default']['LU'][type].up,
             rightXLoc += mapJson['default']['LU'][type].right,
             downYLoc += mapJson['default']['LU'][type].down,
-            leftXLoc += mapJson['default']['LU'][type].left;
+            leftXLoc -= mapJson['default']['LU'][type].left;
     }
     var isLUCheck = (leftXLoc <= tgXLoc && tgXLoc <= rightXLoc) && (upYLoc <= tgYLoc && tgYLoc <= downYLoc);
 
@@ -343,15 +343,15 @@ function predictionColumn(docCategory, targetData, dbRowData, type) {
 
     if (mapJson[docCategory.DOCTYPE] && mapJson[docCategory.DOCTYPE][dbRowData.CLASS] && mapJson[docCategory.DOCTYPE][dbRowData.CLASS]['RD']
         && mapJson[docCategory.DOCTYPE][dbRowData.CLASS]['RD'][type]) {
-        upYLoc += mapJson[docCategory.DOCTYPE][dbRowData.CLASS]['RD'][type].up,
+        upYLoc -= mapJson[docCategory.DOCTYPE][dbRowData.CLASS]['RD'][type].up,
             rightXLoc += mapJson[docCategory.DOCTYPE][dbRowData.CLASS]['RD'][type].right,
             downYLoc += mapJson[docCategory.DOCTYPE][dbRowData.CLASS]['RD'][type].down,
-            leftXLoc += mapJson[docCategory.DOCTYPE][dbRowData.CLASS]['RD'][type].left;
+            leftXLoc -= mapJson[docCategory.DOCTYPE][dbRowData.CLASS]['RD'][type].left;
     } else {
-        upYLoc += mapJson['default']['RD'][type].up,
+        upYLoc -= mapJson['default']['RD'][type].up,
             rightXLoc += mapJson['default']['RD'][type].right,
             downYLoc += mapJson['default']['RD'][type].down,
-            leftXLoc += mapJson['default']['RD'][type].left;
+            leftXLoc -= mapJson['default']['RD'][type].left;
     }
     var isRDCheck = (leftXLoc <= tgXLoc && tgXLoc <= rightXLoc) && (upYLoc <= tgYLoc && tgYLoc <= downYLoc);
 
