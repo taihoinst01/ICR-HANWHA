@@ -313,46 +313,47 @@ function similar(str, data) {
 // label, entry 예측 범위 지정 (기준점 : 좌상단, 우하단)
 function predictionColumn(docCategory, targetData, dbRowData, type) {
     var mapJson = predRegionConfig;
-    var mappingSid = targetData.mappingSid.split(",");
+    var loc = targetData.location.split(",");   
 
     // 좌상단 좌표를 기준으로 영역 계산
-    var upXLoc = Number(mappingSid[2]), rightXLoc = Number(mappingSid[1]), downXLoc = Number(mappingSid[2]), leftXLoc = Number(mappingSid[1]);
+    var tgXLoc = Number(loc[0]), tgYLoc = Number(loc[1]);
     var dbXLoc = (type == 'L') ? Number(dbRowData.LOCATION_X.split(",")[0]) : Number(dbRowData.OCR_TEXT_X.split(",")[0]);
     var dbYLoc = (type == 'L') ? Number(dbRowData.LOCATION_Y.split(",")[0]) : Number(dbRowData.OCR_TEXT_Y.split(",")[0]);
+    var upYLoc = dbYLoc, rightXLoc = dbXLoc, downYLoc = dbYLoc, leftXLoc = dbXLoc;
 
     if (mapJson[docCategory.DOCTYPE] && mapJson[docCategory.DOCTYPE][dbRowData.CLASS] && mapJson[docCategory.DOCTYPE][dbRowData.CLASS]['LU']
         && mapJson[docCategory.DOCTYPE][dbRowData.CLASS]['LU'][type]) {
-        upXLoc += mapJson[docCategory.DOCTYPE][dbRowData.CLASS]['LU'][type].up,
+        upYLoc += mapJson[docCategory.DOCTYPE][dbRowData.CLASS]['LU'][type].up,
             rightXLoc += mapJson[docCategory.DOCTYPE][dbRowData.CLASS]['LU'][type].right,
-            downXLoc += mapJson[docCategory.DOCTYPE][dbRowData.CLASS]['LU'][type].down,
+            downYLoc += mapJson[docCategory.DOCTYPE][dbRowData.CLASS]['LU'][type].down,
             leftXLoc += mapJson[docCategory.DOCTYPE][dbRowData.CLASS]['LU'][type].left;
     } else {
-        upXLoc += mapJson['default']['LU'][type].up,
+        upYLoc += mapJson['default']['LU'][type].up,
             rightXLoc += mapJson['default']['LU'][type].right,
-            downXLoc += mapJson['default']['LU'][type].down,
+            downYLoc += mapJson['default']['LU'][type].down,
             leftXLoc += mapJson['default']['LU'][type].left;
     }
-    var isLUCheck = (leftXLoc <= dbXLoc && dbXLoc <= rightXLoc) && (upXLoc <= dbYLoc && dbYLoc <= downXLoc);
+    var isLUCheck = (leftXLoc <= tgXLoc && tgXLoc <= rightXLoc) && (upYLoc <= tgYLoc && tgYLoc <= downYLoc);
 
     // 우하단 좌표를 기준으로 영역 계산
-    var upXLoc = Number(mappingSid[2]) + Number(mappingSid[4]), rightXLoc = Number(mappingSid[1]) + Number(mappingSid[3]),
-        downXLoc = Number(mappingSid[2]) + Number(mappingSid[4]), leftXLoc = Number(mappingSid[1]) + Number(mappingSid[3]);
+    var tgXLoc = Number(loc[0]) + Number(loc[2]), tgYLoc = Number(loc[1]) + Number(loc[3]);
     var dbXLoc = (type == 'L') ? Number(dbRowData.LOCATION_X.split(",")[0]) + Number(dbRowData.LOCATION_X.split(",")[1]) : Number(dbRowData.OCR_TEXT_X.split(",")[0]) + Number(dbRowData.OCR_TEXT_X.split(",")[1]);
     var dbYLoc = (type == 'L') ? Number(dbRowData.LOCATION_Y.split(",")[0]) + Number(dbRowData.LOCATION_Y.split(",")[1]) : Number(dbRowData.OCR_TEXT_Y.split(",")[0]) + Number(dbRowData.OCR_TEXT_Y.split(",")[1]);
+    var upYLoc = dbYLoc, rightXLoc = dbXLoc, downYLoc = dbYLoc, leftXLoc = dbXLoc;
 
     if (mapJson[docCategory.DOCTYPE] && mapJson[docCategory.DOCTYPE][dbRowData.CLASS] && mapJson[docCategory.DOCTYPE][dbRowData.CLASS]['RD']
         && mapJson[docCategory.DOCTYPE][dbRowData.CLASS]['RD'][type]) {
-        upXLoc += mapJson[docCategory.DOCTYPE][dbRowData.CLASS]['RD'][type].up,
+        upYLoc += mapJson[docCategory.DOCTYPE][dbRowData.CLASS]['RD'][type].up,
             rightXLoc += mapJson[docCategory.DOCTYPE][dbRowData.CLASS]['RD'][type].right,
-            downXLoc += mapJson[docCategory.DOCTYPE][dbRowData.CLASS]['RD'][type].down,
+            downYLoc += mapJson[docCategory.DOCTYPE][dbRowData.CLASS]['RD'][type].down,
             leftXLoc += mapJson[docCategory.DOCTYPE][dbRowData.CLASS]['RD'][type].left;
     } else {
-        upXLoc += mapJson['default']['RD'][type].up,
+        upYLoc += mapJson['default']['RD'][type].up,
             rightXLoc += mapJson['default']['RD'][type].right,
-            downXLoc += mapJson['default']['RD'][type].down,
+            downYLoc += mapJson['default']['RD'][type].down,
             leftXLoc += mapJson['default']['RD'][type].left;
     }
-    var isRDCheck = (leftXLoc <= dbXLoc && dbXLoc <= rightXLoc) && (upXLoc <= dbYLoc && dbYLoc <= downXLoc);
+    var isRDCheck = (leftXLoc <= tgXLoc && tgXLoc <= rightXLoc) && (upYLoc <= tgYLoc && tgYLoc <= downYLoc);
 
     return (isLUCheck || isRDCheck) ? true : false;
 }

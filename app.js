@@ -119,16 +119,6 @@ app.use('/common', common);
 // server 
 app.set('port', process.env.PORT || 80);
 var server = app.listen(app.get('port'), function () {
-    console.log('Server Start!! port : ' + server.address().port);
-
-    /* 
-    // directory auto scan
-    var watch = require('node-watch');
-
-    watch('C:\\Users\\Taiho\\Desktop\\upload', { recursive: true, filter: /\.png$/ }, function (evt, name) {
-        console.log(evt); // update, remove
-        console.log('%s', name); // file path + file name
-    });
-    */ 
+    console.log('Server Start!! port : ' + server.address().port); 
 });
 
