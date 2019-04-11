@@ -5001,3 +5001,56 @@ exports.insertPredEntryMapping = function (req, done) {
         }
     });
 };
+
+exports.selectFtpFileList = function (req, done) {
+    return new Promise(async function (resolve, reject) {
+        let conn;
+
+        try {
+            conn = await oracledb.getConnection(dbConfig);
+            let query = "SELECT FILEPATH, FILENAME FROM TBL_FTP_FILE_LIST WHERE FILENAME IN ( ";
+            for (var i in req) {
+                query += '\''+ req[i] + '\', '
+            }
+            query = query.slice(0, -2);
+            query += ' )';
+
+            let result = await conn.execute(query);
+            return done(null, result.rows);
+        } catch (err) { // catches errors in getConnection and the query
+            reject(err);
+        } finally {
+            if (conn) {   // the conn assignment worked, must release
+                try {
+                    await conn.release();
+                } catch (e) {
+                    console.error(e);
+                }
+            }
+        }
+    });
+};
+
+exports.insertFtpFileList = function (path, req, done) {
+    return new Promise(async function (resolve, reject) {
+        let conn;
+
+        try {
+            conn = await oracledb.getConnection(dbConfig);
+            let query = "INSERT INTO TBL_FTP_FILE_LIST VALUES (SEQ_FTP_FILE_LIST.NEXTVAL, :filePath, :fileName, 'N')";
+            for (var i in req) await conn.execute(query, [path, req[i]]);
+
+            return done(null, null);
+        } catch (err) { // catches errors in getConnection and the query
+            reject(err);
+        } finally {
+            if (conn) {   // the conn assignment worked, must release
+                try {
+                    await conn.release();
+                } catch (e) {
+                    console.error(e);
+                }
+            }
+        }
+    });
+};
