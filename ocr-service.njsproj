@@ -31,6 +31,17 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="app.js" />
+    <Compile Include="public\js\user\batchLearningTest.js" />
+    <Compile Include="public\js\user\docManagement.js" />
+    <Compile Include="public\js\user\docRegistration.js" />
+    <Compile Include="public\js\user\docUpload.js" />
+    <Compile Include="public\js\user\setting.js" />
+    <Compile Include="public\js\user\templateRegistration.js" />
+    <Compile Include="routes\user\docManagement.js" />
+    <Compile Include="routes\user\docRegistration.js" />
+    <Compile Include="routes\user\docUpload.js" />
+    <Compile Include="routes\user\setting.js" />
+    <Compile Include="routes\user\templateRegistration.js" />
     <Compile Include="routes\util\auto.js" />
     <Compile Include="config\correctEntry.js" />
     <Compile Include="config\predRegionConfig.js" />
@@ -3197,6 +3208,16 @@
     <Content Include="public\publish\img\bg_img.png" />
     <Content Include="public\publish\img\bg_login.png" />
     <Content Include="public\publish\img\login_logo.png" />
+    <Content Include="public\selectareas\border-anim-h.gif" />
+    <Content Include="public\selectareas\border-anim-v.gif" />
+    <Content Include="public\selectareas\border-h.gif" />
+    <Content Include="public\selectareas\border-v.gif" />
+    <Content Include="public\selectareas\bt-delete.png" />
+    <Content Include="public\selectareas\imgareaselect-animated.css" />
+    <Content Include="public\selectareas\imgareaselect-default.css" />
+    <Content Include="public\selectareas\imgareaselect-deprecated.css" />
+    <Content Include="public\selectareas\jquery.selectareas.css" />
+    <Content Include="public\selectareas\outline.gif" />
     <Content Include="README.md" />
     <Content Include="sample\apex.jpg" />
     <Content Include="sample\nasco.jpg" />
@@ -3424,6 +3445,7 @@
     <Folder Include="public\publish\img\" />
     <Folder Include="public\publish\js\" />
     <Folder Include="public\publish\js\chart\" />
+    <Folder Include="public\selectareas\" />
     <Folder Include="routes\" />
     <Folder Include="routes\admin\" />
     <Folder Include="routes\proxy\" />
@@ -3452,12 +3474,18 @@
     <Content Include="views\index_after.html" />
     <Content Include="views\user\adminLearning.html" />
     <Content Include="views\user\batchLearning.html" />
+    <Content Include="views\user\batchLearningTest.html" />
+    <Content Include="views\user\docManagement.html" />
+    <Content Include="views\user\docRegistration.html" />
     <Content Include="views\user\documentCheck.html" />
+    <Content Include="views\user\docUpload.html" />
     <Content Include="views\user\invoiceProcessingStatus.html" />
     <Content Include="views\user\invoiceRegistration.html" />
     <Content Include="views\user\myApproval.html" />
     <Content Include="views\user\ocrImgJson.html" />
     <Content Include="views\user\result.html" />
+    <Content Include="views\user\setting.html" />
+    <Content Include="views\user\templateRegistration.html" />
     <Content Include="views\user\uiLearning.html" />
     <Content Include="views\user\uiLearning_before.html" />
     <Content Include="views\user\wF_WorkflowProc.html" />
