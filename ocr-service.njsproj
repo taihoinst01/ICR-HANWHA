@@ -43,7 +43,6 @@
     <Compile Include="routes\user\setting.js" />
     <Compile Include="routes\user\templateRegistration.js" />
     <Compile Include="routes\util\auto.js" />
-    <Compile Include="config\correctEntry.js" />
     <Compile Include="config\predRegionConfig.js" />
     <Compile Include="config\dbConfig.js" />
     <Compile Include="config\propertiesConfig.js" />
@@ -3219,8 +3218,6 @@
     <Content Include="public\selectareas\jquery.selectareas.css" />
     <Content Include="public\selectareas\outline.gif" />
     <Content Include="README.md" />
-    <Content Include="sample\apex.jpg" />
-    <Content Include="sample\nasco.jpg" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="config\" />
@@ -3451,7 +3448,6 @@
     <Folder Include="routes\proxy\" />
     <Folder Include="routes\user\" />
     <Folder Include="routes\util\" />
-    <Folder Include="sample\" />
     <Folder Include="uploads\" />
     <Folder Include="views\" />
     <Folder Include="views\admin\" />
