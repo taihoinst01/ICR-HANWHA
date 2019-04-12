@@ -8,7 +8,7 @@ var oracle = require('./oracle.js');
 
 //FTP 서버 정보
 var ftpConfig = {
-    host: '192.168.0.23',
+    host: '192.168.1.170',
     port: 21,
     user: 'taiho',
     password: '1'
