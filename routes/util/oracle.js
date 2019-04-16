@@ -4980,7 +4980,7 @@ exports.insertPredEntryMapping = function (req, done) {
                 ", CLASS, REGDATE, LEFTLABEL, LEFTLOCX, LEFTLOCY, UPLABEL, UPLOCX, UPLOCY" +
                 ", DIAGONALLABEL, DIAGONALLOCX, DIAGONALLOCY, STATUS) VALUES " +
                 "(SEQ_PRED_ENTRY_MAPPING.NEXTVAL, :docType, :location, :ocrText, :class, sysdate, :leftLabel, :leftLocX, :leftLocY" +
-                ", :upLabel, :upLocX, :upLocY, :diagonalLabel, :diagonalLocX, :diagonaltLocY, '0')";
+                ", :upLabel, :upLocX, :upLocY, :diagonalLabel, :diagonalLocX, :diagonalLocY, '0')";
             for (var i in req) {
                 for (var j in result.rows) {
                     if (req[i].docType == result.rows[j].DOCTYPE && req[i].location == result.rows[j].LOCATION && req[i].ocrText == result.rows[j].OCRTEXT) {
@@ -4992,7 +4992,7 @@ exports.insertPredEntryMapping = function (req, done) {
                 if (selectResult.rows.length == 0) {
                     await conn.execute(query, [req[i].docType, req[i].location, req[i].ocrText, req[i].class,
                     req[i].leftLabel, req[i].leftLocX, req[i].leftLocY, req[i].upLabel, req[i].upLocX, req[i].upLocY,
-                    req[i].diagonalLabel, req[i].diagonalLocX, req[i].diagonaltLocY]);
+                    req[i].diagonalLabel, req[i].diagonalLocX, req[i].diagonalLocY]);
                 }
             }
             return done(null, null);
