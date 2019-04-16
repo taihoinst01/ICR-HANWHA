@@ -14,7 +14,8 @@ from glob import glob
 from difflib import SequenceMatcher
 from pdf2image import convert_from_path, convert_from_bytes
 
-import lineDeleteAndNoiseDelete as lineDel
+from subprocess import call
+# import lineDeleteAndNoiseDelete as lineDel
 
 
 # pdf 에서 png 변환 함수
@@ -451,7 +452,20 @@ def stringToBase64(s):
 # decode
 def base64ToString(b):
     return base64.b64decode(b).decode('utf-8')
-    
+
+# imageMagick_lineDelete
+# imageMagick 경로 확인!!!
+def lineDelete(path):
+    try:
+        cmd = 'C:\\Users\\user\\source\\repos\\ICR-DAERIM\\module\\imageMagick\\convert.exe ' + path + ' -type Grayscale -negate -define morphology:compose=darken -morphology Thinning ''Rectangle:1x60+0+0<'' -negate ' + path
+        cmd_args = cmd.split()
+        call(cmd_args)
+        return True
+        
+    except Exception as ex:
+        raise Exception(str({'code': 500, 'message': 'lineDelete error',
+                             'error': str(ex).replace("'", "").replace('"', '')}))
+
 if __name__ == '__main__':
     try:
         retResult = []
@@ -467,13 +481,15 @@ if __name__ == '__main__':
             fileNames = convertPdfToImage(upload_path, fileName)
             for item in fileNames:
                 imgResize(upload_path + item)
+                lineDelete(upload_path + item)
                 # lineDeleteAndNoiseDelete
-                lineDel.main(stringToBase64(upload_path + item))
+                #lineDel.main(stringToBase64(upload_path + item))
                 obj = pyOcr(upload_path + item)
                 retResult.append(obj)
         else:
             fileNames = imgResize(upload_path + fileName)
             for item in fileNames:
+                lineDelete(upload_path + fileNames)
                 obj = pyOcr(item)
                 retResult.append(obj)
 
