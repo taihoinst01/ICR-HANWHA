@@ -219,16 +219,9 @@ function findEntry(req,docTypeVal, docTopTypeVal, done) {
             let labelTrainRows = sync.await(oracle.selectLabelTrainDataList(docTypeParam, sync.defer()));
 
             for(var j in req.data) {
-                //var mappingSid = req.data[j].mappingSid.split(",");
-                
-                //console.log("before : "+req.data[j].text + " X : "+mappingSid[1] + " Y : "+mappingSid[2]);
-
                 if(labelTrainRows.length > 0) {
                     for (var k in labelTrainRows) {
                         if (predictionColumn(req.docCategory, req.data[j], labelTrainRows[k], 'L')) {
-                            // console.log("after : "+req.data[j].text + " X : "+mappingSid[1] + " Y : "+mappingSid[2]);
-                            // console.log(mappingSid[1] +" || "+ trainRows[k].LOCATION_X);
-                            // console.log(mappingSid[2] +" || "+ trainRows[k].LOCATION_Y);
                             req.data[j]["colLbl"] = labelTrainRows[k].CLASS;
                             break;
                         }
@@ -247,16 +240,8 @@ function findEntry(req,docTypeVal, docTopTypeVal, done) {
             //entry data 추출
             let entryTrainRows = sync.await(oracle.selectTrainDataList(docTypeParam, sync.defer()));
             for(var j in req.data) {
-                //var location = req.data[j].location.split(",");
-                
-                //console.log("before : "+req.data[j].text + " X : "+location[0] + " width : "+location[2] + " Y : "+location[1] + " height : "+location[3] );
-
                 for (var k in entryTrainRows) {
-
                     if (predictionColumn(req.docCategory, req.data[j], entryTrainRows[k], 'E') && isValid(labelRows, entryTrainRows[k].CLASS, req.data[j]["text"])) {
-                        // console.log("after : "+req.data[j].text + " X : "+mappingSid[1] + " Y : "+mappingSid[2]);
-                        // console.log(mappingSid[1] +" || "+ trainRows[k].LOCATION_X);
-                        // console.log(mappingSid[2] +" || "+ trainRows[k].LOCATION_Y);
                         req.data[j]["entryLbl"] = entryTrainRows[k].CLASS;
                         delete req.data[j].colLbl;
                         break;
