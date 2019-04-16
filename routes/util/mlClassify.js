@@ -313,7 +313,7 @@ function isValid(list, cls, text) {
             return reg.test(text);
         }
     }
-    return true;
+    return false;
 }
 
 function similar(str, data) {
