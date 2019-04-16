@@ -186,9 +186,9 @@ function findEntry(req,docTypeVal, docTopTypeVal, done) {
             var variLabel = [];
             let docTopTypeParam = [docTopTypeVal];
             let docTypeParam = [docTypeVal];
-            /*
-            let labelRows = sync.await(oracle.selectDocIdLabelDefList(docTopTypeParam, sync.defer()));
             
+            let labelRows = sync.await(oracle.selectDocIdLabelDefList(docTopTypeParam, sync.defer()));
+            /*
             for(var i in labelRows)
             {
                 if(labelRows[i].LABELTYPE == 'T' && labelRows[i].AMOUNT == "submulti")
@@ -253,7 +253,7 @@ function findEntry(req,docTypeVal, docTopTypeVal, done) {
 
                 for (var k in entryTrainRows) {
 
-                    if (predictionColumn(req.docCategory, req.data[j], entryTrainRows[k], 'E')) {
+                    if (predictionColumn(req.docCategory, req.data[j], entryTrainRows[k], 'E') && isValid(labelRows, entryTrainRows[k].CLASS, req.data[j]["text"])) {
                         // console.log("after : "+req.data[j].text + " X : "+mappingSid[1] + " Y : "+mappingSid[2]);
                         // console.log(mappingSid[1] +" || "+ trainRows[k].LOCATION_X);
                         // console.log(mappingSid[2] +" || "+ trainRows[k].LOCATION_Y);
@@ -305,6 +305,16 @@ function findEntry(req,docTypeVal, docTopTypeVal, done) {
 	});
 }
 
+// db 컬럼 정규식과 현재 타겟 text 비교
+function isValid(list, cls, text) {
+    for (var i in list) {
+        if (list[i].SEQNUM == cls) {
+            var reg = new RegExp(list[i].VALID);
+            return reg.test(text);
+        }
+    }
+    return true;
+}
 
 function similar(str, data) {
     return new difflib.SequenceMatcher(null,str, data).ratio();
