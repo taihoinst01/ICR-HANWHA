@@ -4930,6 +4930,7 @@ exports.insertPredLabelMapping = function (req, done) {
             let query = "SELECT DOCTYPE, LOCATION, OCRTEXT FROM TBL_PRED_ENTRY_MAPPING WHERE STATUS = '0'";
             let result = await conn.execute(query);
             let entryQuery = "UPDATE TBL_PRED_ENTRY_MAPPING SET STATUS = '1' WHERE docType = :docType and location = :location and ocrText = :ocrText";
+            let selectQuery = "SELECT SEQNUM FROM TBL_PRED_LABEL_MAPPING WHERE docType = :docType and location = :location and ocrText = :ocrText";
 
             query = "INSERT INTO TBL_PRED_LABEL_MAPPING(SEQNUM, DOCTYPE, LOCATION, OCRTEXT, CLASS, REGDATE, LEFTTEXT, DOWNTEXT, STATUS) VALUES " +
                 "(SEQ_PRED_LABEL_MAPPING.NEXTVAL, :docType, :location, :ocrText, :class, sysdate, :leftText, :downText, '0')";
@@ -4940,7 +4941,10 @@ exports.insertPredLabelMapping = function (req, done) {
                         break;
                     }
                 }
-                await conn.execute(query, [req[i].docType, req[i].location, req[i].ocrText, req[i].class, req[i].leftText, req[i].downText]);
+                var selectResult = await conn.execute(selectQuery, [req[i].docType, req[i].location, req[i].ocrText]);
+                if (selectResult.rows.length == 0) {
+                    await conn.execute(query, [req[i].docType, req[i].location, req[i].ocrText, req[i].class, req[i].leftText, req[i].downText]);
+                }
             }
             return done(null, null);
         } catch (err) { // catches errors in getConnection and the query
@@ -4970,6 +4974,7 @@ exports.insertPredEntryMapping = function (req, done) {
             let query = "SELECT DOCTYPE, LOCATION, OCRTEXT FROM TBL_PRED_LABEL_MAPPING WHERE STATUS = '0'";
             let result = await conn.execute(query);
             let labelQuery = "UPDATE TBL_PRED_LABEL_MAPPING SET STATUS = '1' WHERE docType = :docType and location = :location and ocrText = :ocrText";
+            let selectQuery = "SELECT SEQNUM FROM TBL_PRED_ENTRY_MAPPING WHERE docType = :docType and location = :location and ocrText = :ocrText";
 
             query = "INSERT INTO TBL_PRED_ENTRY_MAPPING(SEQNUM, DOCTYPE, LOCATION, OCRTEXT" +
                 ", CLASS, REGDATE, LEFTLABEL, LEFTLOCX, LEFTLOCY, UPLABEL, UPLOCX, UPLOCY" +
@@ -4983,9 +4988,12 @@ exports.insertPredEntryMapping = function (req, done) {
                         break;
                     }
                 }
-                await conn.execute(query, [req[i].docType, req[i].location, req[i].ocrText, req[i].class,
+                var selectResult = await conn.execute(selectQuery, [req[i].docType, req[i].location, req[i].ocrText]);
+                if (selectResult.rows.length == 0) {
+                    await conn.execute(query, [req[i].docType, req[i].location, req[i].ocrText, req[i].class,
                     req[i].leftLabel, req[i].leftLocX, req[i].leftLocY, req[i].upLabel, req[i].upLocX, req[i].upLocY,
                     req[i].diagonalLabel, req[i].diagonalLocX, req[i].diagonaltLocY]);
+                }
             }
             return done(null, null);
         } catch (err) { // catches errors in getConnection and the query
