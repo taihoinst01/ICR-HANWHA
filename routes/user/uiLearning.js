@@ -20,7 +20,6 @@ var batch = require('../util/batch.js');
 var ocrUtil = require('../util/ocr.js');
 
 var ocrJs = require('../util/ocr.js');
-var correctEntry = require(appRoot + '/config/correctEntry.js');
 
 const upload = multer({
     storage: multer.diskStorage({
@@ -76,68 +75,13 @@ router.post('/uiLearnTraining', function (req, res) {
     sync.fiber(function () {
         var filepath = req.body.fileInfo.filePath;
         var uiData;
-        var correctUiData;
+
         uiData = sync.await(uiLearnTraining_new(filepath, sync.defer()));
 
-        /* 오타수정
-        for (var i=0; i<uiData.length; i++) {
-            uiData[i] = sync.await(ocrJs.correctEntryFnc(uiData[i], sync.defer()));
-        }
-        */
         res.send({ data: uiData });
-        /*
-        for (var i = 0; i < filepath.length; i++) {
-            //uiData = sync.await(batchLearnTraining(filepath[i], "LEARN_Y", sync.defer()));
-            uiData = sync.await(uiLearnTraining(filepath[i], sync.defer()));
-
-            res.send({ data: uiData });
-        }
-        */
     });
 });
-/*
-ocr.js로 옮김
-function correctEntryFnc(uiInputData, callback) {
-    sync.fiber(function () {
-        try{ 
-            var docTypeJson;
-            var entryJson;
-            var inputDataArr = uiInputData.data;
-            for (var i=0; i<inputDataArr.length; i++) {
-                docTypeJson = correctEntry.pantos[uiInputData.docCategory.DOCTOPTYPE];
-                console.log(' docTypeJson ---  ' + docTypeJson);
-                if (typeof docTypeJson != 'undefined') {
-                    console.log(' inputDataArr[i].entryLbl ---  ' + inputDataArr[i].entryLbl);
-                    entryJson = docTypeJson[inputDataArr[i].entryLbl];
-                    //console.log(' entryJson ---  ' + entryJson.toString());
-                    if (typeof entryJson != 'undefined') {
-                        var ocrText = inputDataArr[i].originText;
-                        var correctText = '';
-                        Object.keys(entryJson).forEach(function(objKey){
-                            console.log(objKey + ' - ' + entryJson[objKey]);
-                            if (ocrText.indexOf(objKey) != -1) {
-                                console.log('before' + ocrText);
-                                //ocrText = ocrText.split(objKey).join(entryJson[objKey]);
-                                
-		                        var regEx = new RegExp(objKey, "g");
-                                ocrText = ocrText.replace(regEx, entryJson[objKey]);
-                                inputDataArr[i].text = ocrText;
-                                console.log('after' + ocrText );
-                            }
-                        });
-                    }
-                }
-            }
-            uiInputData.data = inputDataArr;
-            callback(null, uiInputData);
-        } catch (e) {
-            console.log(e);
-            callback(null, uiInputData);
-        }
-        
-    });
-}
-*/
+
 function uiLearnTraining_new(filepath, callback) {
     sync.fiber(function () {
         try{

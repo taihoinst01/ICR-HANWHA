@@ -27,7 +27,6 @@ var Step = require('step');
 
 
 var ocrJs = require('../util/ocr.js');
-var correctEntry = require(appRoot + '/config/correctEntry.js');
 
 var insertTextClassification = queryConfig.uiLearningConfig.insertTextClassification;
 var insertLabelMapping = queryConfig.uiLearningConfig.insertLabelMapping;
@@ -467,7 +466,6 @@ router.post('/imgOcr', function (req, res) {
                 retData.labelData = labelData.rows;
                 retData.fileName = resPyArr[i].fileName;
 
-                retData = sync.await(ocrJs.correctEntryFnc(retData, sync.defer()));
                 retDataList.push(retData);
             }
             // tbl_icr_label_def 조회
