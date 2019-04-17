@@ -457,7 +457,7 @@ def base64ToString(b):
 # imageMagick 경로 확인!!!
 def lineDelete(path):
     try:
-        cmd = 'C:\\Users\\user\\source\\repos\\ICR-DAERIM\\module\\imageMagick\\convert.exe ' + path + ' -type Grayscale -negate -define morphology:compose=darken -morphology Thinning ''Rectangle:1x60+0+0<'' -negate ' + path
+        cmd = './module/imageMagick/convert.exe ' + path + ' -type Grayscale -negate -define morphology:compose=darken -morphology Thinning ''Rectangle:1x60+0+0<'' -negate ' + path
         cmd_args = cmd.split()
         call(cmd_args)
         return True

@@ -81,9 +81,16 @@ function editOcrTextTypos(req, done) {
                 var dbKeyWord = symspellList[i].KEYWORD; 
                 for(var j = 0; j < ocrDataLength; j++) {
                     var ocrText =  ocrData[j].originText;
+                    // 전체 수정
                     if(dbIcrWord == ocrText) {
                         ocrData[j].text = dbKeyWord;
                     }
+                    // 부분 수정
+                    // if(ocrText.indexOf(dbIcrWord)!==-1)
+                    // {
+                    //     ocrText = ocrText.replace(dbIcrWord, dbKeyWord);
+                    //     ocrData[j].text = ocrText;
+                    // }
                 }
             }
 			
