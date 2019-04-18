@@ -1460,7 +1460,6 @@ function modifyTextData() {
             console.log(err);
         }
     });
-
 }
 
 function predLabel(beforeData, afterData) {

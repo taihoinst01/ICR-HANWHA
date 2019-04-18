@@ -4084,6 +4084,56 @@ exports.insertBatchLearningFileInfoTest = function (req, done) {
     });
 };
 
+// 개별학습 add training시 TBL_BATCH_LEARN_LIST에 파일정보 INSERT
+exports.insertBatchLearnListFromUi = function (req, done) {
+    return new Promise(async function (resolve, reject) {
+        let conn;
+
+        try {
+            conn = await oracledb.getConnection(dbConfig);
+
+            await conn.execute("INSERT INTO TBL_BATCH_LEARN_LIST VALUES (:imgId, 'D', :filePath, :docType, sysdate, :docTopType, 1)", req);
+
+            return done(null, null);
+        } catch (err) { // catches errors in getConnection and the query
+            reject(err);
+        } finally {
+            if (conn) {   // the conn assignment worked, must release
+                try {
+                    await conn.release();
+                } catch (e) {
+                    console.error(e);
+                }
+            }
+        }
+    });
+};
+
+// 개별학습 add training시 TBL_BATCH_PO_ML_EXPORT에 ML데이터 INSERT
+exports.insertBatchPoMlExportFromUi = function (req, done) {
+    return new Promise(async function (resolve, reject) {
+        let conn;
+
+        try {
+            conn = await oracledb.getConnection(dbConfig);
+            let query = "INSERT INTO TBL_BATCH_PO_ML_EXPORT VALUES (SEQ_BATCH_PO_ML_EXPORT.NEXTVAL, :docTopType, :filepath, :exportData)";
+            await conn.execute(query, req);
+
+            return done(null, null);
+        } catch (err) { // catches errors in getConnection and the query
+            reject(err);
+        } finally {
+            if (conn) {   // the conn assignment worked, must release
+                try {
+                    await conn.release();
+                } catch (e) {
+                    console.error(e);
+                }
+            }
+        }
+    });
+};
+
 exports.selectImgid = function (req, done) {
     return new Promise(async function (resolve, reject) {
         let conn;

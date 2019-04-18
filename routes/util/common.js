@@ -583,7 +583,7 @@ router.post('/modifyBatchUiTextData', function (req, res) {
     var afterData = req.body.afterData;
     var predLabelData = req.body.predLabelData;
     var predEntryData = req.body.predEntryData;
-    //var filepath = req.body.beforeData.fileinfo.filepath;
+    var filepath = req.body.beforeData.fileinfo.filepath;
     var docTopType = beforeData.docCategory.DOCTOPTYPE;
     var docType = beforeData.docCategory.DOCTYPE;
     var returnObj;
@@ -753,6 +753,31 @@ router.post('/modifyBatchUiTextData', function (req, res) {
             //entry prediction ML DB insert
             sync.await(oracle.insertPredEntryMapping(predEntryData, sync.defer()));
 
+            // TBL_BATCH_LEARN_LIST table insert            
+            var d = new Date();
+            var imgId = d.isoNum(8) + "" + Math.floor(Math.random() * 9999999) + 1000000;
+            sync.await(oracle.insertBatchLearnListFromUi([imgId, filepath, docType, docTopType], sync.defer()));
+
+            // TBL_BATCH_PO_ML_EXPORT table insert
+            var exportData = "[";
+            let labels = sync.await(oracle.selectIcrLabelDef(docTopType, sync.defer()));
+            for (var i in labels.rows) {
+                var entryData = "";
+                for (var j in afterData.data) {
+                    var item = null;
+                    if (afterData.data[j].colType == 'E' && labels.rows[i].SEQNUM == afterData.data[j].colLbl) {
+                        item = ((entryData == "") ? "" : " | ") + afterData.data[j].text;
+                        entryData += item;
+                    }
+                }
+                exportData += ((entryData != "") ? "\"" + entryData + "\"" : null);
+                exportData += ",";                
+            }
+            exportData = exportData.slice(0, -1);
+            exportData += "]";
+
+            sync.await(oracle.insertBatchPoMlExportFromUi([docTopType, filepath.substring(filepath.lastIndexOf('/') + 1), exportData], sync.defer()));
+
             returnObj = { code: 200, message: 'modify textData success' };
 
         } catch (e) {
@@ -763,6 +788,12 @@ router.post('/modifyBatchUiTextData', function (req, res) {
         }
     });
 });
+
+Date.prototype.isoNum = function (n) {
+    var tzoffset = this.getTimezoneOffset() * 60000; //offset in milliseconds
+    var localISOTime = (new Date(this - tzoffset)).toISOString().slice(0, -1);
+    return localISOTime.replace(/[-T:\.Z]/g, '').substring(0, n || 20); // YYYYMMDD
+};
 
 function locationCheck(loc1, loc2, plus, minus, islabel) {
     if (islabel == 'label') {
