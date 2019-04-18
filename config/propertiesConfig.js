@@ -17,6 +17,7 @@ var propertiesConfig = {
     },
     filepath: {
         uploadsPath: 'C:\\ICR\\uploads\\',
+        scanPath: 'C:\\ICR\\ScanFiles\\',
         //develop
         logfilepath: 'c:/logs',
         //realExcelPath: 'C:\\Users\\Taiho\\Desktop\\labeled_data',
