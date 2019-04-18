@@ -15,7 +15,7 @@ from difflib import SequenceMatcher
 from pdf2image import convert_from_path, convert_from_bytes
 
 from subprocess import call
-import lineDeleteAndNoiseDelete as lineDel
+import linedel as lineDel
 # mask 생성 후 GRID 제거
 # import lineDelTest as lineDel
 
