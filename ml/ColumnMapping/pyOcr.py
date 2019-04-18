@@ -15,8 +15,9 @@ from difflib import SequenceMatcher
 from pdf2image import convert_from_path, convert_from_bytes
 
 from subprocess import call
-# import lineDeleteAndNoiseDelete as lineDel
-
+import lineDeleteAndNoiseDelete as lineDel
+# mask 생성 후 GRID 제거
+# import lineDelTest as lineDel
 
 # pdf 에서 png 변환 함수
 def convertPdfToImage(upload_path, pdf_file):
@@ -481,15 +482,17 @@ if __name__ == '__main__':
             fileNames = convertPdfToImage(upload_path, fileName)
             for item in fileNames:
                 imgResize(upload_path + item)
-                lineDelete(upload_path + item)
-                # lineDeleteAndNoiseDelete
-                #lineDel.main(stringToBase64(upload_path + item))
+                # lineDelete(upload_path + item)
+                # lineDeleteAndNoiseDelete                
+                lineDel.main(stringToBase64(upload_path + item))
                 obj = pyOcr(upload_path + item)
                 retResult.append(obj)
         else:
             fileNames = imgResize(upload_path + fileName)
             for item in fileNames:
-                lineDelete(upload_path + fileNames)
+                # lineDelete(upload_path + fileNames)
+                # lineDeleteAndNoiseDelete
+                lineDel.main(stringToBase64(upload_path + item))
                 obj = pyOcr(item)
                 retResult.append(obj)
 
