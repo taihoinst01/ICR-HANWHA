@@ -8,6 +8,9 @@ var propertiesConfig = {
     uiLearning: {
 
     },
+    icrRest: {
+        serverUrl: 'http://13.78.61.168:5000'
+    },
     batchLearning: {
 
     },

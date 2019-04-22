@@ -85,17 +85,19 @@ router.post('/uiLearnTraining', function (req, res) {
 function uiLearnTraining_new(filepath, callback) {
     sync.fiber(function () {
         try{
-            pythonConfig.columnMappingOptions.args = [];
-            pythonConfig.columnMappingOptions.args.push(filepath);
-            var resPyStr = sync.await(PythonShell.run('pyOcr.py', pythonConfig.columnMappingOptions, sync.defer()));
-            var testStr = resPyStr[0].replace('b', '');
-            testStr = testStr.replace(/'/g, '');
-            var decode = Buffer.from(testStr, 'base64').toString('utf-8');
-            var resPyArr = JSON.parse(decode);
+            var icrRestResult = sync.await(ocrUtil.icrRest(filepath, sync.defer()));
+            // pythonConfig.columnMappingOptions.args = [];
+            // pythonConfig.columnMappingOptions.args.push(filepath);
+            // var resPyStr = sync.await(PythonShell.run('pyOcr.py', pythonConfig.columnMappingOptions, sync.defer()));
+            // var testStr = resPyStr[0].replace('b', '');
+            // testStr = testStr.replace(/'/g, '');
+            // var decode = Buffer.from(testStr, 'base64').toString('utf-8');
+            var resPyArr = JSON.parse(icrRestResult);
             var retData = {};
             var retDataList = [];
             var docCategory = {};
             for (var i in resPyArr) {
+                sync.await(ocrUtil.downloadRestSaveImg(resPyArr[i].fileName, sync.defer()));
                 if (i == 0) {
                     docCategory = resPyArr[i].docCategory;
                 }
@@ -110,12 +112,12 @@ function uiLearnTraining_new(filepath, callback) {
 				else {
 					retData.docCategory.DOCNAME = "unKnown";
 				}
-
 				
                 retData.labelData = labelData.rows;
                 retData.fileinfo = { filepath: "C:/ICR/uploads/"+resPyArr[i].fileName };
                 retDataList.push(retData);
             }
+            console.log("for end");
             //console.log(retDataList);
             // resPyArr = sync.await(transPantternVar.trans(resPyArr, sync.defer()));
 
@@ -1291,4 +1293,130 @@ function exists(path) {
     }
     return true;
 }
+
+	// [POST] linux server icrRest
+    var request = require('request');
+    exports.icrRest = function (req, done) {
+        return new Promise(async function (resolve, reject) {
+            var filepath = req;
+            var filename = filepath.slice(filepath.lastIndexOf("/") + 1);
+            try {
+                var formData = {
+                    file: {
+                        value: fs.createReadStream(filepath),
+                        options: {
+                            filename: filename,
+                        }
+                    }
+                };
+                console.time("icrRest Time");
+    
+                request.post({ url: propertiesConfig.icrRest.serverUrl + '/fileUpload', formData: formData }, function (err, httpRes, body) {
+                    if (err) res.send({ 'code': 500, 'error': err });
+                    console.timeEnd("icrRest Time");
+                    return done(null, body);
+                }) 
+            } catch (err) {
+                reject(err);
+            } finally {
+            }
+        });
+    };
+    
+    // [POST] linux server icrRestimage download
+    exports.downloadRestSaveImg = function (req, done) {
+        return new Promise(async function (resolve, reject) {
+            var filename = req;
+            try {
+                console.time("downloadRestSaveImg Time");
+                request.get({ url: propertiesConfig.icrRest.serverUrl + '/fileDown?fileName=' + filename}, function (err, httpRes, body) {
+                    if (err) return done(null, err);
+                    let binaryData = new Buffer(body, 'base64').toString('binary');
+                    fs.writeFile(propertiesConfig.filepath.uploadsPath + filename, binaryData, 'binary', function() {
+                        if (err) throw err
+                        console.log('File saved.')
+                    })
+                    console.timeEnd("downloadRestSaveImg Time");
+                    return done(null, null);
+                }) 
+            } catch (err) {
+                reject(err);
+            } finally {
+            }
+        });
+    };
+        
+    // 문서양식매핑
+    router.post('/insertDoctypeMapping', function (req, res) {
+        var returnObj;
+        
+        var data = {
+            imgId: req.body.imgId,
+            filepath: req.body.filepath,
+            docName: req.body.docName,
+            radioType: req.body.radioType,
+            textList: req.body.textList
+        }
+    
+        sync.fiber(function () {
+            try {
+                var regExp = /[\{\}\[\]\/?.,;:|\)*~`!^\-_+<>@\#$%&\\\=\(\'\"]/gi;
+                let data = req.body;
+                returnObj = sync.await(batch.insertDoctypeMapping(data, sync.defer()));
+                
+                var  cnt = 0;
+                var sentences = "";
+                for (var i in returnObj.docSentenceList)
+                {
+                    sentences = sentences + returnObj.docSentenceList[i].text.replace(regExp,"") + ",";
+                    cnt ++;
+                    if(cnt == 20) {break;}
+                }
+                sentences = sentences.substring(0, sentences.length -1);
+                sentences = sentences+"||"+returnObj.docType+"||"+returnObj.docTopType;
+    
+                var retResult = sync.await(insertDocSentence(sentences,sync.defer()));
+    
+                // pythonConfig.columnMappingOptions.args = [];
+                // pythonConfig.columnMappingOptions.args.push(sentences);
+                // // pythonConfig.documentSentenceOptions.args.push(returnObj.docTopType);
+                // // pythonConfig.documentSentenceOptions.args.push(returnObj.docType);
+                // // pythonConfig.documentSentenceOptions.args.push(returnObj.docSentenceList);
+    
+                // console.log("pythonConfig.documentSentenceOptions");
+                // console.log(pythonConfig.columnMappingOptions);
+                // console.log("pythonConfig.documentSentenceOptions");
+    
+                // var retResult = sync.await(PythonShell.run('docSentenceClassify.py', pythonConfig.columnMappingOptions, sync.defer()));
+                console.log(retResult);
+            } catch (e) {
+                console.log(e);
+                returnObj = { code: 500, message: e };
+            } finally {
+                res.send(returnObj);
+            }
+        });
+    });
+    var localRequest = require('sync-request');
+    function insertDocSentence(sentences, done) {
+        return new Promise(async function (resolve, reject) {
+            try {
+                
+                var res = localRequest('POST', 'http://13.78.61.168:5000/insertDocSentence', {
+                    headers:{'content-type':'application/x-www-form-urlencoded'},
+                    body: 'sentence='+sentences
+                });
+                var resJson = res.getBody('utf8');
+                //pharsedOcrJson = ocrJson(resJson.regions);
+                //var resJson = ocrParsing(res.getBody('utf8'));
+    
+                return done(null, resJson);
+            } catch (err) {
+                console.log(err);
+                return done(null, 'error');
+            } finally {
+    
+            }
+        });   
+    };
 module.exports = router;

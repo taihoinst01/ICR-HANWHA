@@ -225,3 +225,96 @@ function ocrParsing(body) {
         return data;
     }
 }
+
+
+
+exports.correctEntryFnc = function (uiInputData, done) {
+    return new Promise(async function (resolve, reject) {
+        try{ 
+            var docTypeJson;
+            var entryJson;
+            var inputDataArr = uiInputData.data;
+            for (var i=0; i<inputDataArr.length; i++) {
+                docTypeJson = correctEntry.pantos[uiInputData.docCategory.DOCTOPTYPE];
+                //console.log(' docTypeJson ---  ' + docTypeJson);
+                if (typeof docTypeJson != 'undefined') {
+                    //console.log(' inputDataArr[i].entryLbl ---  ' + inputDataArr[i].entryLbl);
+                    entryJson = docTypeJson[inputDataArr[i].entryLbl];
+                    //console.log(' entryJson ---  ' + entryJson.toString());
+                    if (typeof entryJson != 'undefined') {
+                        var ocrText = inputDataArr[i].originText;
+                        var correctText = '';
+                        Object.keys(entryJson).forEach(function(objKey){
+                            console.log(objKey + ' - ' + entryJson[objKey]);
+                            if (ocrText.indexOf(objKey) != -1) {
+                                console.log('before' + ocrText);
+                                //ocrText = ocrText.split(objKey).join(entryJson[objKey]);
+                                
+		                        var regEx = new RegExp(objKey, "g");
+                                ocrText = ocrText.replace(regEx, entryJson[objKey]);
+                                inputDataArr[i].text = ocrText;
+                                console.log('after' + ocrText );
+                            }
+                        });
+                    }
+                }
+            }
+            uiInputData.data = inputDataArr;
+            return done(null, uiInputData);
+        } catch (e) {
+            console.log(e);
+            return done(null, uiInputData);
+        }
+    });
+};
+
+// [POST] linux server icrRest
+exports.icrRest = function (req, done) {
+    return new Promise(async function (resolve, reject) {
+        var filepath = req;
+        var filename = filepath.slice(filepath.lastIndexOf("/") + 1);
+        try {
+            var formData = {
+                file: {
+                    value: fs.createReadStream(filepath),
+                    options: {
+                        filename: filename,
+                    }
+                }
+            };
+            console.time("icrRest Time");
+
+            request.post({ url: propertiesConfig.icrRest.serverUrl + '/fileUpload', formData: formData }, function (err, httpRes, body) {
+                if (err) res.send({ 'code': 500, 'error': err });
+                console.timeEnd("icrRest Time");
+                return done(null, body);
+            }) 
+        } catch (err) {
+            reject(err);
+        } finally {
+        }
+    });
+};
+
+// [POST] linux server icrRestimage download
+exports.downloadRestSaveImg = function (req, done) {
+    return new Promise(async function (resolve, reject) {
+        var filename = req;
+        try {
+            console.time("downloadRestSaveImg Time");
+            request.get({ url: propertiesConfig.icrRest.serverUrl + '/fileDown?fileName=' + filename}, function (err, httpRes, body) {
+                if (err) return done(null, err);
+                let binaryData = new Buffer(body, 'base64').toString('binary');
+                fs.writeFile(propertiesConfig.filepath.uploadsPath + filename, binaryData, 'binary', function() {
+                    if (err) throw err
+                    console.log('File saved.')
+                })
+                console.timeEnd("downloadRestSaveImg Time");
+                return done(null, null);
+            }) 
+        } catch (err) {
+            reject(err);
+        } finally {
+        }
+    });
+};

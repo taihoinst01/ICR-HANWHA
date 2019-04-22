@@ -12,6 +12,7 @@ var sync = require('../util/sync.js');
 var fs = require('fs');
 var PythonShell = require('python-shell');
 var pythonConfig = require(appRoot + '/config/pythonConfig');
+var propertiesConfig = require(appRoot + '/config/propertiesConfig.js');
 
 /***************************************************************
  * Router
@@ -48,6 +49,7 @@ router.post('/selectTxtList', function (req, res) {
 });
 
 /* TXT 파일 리스트 변경 (추가) */
+var localRequest = require('sync-request');
 router.post('/updateTxt', function (req, res) {
     sync.fiber(function () {
         let returnObj = {};
@@ -65,16 +67,36 @@ router.post('/updateTxt', function (req, res) {
         //     fs.writeFileSync('ml/ColumnMapping/splitLabel.txt', resultText, 'utf8');
         // }
         if(newText.length > 0) {
-            pythonConfig.columnMappingOptions.args = [];
-            pythonConfig.columnMappingOptions.args.push(JSON.stringify(newText));
-            var resPyStr = sync.await(PythonShell.run('pySplitLabel.py', pythonConfig.columnMappingOptions, sync.defer()));
+            sync.await(insertSplitData(JSON.stringify(newText),sync.defer()));
+            // pythonConfig.columnMappingOptions.args = [];
+            // pythonConfig.columnMappingOptions.args.push(JSON.stringify(newText));
+            // var resPyStr = sync.await(PythonShell.run('pySplitLabel.py', pythonConfig.columnMappingOptions, sync.defer()));
         }  
 
 
         returnObj = {'TxtList': resultText};
         res.send(returnObj);
     });
-});
+});	
+
+function insertSplitData(req, done) {
+    return new Promise(async function (resolve, reject) {
+        try {
+            
+            var res = localRequest('POST', propertiesConfig.icrRest.serverUrl + '/insertSplitData', {
+                headers:{'content-type':'application/json'},
+                json:{sentence:req}
+            });
+            var resJson = res.getBody('utf8');
+            return done(null, resJson);
+        } catch (err) {
+            console.log(err);
+            return done(null, 'error');
+        } finally {
+
+        }
+    });   
+};
 
 router.post('/selectDocTopType', function (req, res) {
     sync.fiber(function () {

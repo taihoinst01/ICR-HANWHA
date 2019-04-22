@@ -1,9 +1,9 @@
 // Oracle Config
-// ¼³Ä¡½Ã : npm ¿¡·¯ ³¯ °æ¿ì cmdÃ¢¿¡¼­ git config http.sslVerify false ¼öÇà
+// ï¿½ï¿½Ä¡ï¿½ï¿½ : npm ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ cmdÃ¢ï¿½ï¿½ï¿½ï¿½ git config http.sslVerify false ï¿½ï¿½ï¿½ï¿½
 var dbConfig = {
     user: process.env.NODE_ORACLEDB_USER || "ocr",
     password: process.env.NODE_ORACLEDB_PASSWORD || "taiho123",
-    connectString: process.env.NODE_ORACLEDB_CONNECTIONSTRING || "192.168.1.170/ocrservice",
+    connectString: process.env.NODE_ORACLEDB_CONNECTIONSTRING || "104.41.171.244/ocrservice",
     externalAuth: process.env.NODE_ORACLEDB_EXTERNALAUTH ? true : false,
     poolMax: 30,
     poolMin: 10
