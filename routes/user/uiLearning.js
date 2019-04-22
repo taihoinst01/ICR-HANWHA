@@ -20,6 +20,7 @@ var batch = require('../util/batch.js');
 var ocrUtil = require('../util/ocr.js');
 
 var ocrJs = require('../util/ocr.js');
+var propertiesConfig = require(appRoot + '/config/propertiesConfig.js');
 
 const upload = multer({
     storage: multer.diskStorage({
@@ -1220,52 +1221,52 @@ router.post('/selectLikeDocCategory', function (req, res) {
 });
 
 // 문서양식매핑
-router.post('/insertDoctypeMapping', function (req, res) {
-	var returnObj;
+// router.post('/insertDoctypeMapping', function (req, res) {
+// 	var returnObj;
 
-	var data = {
-		imgId: req.body.imgId,
-		filepath: req.body.filepath,
-		docName: req.body.docName,
-		radioType: req.body.radioType,
-		textList: req.body.textList
-	}
+// 	var data = {
+// 		imgId: req.body.imgId,
+// 		filepath: req.body.filepath,
+// 		docName: req.body.docName,
+// 		radioType: req.body.radioType,
+// 		textList: req.body.textList
+// 	}
 
-	sync.fiber(function () {
-		try {
-			var regExp = /[\{\}\[\]\/?.,;:|\)*~`!^\-_+<>@\#$%&?\\\=\(\'\"]/gi;
-			let data = req.body;
-			returnObj = sync.await(batch.insertDoctypeMapping(data, sync.defer()));
+// 	sync.fiber(function () {
+// 		try {
+// 			var regExp = /[\{\}\[\]\/?.,;:|\)*~`!^\-_+<>@\#$%&?\\\=\(\'\"]/gi;
+// 			let data = req.body;
+// 			returnObj = sync.await(batch.insertDoctypeMapping(data, sync.defer()));
 
-			var cnt = 0;
-			var sentences = "";
-			for (var i in returnObj.docSentenceList) {
-				sentences = sentences + returnObj.docSentenceList[i].text.replace(regExp, "") + ",";
-				cnt++;
-				if (cnt == 20) { break; }
-			}
-			sentences = sentences.substring(0, sentences.length - 1);
-			sentences = sentences + "||" + returnObj.docType + "||" + returnObj.docTopType;
+// 			var cnt = 0;
+// 			var sentences = "";
+// 			for (var i in returnObj.docSentenceList) {
+// 				sentences = sentences + returnObj.docSentenceList[i].text.replace(regExp, "") + ",";
+// 				cnt++;
+// 				if (cnt == 20) { break; }
+// 			}
+// 			sentences = sentences.substring(0, sentences.length - 1);
+// 			sentences = sentences + "||" + returnObj.docType + "||" + returnObj.docTopType;
 
 
-			var encode = Buffer.from(sentences).toString("base64");
-			pythonConfig.columnMappingOptions.args = [];
-			pythonConfig.columnMappingOptions.args.push(encode);
+// 			var encode = Buffer.from(sentences).toString("base64");
+// 			pythonConfig.columnMappingOptions.args = [];
+// 			pythonConfig.columnMappingOptions.args.push(encode);
 
-			//console.log("pythonConfig.documentSentenceOptions");
-			//console.log(pythonConfig.columnMappingOptions);
-			//console.log("pythonConfig.documentSentenceOptions");
+// 			//console.log("pythonConfig.documentSentenceOptions");
+// 			//console.log(pythonConfig.columnMappingOptions);
+// 			//console.log("pythonConfig.documentSentenceOptions");
 
-			var retResult = sync.await(PythonShell.run('docSentenceClassify.py', pythonConfig.columnMappingOptions, sync.defer()));
-			//console.log(retResult);
-		} catch (e) {
-			console.log(e);
-			returnObj = { code: 500, message: e };
-		} finally {
-			res.send(returnObj);
-		}
-	});
-});
+// 			var retResult = sync.await(PythonShell.run('docSentenceClassify.py', pythonConfig.columnMappingOptions, sync.defer()));
+// 			//console.log(retResult);
+// 		} catch (e) {
+// 			console.log(e);
+// 			returnObj = { code: 500, message: e };
+// 		} finally {
+// 			res.send(returnObj);
+// 		}
+// 	});
+// });
 
 
 router.post('/selectIcrLabelDef', function (req, res) {
@@ -1402,7 +1403,7 @@ function exists(path) {
         return new Promise(async function (resolve, reject) {
             try {
                 
-                var res = localRequest('POST', 'http://13.78.61.168:5000/insertDocSentence', {
+                var res = localRequest('POST', propertiesConfig.icrRest.serverUrl + '/insertDocSentence', {
                     headers:{'content-type':'application/x-www-form-urlencoded'},
                     body: 'sentence='+sentences
                 });
