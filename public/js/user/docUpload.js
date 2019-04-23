@@ -313,7 +313,7 @@ var imgOcr = function(fileInfoList) {
                 for (var i = 0; i < docLabelDefList.length; i++) {
                     if (docLabelDefList[i].AMOUNT == "multi") {
                         headHtml += "<th>";
-                        headHtml += docLabelDefList[i].ENGNM;
+                        headHtml += docLabelDefList[i].KORNM;
                         headHtml += "</th>";
                     }
                 }
@@ -326,7 +326,7 @@ var imgOcr = function(fileInfoList) {
                 for(var i = 0; i <docLabelDefList.length; i++) {
                     if(docLabelDefList[i].AMOUNT == 'single') {
                         appendSingleRecordLabelHtml += '<tr class="singleRecordTr" data-entryLbl="' + docLabelDefList[i].SEQNUM + '"><td class="singleRecordLabelTd">' +
-                                '<input type="text" class="singleRecordLabelIpt" disabled value="' + docLabelDefList[i].ENGNM + '">' +
+                                '<input type="text" class="singleRecordLabelIpt" disabled value="' + docLabelDefList[i].KORNM + '">' +
                                 '</td><td class="singleRecordEntryTd"><input type="text" class="singleRecordEntryIpt" value="" data-entryLbl="' + docLabelDefList[i].SEQNUM + '"></td></tr>';
                     }
                 }

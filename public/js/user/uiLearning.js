@@ -2129,9 +2129,9 @@ function fn_uiDocTopType(docCategory) {
                                 
                 for (var i = 0; i < data.docTopData.length; i++) {
                     if (docTopType && docTopType == data.docTopData[i].SEQNUM) {
-                        selHtmlText += "<option value='" + data.docTopData[i].SEQNUM + "' selected>" + data.docTopData[i].ENGNM + "</option>";
+                        selHtmlText += "<option value='" + data.docTopData[i].SEQNUM + "' selected>" + data.docTopData[i].KORNM + "</option>";
                     } else {
-                        selHtmlText += "<option value='" + data.docTopData[i].SEQNUM + "'>" + data.docTopData[i].ENGNM + "</option>";
+                        selHtmlText += "<option value='" + data.docTopData[i].SEQNUM + "'>" + data.docTopData[i].KORNM + "</option>";
                     }
 
                 }
@@ -2158,9 +2158,9 @@ function appendSelOptionHtml(targetColumn, columns, docTopType) {
     for (var i in columns) {
         if(docTopType == columns[i].DOCID){
             if (targetColumn == columns[i].SEQNUM) {
-                optionHTML = '<option value="' + columns[i].SEQNUM + '" selected>' + columns[i].ENGNM + '</option>';
+                optionHTML = '<option value="' + columns[i].SEQNUM + '" selected>' + columns[i].KORNM + '</option>';
             } else {
-                optionHTML = '<option value="' + columns[i].SEQNUM + '">' + columns[i].ENGNM + '</option>';
+                optionHTML = '<option value="' + columns[i].SEQNUM + '">' + columns[i].KORNM + '</option>';
             }
             selectHTML += optionHTML;
         }
@@ -2427,7 +2427,7 @@ $(document).on('change', '#uiDocTopType', function(){
                 var labelList = data.labelList;
                 var appendSelectOptionHtml = '<option value="-1">Unknown</option>';
                 for(var i = 0; i < labelList.length; i++) {
-                    appendSelectOptionHtml += '<option value="' + labelList[i].SEQNUM + '">' + labelList[i].ENGNM + '</option>';
+                    appendSelectOptionHtml += '<option value="' + labelList[i].SEQNUM + '">' + labelList[i].KORNM + '</option>';
                 }
                 var appendSelectLEOptionHtml = '<option value="U">Unknown</option>';
                 appendSelectLEOptionHtml += '<option value="L">Label</option>';
