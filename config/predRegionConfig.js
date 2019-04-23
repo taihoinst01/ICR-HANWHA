@@ -36,14 +36,36 @@ var config = {
             }            
         }
     },
+    '143': {
+        '760': {
+            'LU': {
+                'L': { up: 0, right: 0, down: 0, left: 0 },
+                'E': { up: 5, right: 5, down: 5, left: 5 }
+            },
+            'RD': {
+                'L': { up: 0, right: 0, down: 0, left: 0 },
+                'E': { up: 5, right: 5, down: 5, left: 5 }
+            }
+        },
+        '769': {
+            'LU': {
+                'L': { up: 0, right: 0, down: 0, left: 0 },
+                'E': { up: 5, right: 5, down: 5, left: 5 }
+            },
+            'RD': {
+                'L': { up: 0, right: 0, down: 0, left: 0 },
+                'E': { up: 5, right: 5, down: 5, left: 5 }
+            }
+        }
+    },
     'default': {
         'LU': {
             'L': { up: 0, right: 0, down: 0, left: 0 },
-            'E': { up: 0, right: 0, down: 0, left: 0 }
+            'E': { up: 5, right: 5, down: 5, left: 5 }
         },
         'RD': {
             'L': { up: 0, right: 0, down: 0, left: 0 },
-            'E': { up: 0, right: 0, down: 0, left: 0 }
+            'E': { up: 5, right: 5, down: 5, left: 5 }
         }
     }
 };

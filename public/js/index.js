@@ -19,8 +19,8 @@ $(document).ready(function () {
     });
 
     //임시 자동로그인
-    //$('#userId').val('admin');
-    //$('#userPw').val('taihoinst9788');
+    $('#userId').val('admin');
+    $('#userPw').val('taihoinst9788');
     //setTimeout(function () { $('#sendLoginBtn').click(); }, 1000);
 });
 
