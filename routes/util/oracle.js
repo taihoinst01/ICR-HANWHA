@@ -4950,7 +4950,7 @@ exports.selectIcrSymspell = function (req, done) {
 		
 		try {
 			conn = await oracledb.getConnection(dbConfig);
-            let query = "SELECT KEYWORD, FREQUENCY, ICRWORD FROM TBL_ICR_SYMSPELL";
+            let query = "SELECT KEYWORD, FREQUENCY, ICRWORD FROM TBL_ICR_SYMSPELL WHERE DOCTOPTYPE = '"+req+"'  ";
 			let result = await conn.execute(query);
 			return done(null, result.rows);
 		} catch (err) { // catches errors in getConnection and the query

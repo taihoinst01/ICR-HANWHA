@@ -71,7 +71,7 @@ function editOcrTextTypos(req, done) {
 	sync.fiber(function () {
 		try {
 
-            var symspellList = sync.await(oracle.selectIcrSymspell(null, sync.defer()));
+            var symspellList = sync.await(oracle.selectIcrSymspell(req.docCategory.DOCTOPTYPE, sync.defer()));
             var symspellListLength = symspellList.length;
             var ocrData = req.data;
             var ocrDataLength = ocrData.length;
