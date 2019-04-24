@@ -10,7 +10,8 @@ function _init() {
     $('.um_select select').stbDropdown();
     $('.batch_tbl_right_divBodyScroll').scrollTop(0).scrollLeft(0);
     selectDocTopType();
-    docTopTypeSelectOptionClick();
+    selectBtnClick();
+    //docTopTypeSelectOptionClick();
 }
 
 // 문서양식 조회 및 select box 렌더링
@@ -43,10 +44,10 @@ function selectDocTopType() {
     });
 }
 
-// 문서양식 select option click 이벤트
-function docTopTypeSelectOptionClick() {
-    $('#docTopTypeSelect').change(function () {
-        selectBatchPoMlExport(this.value, false);
+// 문서양식 조회 버튼 click 이벤트
+function selectBtnClick() {
+    $('#btn_search').click(function () {
+        selectBatchPoMlExport($('#docTopTypeSelect').val(), false);
     });
 }
 
@@ -64,7 +65,7 @@ function selectBatchPoMlExport(docTopType, isInit) {
             if (!isInit) progressId = showProgressBar();
         },
         success: function (data) {
-            console.log(data);
+            //console.log(data);
             appendDocTableHeader(data.docLabelList);
             appendMLData(data.docDataList);
             endProgressBar(progressId);
@@ -129,3 +130,12 @@ function appendMLData(docDataList) {
     }
     $('#tbody_docList').append(totalHTML);
 }
+
+/*
+// 문서양식 select option click 이벤트
+function docTopTypeSelectOptionClick() {
+    $('#docTopTypeSelect').change(function () {
+        selectBatchPoMlExport(this.value, false);
+    });
+}
+*/
