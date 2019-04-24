@@ -1,4 +1,4 @@
-'use strict';
+﻿'use strict';
 var express = require('express');
 var router = express.Router();
 var appRoot = require('app-root-path').path;
@@ -30,26 +30,40 @@ router.post('/', function (req, res) {                          // 문서등록 
 
 router.post('/selectDocTopType', function (req, res) {
     sync.fiber(function () {
-        let returnObj = {};
-        let userId = req.session.userId;
-        let param = [userId];
-        
-        let docToptypeList = sync.await(oracle.selectDocTopType(param, sync.defer()));
+        let docToptypeList = sync.await(oracle.selectDocTopType([req.session.userId], sync.defer()));
 
-        returnObj = {'docToptypeList': docToptypeList};
-        res.send(returnObj);
+        res.send({ 'docToptypeList': docToptypeList });
     });
 });
 
+router.post('/selectBatchPoMlExport', function (req, res) {
+    sync.fiber(function () {
+        let docTopType = req.body.docTopType;
+
+        let docLabelList = sync.await(oracle.selectDocLabelDefList([docTopType], sync.defer()));
+        let docDataList = sync.await(oracle.selectBatchPoMlExport([docTopType], sync.defer()));
+
+        res.send({ 'docDataList': docDataList, 'docLabelList': docLabelList });
+    });
+});
+
+
+
+
+
+
+
+
+/*
 router.post('/selectDocLabelDefList', function (req, res) {
     sync.fiber(function () {
         let returnObj = {};
         let docToptype = req.body.docToptype;
         let param = [docToptype];
-        
+
         let docToptypeList = sync.await(oracle.selectDocLabelDefList(param, sync.defer()));
 
-        returnObj = {'docToptypeList': docToptypeList};
+        returnObj = { 'docToptypeList': docToptypeList };
         res.send(returnObj);
     });
 });
@@ -64,35 +78,36 @@ router.post('/updateDocList', function (req, res) {
         let changeList = req.body.changeList;
         let deleteList = req.body.deleteList;
         let userId = req.session.userId;
-        
+
         // doctoptype 추가
-        if(docToptype == 0) {
-            let param = [docNameEng, docNameKor, userId];           
+        if (docToptype == 0) {
+            let param = [docNameEng, docNameKor, userId];
             docToptype = sync.await(oracle.insertDocToptype(param, sync.defer()));
             console.log(docToptype);
         }
 
         // 추가
-        if(insertList.length > 0) {
-            let param = {'docToptype' : docToptype, 'insertList' : insertList};
+        if (insertList.length > 0) {
+            let param = { 'docToptype': docToptype, 'insertList': insertList };
             sync.await(oracle.isnertDocList(param, sync.defer()));
         }
 
         //수정
-        if(docToptype != 0 && changeList.length > 0) {
-            let param = {'changeList' : changeList};
-            sync.await(oracle.updateDocList(param, sync.defer()));            
-        }
-        
-        //삭제
-        if(docToptype != 0 && deleteList.length > 0) {
-            let param = {'deleteList' : deleteList};
-            sync.await(oracle.deleteDocList(param, sync.defer()));            
+        if (docToptype != 0 && changeList.length > 0) {
+            let param = { 'changeList': changeList };
+            sync.await(oracle.updateDocList(param, sync.defer()));
         }
 
-        returnObj = {'docToptype' : docToptype};
+        //삭제
+        if (docToptype != 0 && deleteList.length > 0) {
+            let param = { 'deleteList': deleteList };
+            sync.await(oracle.deleteDocList(param, sync.defer()));
+        }
+
+        returnObj = { 'docToptype': docToptype };
         res.send(returnObj);
     });
 });
+*/
 
 module.exports = router;

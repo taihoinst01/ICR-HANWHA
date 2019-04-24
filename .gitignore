@@ -260,3 +260,5 @@ paket-files/
 __pycache__/
 *.pyc
 /uploads
+/routes/user/docManagement_be.js
+/public/js/user/docManagement_be.js

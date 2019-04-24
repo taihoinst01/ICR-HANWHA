@@ -1,5 +1,5 @@
 ﻿<!DOCTYPE html>
-<html>
+<html lang="kr">
 <head>
 	<title>ICR</title>
 
@@ -76,18 +76,16 @@
 				<!-- 구분 목록  -->
                 <div class="box_stsearch_doc_management">
                     <div class="box_txt_st01 st00_sh um_select">
-                        <select>
-                            <option value="">문서양식</option>
+                        <select id="docTopTypeSelect">
                         </select>
                         <select>
-                            <option value="">소속팀</option>
-                            <option value="">사업1팀</option>
-                            <option value="">사업2팀</option>
+                            <option value="">시작날짜</option>
                         </select>
                         <select>
-							<option value="">문서등록일자</option>
-							<option value="">오늘</option>
-                            <option value="">어제</option>
+                            <option value="">종료날짜</option>
+                        </select>
+                        <select>
+                            <option value="">처리</option>
                         </select>
                     </div>
 
@@ -104,8 +102,8 @@
 						<div class="table_style03">
 							<!-- RIGHT HEADER(CROSSTAB) START -->
 							<div id="right_header" class="batch_tbl_right_header" style="overflow-x:hidden; overflow-y:hidden;">
-								<table cellspacing="0" cellpadding="0" class="docTableColumn">
-									<colgroup>
+								<table cellspacing="0" cellpadding="0" class="docTableColumn" id="docTableColumn">
+									<!--<colgroup>
 										<col style="width:50px;">
 										<col style="width:210px;">
 										<col style="width:80px;">
@@ -134,7 +132,7 @@
 											<th scope="row">Material</th>
 											<th scope="row">EAN</th>
 										</tr>
-									</thead>
+									</thead>-->
 								</table>
 							</div>
 							<!-- RIGHT HEADER(CROSSTAB) END -->
@@ -143,8 +141,8 @@
 							<div id="right_contents" style="overflow-x:scroll; overflow-y:scroll;" class="batch_tbl_right_divBodyScroll divBodyScroll">
 								<table>
 									<caption>사용자관리 정보</caption>
-									<colgroup>
-										<col style="width:50px;">
+									<colgroup id="docMlDataColGroup">
+										<!--<col style="width:50px;">
 										<col style="width:210px;">
 										<col style="width:80px;">
 										<col style="width:200px;">
@@ -155,9 +153,10 @@
 										<col style="width:150px;">
 										<col style="width:150px;">
 										<col style="width:180px;">
-										<col style="width:180px;">
+										<col style="width:180px;">-->
 									</colgroup>
 									<tbody id="tbody_docList">
+                                        <!--
 										<tr class="originalTr" data-seq="301">
 											<td><div class="checkbox-options mauto"><input type="checkbox" class="sta00_all" value="" id="listCheckAll_before" name="listCheckAll_before" /></div></td>
 											<td>
@@ -394,6 +393,7 @@
 												<td><input type="text" value="LC34H890WJUXEN" class="inputst_box03_15radius" data-originalvalue="LC34H890WJUXEN"></td>
 												<td><input type="text" value="" class="inputst_box03_15radius" data-originalvalue=""></td>
 											</tr>
+                                            -->
 									</tbody>
 								</table>
 								<!-- RIGHT CONTENTS(CROSSTAB) END -->
@@ -407,7 +407,7 @@
 
 				<div class="btn_rt">
 					<button type="button" id="" class="btn_w100_h35">재학습</button>
-					<button type="button" id="" class="btn_w100_h35">등록</button>
+					<button type="button" id="" class="btn_w100_h35">전송</button>
 				</div>
 				
 			</div>

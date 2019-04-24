@@ -5122,3 +5122,30 @@ exports.insertFtpFileList = function (path, req, done) {
         }
     });
 };
+
+exports.selectBatchPoMlExport = function (req, done) {
+    return new Promise(async function (resolve, reject) {
+        let conn;
+        let result;
+        try {
+            conn = await oracledb.getConnection(dbConfig);
+            let query = "SELECT FILENAME, EXPORTDATA FROM TBL_BATCH_PO_ML_EXPORT WHERE DOCID = :docTopType order by SEQNUM";
+            result = await conn.execute(query, req);
+            if (result.rows.length != 0) {
+                return done(null, result.rows);
+            } else {
+                return done(null, []);
+            }
+        } catch (err) { // catches errors in getConnection and the query
+            reject(err);
+        } finally {
+            if (conn) {   // the conn assignment worked, must release
+                try {
+                    await conn.release();
+                } catch (e) {
+                    console.error(e);
+                }
+            }
+        }
+    });
+};
