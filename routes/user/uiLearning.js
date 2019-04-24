@@ -1389,7 +1389,7 @@ function exists(path) {
                 // console.log("pythonConfig.documentSentenceOptions");
     
                 // var retResult = sync.await(PythonShell.run('docSentenceClassify.py', pythonConfig.columnMappingOptions, sync.defer()));
-                console.log(retResult);
+                //console.log(retResult);
             } catch (e) {
                 console.log(e);
                 returnObj = { code: 500, message: e };

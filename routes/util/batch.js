@@ -246,7 +246,7 @@ function insertDocumentSentence(topSentenses, docType, length, docTopType) {
         for (var i in topSentenses) {
             text += topSentenses[i].text.replace(regExp, '') + ",";
 		}
-		console.log(docTopType);
+		//console.log(docTopType);
 		sync.await(oracle.insertDocumentSentence([text.slice(0, -1), docType, length, docTopType], sync.defer()));
     } catch (e) {
         throw e;
