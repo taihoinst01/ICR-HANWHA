@@ -1,5 +1,5 @@
 ﻿"use strict";
-var progressId;
+var progressId; // 프로그레스바 변수
 
 $(function () {
     _init();
@@ -7,11 +7,18 @@ $(function () {
 
 // 초기화
 function _init() {
-    $('.um_select select').stbDropdown();
-    $('.batch_tbl_right_divBodyScroll').scrollTop(0).scrollLeft(0);
-    selectDocTopType();
+    $('.um_select select').stbDropdown(); // 검색 메뉴 드랍 초기화
+    $('.batch_tbl_right_divBodyScroll').scrollTop(0).scrollLeft(0); // 스크롤 초기화
+    selectDocTopType(); // 대메뉴 조회(docTopType)
+    datePickerEvent(); // datePicker 적용
+    clickEventHandlers();
+}
+
+// 버튼 이벤트 핸들러 함수 모음
+function clickEventHandlers() {
     selectBtnClick();
-    //docTopTypeSelectOptionClick();
+    btnRetrainClick();
+    btnSendClick();
 }
 
 // 문서양식 조회 및 select box 렌더링
@@ -36,13 +43,51 @@ function selectDocTopType() {
                 $('#docTopTypeSelect').prev().text(data.docToptypeList[0].KORNM);
                 selectBatchPoMlExport(data.docToptypeList[0].SEQNUM, true);
             }
-            //endProgressBar(progressId);
         },
         error: function (err) {
             console.log(err);
+            fn_alert('alert', 'ERROR');
+            endProgressBar(progressId);
         }
     });
 }
+
+// 시작 및 종료날짜 datepicker 이벤트
+function datePickerEvent() {
+    //datepicker 한국어로 사용하기 위한 언어설정
+    $.datepicker.setDefaults($.datepicker.regional['ko']);
+
+    // Datepicker
+    $(".datepicker").datepicker({
+        showButtonPanel: true,
+        dateFormat: "yy-mm-dd",
+        onClose: function (selectedDate) {
+
+            var eleId = $(this).attr("id");
+            var optionName = "";
+
+            if (eleId.indexOf("StartDate") > 0) {
+                eleId = eleId.replace("StartDate", "EndDate");
+                optionName = "minDate";
+            } else {
+                eleId = eleId.replace("EndDate", "StartDate");
+                optionName = "maxDate";
+            }
+
+            $("#" + eleId).datepicker("option", optionName, selectedDate);
+            $(".searchDate").find(".chkbox2").removeClass("on");
+        }
+    });
+    $(".searchDate").schDate();
+
+    // 1개월전 날짜 구하기 (searchStartDate)
+    var startDate = getAddMonth(-1, "-");
+    $("#searchStartDate").val(startDate);
+
+    // 오늘날짜 구하기 (searchEndDate)
+    var endDate = getNowDate("-");
+    $("#searchEndDate").val(endDate);
+};
 
 // 문서양식 조회 버튼 click 이벤트
 function selectBtnClick() {
@@ -72,6 +117,8 @@ function selectBatchPoMlExport(docTopType, isInit) {
         },
         error: function (err) {
             console.log(err);
+            fn_alert('alert', 'ERROR');
+            endProgressBar(progressId);
         }
     });
 }
@@ -82,10 +129,10 @@ function appendDocTableHeader(docLabelList) {
 
     var headerColGroupHTML = '<colgroup>' +
 	'<col style="width:50px;">' +
-        '<col style="width:210px;">';
+        '<col style="width:300px;">';
     var headerTheadHTML = '<thead>';
     headerTheadHTML += '<tr>';
-    headerTheadHTML += '<th scope="row"><div class="checkbox-options mauto"><input type="checkbox" class="sta00_all" value="" id="listCheckAll_before" name="listCheckAll_before" /></div></th>';
+    headerTheadHTML += '<th scope="row"><div class="checkbox-options mauto"><input type="checkbox" class="sta00_all" value="" id="listCheckAll" name="listCheckAll_before" /></div></th>';
     headerTheadHTML += '<th scope="row">파일명</th>';
 
     for (var i in docLabelList) {
@@ -98,6 +145,16 @@ function appendDocTableHeader(docLabelList) {
 
     $('#docTableColumn').append(headerColGroupHTML + headerTheadHTML);
     $('#docMlDataColGroup').append(headerColGroupHTML.replace('<colgroup>', '').replace('</colgroup>', ''));
+
+    // 헤더 체크박스 클릭 이벤트
+    $('#listCheckAll').click(function () {
+        console.log($(this).is(":checked"));
+        if ($(this).is(":checked")) {
+            $('input[name="listCheck"]').prop('checked', true);
+        } else {
+            $('input[name="listCheck"]').prop('checked', false);
+        }
+    });
 }
 
 // ML 데이터 table 렌더링
@@ -109,9 +166,9 @@ function appendMLData(docDataList) {
         if (i == 10) break; // jhy
         var mlDataListHTML = '' +
         '<tr class="originalTr" data-seq="">' +
-            '<td><div class="checkbox-options mauto"><input type="checkbox" class="sta00_all" value="" id="listCheckAll_before" name="listCheckAll_before" /></div></td>' +
+            '<td><div class="checkbox-options mauto"><input type="checkbox" class="sta00_all" value="" name="listCheck" /></div></td>' +
             '<td>' +
-		        '<a href="#" title="양식" onclick="layer_open(\'docPop\'); return false;">' +
+		        '<a href="#" title="양식" onclick="openImagePop(\'' + docDataList[i].FILENAME + '\')">' +
             '<input type="text" value="' + docDataList[i].FILENAME + '" class="inputst_box03_15radius" data-originalvalue="' + docDataList[i].FILENAME + '">' +
 		        '</a>' +
             '</td>';
@@ -131,11 +188,30 @@ function appendMLData(docDataList) {
     $('#tbody_docList').append(totalHTML);
 }
 
-/*
-// 문서양식 select option click 이벤트
-function docTopTypeSelectOptionClick() {
-    $('#docTopTypeSelect').change(function () {
-        selectBatchPoMlExport(this.value, false);
+//이미지 팝업 이벤트
+function openImagePop(fileName) {
+    var convertFilePath = fileName.split('.pdf')[0] + '-0.jpg';
+    $('#PopupImg').attr('src', convertFilePath);
+    layer_open('docPop');
+    return false;
+}
+
+//재학습 버튼 click 이벤트
+function btnRetrainClick() {
+    $('#btn_retrain').click(function () {
+        if ($('input[name="listCheck"]:checked').length == 1) {
+            var fileName = $('input[name="listCheck"]:checked').closest('td').next().find('input[type="text"]').val();
+            location.href = '/uiLearning?fileName=' + fileName;
+            //layer_open('retrainPop');
+        } else {
+            fn_alert('alert', '하나의 파일을 선택하세요.');
+        }
     });
 }
-*/
+
+// 전송 버튼 click 이벤트
+function btnSendClick() {
+    $('#btn_send').click(function () {
+
+    });
+}

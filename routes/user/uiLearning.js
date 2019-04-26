@@ -61,7 +61,9 @@ router.get('/favicon.ico', function (req, res) {
 
 // uiLearning.html 보여주기 (get)
 router.get('/', function (req, res) {
-    if (req.isAuthenticated()) res.render('user/uiLearning', { currentUser: req.user });
+    var fileName = "";
+    if (req.query.fileName) fileName = req.query.fileName;
+    if (req.isAuthenticated()) res.render('user/uiLearning', { currentUser: req.user, fileName: fileName });
     else res.redirect("/logout");
 });
 
@@ -75,18 +77,19 @@ router.post('/uiLearnTraining', function (req, res) {
     req.setTimeout(120000);
     sync.fiber(function () {
         var filepath = req.body.fileInfo.filePath;
+        var isAuto = req.body.isAuto;
         var uiData;
 
-        uiData = sync.await(uiLearnTraining_new(filepath, sync.defer()));
+        uiData = sync.await(uiLearnTraining_new(filepath, isAuto, sync.defer()));
 
         res.send({ data: uiData });
     });
 });
 
-function uiLearnTraining_new(filepath, callback) {
+function uiLearnTraining_new(filepath, isAuto, callback) {
     sync.fiber(function () {
         try{
-            var icrRestResult = sync.await(ocrUtil.icrRest(filepath, sync.defer()));
+            var icrRestResult = sync.await(ocrUtil.icrRest(filepath, isAuto, sync.defer()));
             // pythonConfig.columnMappingOptions.args = [];
             // pythonConfig.columnMappingOptions.args.push(filepath);
             // var resPyStr = sync.await(PythonShell.run('pyOcr.py', pythonConfig.columnMappingOptions, sync.defer()));

@@ -269,29 +269,38 @@ exports.correctEntryFnc = function (uiInputData, done) {
 };
 
 // [POST] linux server icrRest
-exports.icrRest = function (req, done) {
+exports.icrRest = function (req, isAuto, done) {
     return new Promise(async function (resolve, reject) {
         var filepath = req;
         var filename = filepath.slice(filepath.lastIndexOf("/") + 1);
-        try {
-            var formData = {
-                file: {
-                    value: fs.createReadStream(filepath),
-                    options: {
-                        filename: filename,
-                    }
-                }
-            };
-            console.time("icrRest Time");
+        var reqInfo;
+        var formData;
 
-            request.post({ url: propertiesConfig.icrRest.serverUrl + '/fileUpload', formData: formData }, function (err, httpRes, body) {
+        try {   
+            if (isAuto) {
+                reqInfo = { url: propertiesConfig.icrRest.serverUrl + '/fileUpload', form: { filename: filename } };
+                //reqInfo = { url: 'http://127.0.0.1:5000/fileUpload', form: { filename: filename } };
+            } else {
+                formData = {
+                    file: {
+                        value: fs.createReadStream(filepath),
+                        options: {
+                            filename: filename,
+                        }
+                    }
+                };
+                reqInfo = { url: propertiesConfig.icrRest.serverUrl + '/fileUpload', formData: formData };
+                //reqInfo = { url: 'http://127.0.0.1:5000/fileUpload', formData: formData };
+            }
+            console.time("icrRest Time");
+            request.post(reqInfo, function (err, httpRes, body) {
                 if (err) {
                     console.log(err);
                     return done(null, err);
                 }
                 console.timeEnd("icrRest Time");
                 return done(null, body);
-            }) 
+            });
         } catch (err) {
             reject(err);
         } finally {

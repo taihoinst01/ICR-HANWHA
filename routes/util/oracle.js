@@ -5129,7 +5129,11 @@ exports.selectBatchPoMlExport = function (req, done) {
         let result;
         try {
             conn = await oracledb.getConnection(dbConfig);
-            let query = "SELECT FILENAME, EXPORTDATA FROM TBL_BATCH_PO_ML_EXPORT WHERE DOCID = :docTopType order by SEQNUM";
+            let query = "" +
+                "SELECT PME.FILENAME, PME.EXPORTDATA " +
+                "FROM TBL_BATCH_PO_ML_EXPORT PME, (SELECT FILEPATH || FILENAME AS FILENAME FROM TBL_FTP_FILE_LIST) FFL " +
+                "WHERE PME.FILENAME = FFL.FILENAME " +
+                "AND PME.DOCID = :docId";
             result = await conn.execute(query, req);
             if (result.rows.length != 0) {
                 return done(null, result.rows);

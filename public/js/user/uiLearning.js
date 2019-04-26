@@ -23,6 +23,7 @@ $(function () {
     docPopRadioEvent();
     editBannedword();
     changeDocPopupImage();
+    processFromDocManage();
 });
 
 // 초기 작업
@@ -364,7 +365,7 @@ function uploadFileEvent() {
                 //console.log(responseText);
                 totCount = responseText.message.length;
                 for (var i = 0; i < responseText.fileInfo.length; i++) {
-                    processImage(responseText.fileInfo[i]);
+                    processImage(responseText.fileInfo[i], false);
                 }
                 /*
                 for (var i = 0; i < responseText.message.length; i++) {
@@ -455,7 +456,7 @@ function uploadFileEvent() {
                         //console.log(responseText);
                         totCount = responseText.message.length;
                         for (var i = 0; i < responseText.fileInfo.length; i++) {
-                            processImage(responseText.fileInfo[i]);
+                            processImage(responseText.fileInfo[i], false);
                         }
                         /*
                         for (var i = 0; i < responseText.message.length; i++) {
@@ -475,7 +476,7 @@ function uploadFileEvent() {
 }
 
 // OCR API
-function processImage(fileInfo) {
+function processImage(fileInfo, isAuto) {
     $('#progressMsgTitle').html('OCR 처리 중..');
     $.ajax({
         url: '/uiLearning/uiLearnTraining',
@@ -484,7 +485,7 @@ function processImage(fileInfo) {
         },
         //async: false,
         type: 'POST',
-        data: JSON.stringify({ 'fileInfo': fileInfo })
+        data: JSON.stringify({ 'fileInfo': fileInfo, isAuto: isAuto })
     }).success(function (data) {
         console.log("============================ ocr data ============================ ");
         console.log(data);
@@ -2474,3 +2475,16 @@ var uiLearnTraining = function (imgIdArray) {
     });
 
 };
+
+// 문서관리에서 재학습으로 넘어온 프로세스 실행
+function processFromDocManage() {
+    if ($('#fileNameParam').val() != '') {
+        var filepath = $('#fileNameParam').val();
+        //filepath = filepath.substring(filepath.lastIndexOf('/') + 1, filepath.length);
+        var fileInfo = {
+            'filePath': filepath
+        };
+        processImage(fileInfo, true);
+        progressId = showProgressBar();
+    }
+}

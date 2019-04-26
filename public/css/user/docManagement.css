@@ -152,9 +152,21 @@ table .newTr .selected {color: #666 !important; }
 }
 
 .pop_popup0 {
-  width: 100% !important;
+    width: 100% !important;
 }
 
 .pop_layer {
-  width: 80% !important;
+    width: 80% !important;
+}
+
+#layer_alert .pop_layer {
+    width: 20% !important;
+}
+
+input[name="searchStartDate"], input[name="searchEndDate"] {
+    width: 10%;
+    border: solid thin #EA7169;
+    border-radius: 10px;
+    margin-right: 10px;
+    color: #EA7169;
 }
