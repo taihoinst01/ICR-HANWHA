@@ -118,6 +118,20 @@ function uiLearnTraining_new(filepath, isAuto, callback) {
 				}
 				
                 retData.labelData = labelData.rows;
+
+                // 정규식 적용
+                for(var ii= 0; ii < resPyArr[i].data.length; ii++){
+                    if(retData.data[ii]["colLbl"] != -1){
+                        for(var jj = 0; jj < labelData.rows.length; jj++) {
+                            if(retData.data[ii]["entryLbl"] == labelData.rows[jj].SEQNUM) {
+                                var re = new RegExp(labelData.rows[jj].VALID,'gi');   
+                                var keyParts = retData.data[ii]["text"].match(re); 
+                                retData.data[ii]["text"] = keyParts.toString().replace(/,/gi,'');
+                            }                                
+                        }
+                    }                        
+                }
+
                 retData.fileinfo = { filepath: "C:/ICR/uploads/"+resPyArr[i].fileName };
                 retDataList.push(retData);
             }

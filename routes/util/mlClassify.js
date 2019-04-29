@@ -112,9 +112,9 @@ function getMappingSid(req, done) {
             retData["docCategory"]= req.docCategory;
 			for (var i in req.data) {
 				var item = req.data[i];
-			    var sid = sync.await(oracle.selectSid(req.data[i], sync.defer()));
+			    // var sid = sync.await(oracle.selectSid(req.data[i], sync.defer()));
 				var loc = req.data[i].location.split(',');
-                var mappingSid = String(docType) + "," + String(loc[0]) + "," + String(loc[1]) + "," + String(parseInt(loc[0]) + parseInt(loc[2])) + "," + sid;
+                var mappingSid = String(docType) + "," + String(loc[0]) + "," + String(loc[1]) + "," + String(parseInt(loc[0]) + parseInt(loc[2])) + ",0,0,0,0,0";
                 //var mappingSid = String(docType) + "," + String(loc[0]) + "," + String(loc[1]) + "," + String(parseInt(loc[0]) + parseInt(loc[2])) + "," + String(req.data[i]["sid"]);
 				req.data[i]["mappingSid"] = mappingSid;
 			}
