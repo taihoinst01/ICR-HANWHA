@@ -1,21 +1,23 @@
 ﻿'use strict';
+var fs = require('fs');
 var watch = require('node-watch');
 var cron = require('node-cron');
 var ftpClient = require('ftp-client');
 var ftp = require('ftp');
 var sync = require('./sync.js')
 var oracle = require('./oracle.js');
+var ocrUtil = require('../util/ocr.js');
 
 //FTP 서버 정보
 var ftpConfig = {
-    host: '192.168.1.170',
+    host: '104.41.171.244',
     port: 21,
-    user: 'taiho',
-    password: '1'
+    user: 'daerimicr',
+    password: 'daerimicr123!@#'
 };
 var option = { logging: 'basic' };
 var uploadDir = 'C:\\Users\\Taiho\\Desktop\\upload'; //local 디렉토리 경로
-var ftpDir = '/'; // FTP file 디렉토리 경로
+var ftpDir = '/ScanFiles'; // FTP file 디렉토리 경로
 
 /********************************************************************************************************
                                            process function start
@@ -45,17 +47,19 @@ var remoteFTP = function () {
 
 // 지정된 시간마다 FTP서버의 특정 디렉토리에서 파일 리스트를 가져와 DB와 비교하여 해당 row가 없으면 프로세스 수행, 있으면 continue
 var remoteFTP_v2 = function () {
-    cron.schedule('*/30 * * * * *', function () {
+
+    cron.schedule('*/10 * * * * *', function () {
         sync.fiber(function () {
             try {
+
                 var execFileNames = [];
 
                 // TBL_FTP_FILE_LIST 데이터 조회
                 var fileNames = sync.await(getftpFileList(sync.defer()));
-
                 // FTP 파일 리스트와 DB데이터 비교
                 if (fileNames.length != 0) {
-                    var result = sync.await(oracle.selectFtpFileList(fileNames, sync.defer()));
+                    var result = '';
+                    //var result = sync.await(oracle.selectFtpFileList(fileNames, sync.defer()));
                     if (result.length != 0) {
                         for (var i in fileNames) {
                             var isOverlap = false;
@@ -71,20 +75,47 @@ var remoteFTP_v2 = function () {
                         execFileNames = fileNames;
                     }
                 }
-
                 // ocr 및 ml 프로세스 실행
-                if (execFileNames.lenght != 0) {
+                if (execFileNames.lengh != 0) {
                     //pyOcr.py
+                    //var icrResultJson = JSON.parse(sync.await(ocrUtil.icrRest(filepath, isAuto, sync.defer())));
+                    for (var i in execFileNames) {
+                        if (execFileNames.indexOf('test') != -1) sync.await(moveftpFile(execFileNames[i], sync.defer()));
+                    }
 
                     //실행한 파일 TBL_FTP_FILE_LIST insert
-                    sync.await(oracle.insertFtpFileList(ftpConfig.host + ftpDir, execFileNames, sync.defer()));
+                    //sync.await(oracle.insertFtpFileList(ftpConfig.host + ftpDir, execFileNames, sync.defer()));
                 }
+                
             } catch (e) {
                 console.log(e);
             } finally {
             }
         });
     });
+
+    /*
+        const FtpWatcher = require('ftp-watcher');
+
+    const watcher = new FtpWatcher({
+        ftpCredentials: ftpConfig,
+        cron: '* * * * * *',
+        fileExtension: '.pdf' // optional
+        //fileNameContains: 'test' // optional
+    });
+
+    watcher.on('error', function (error) {
+        console.error(error);
+        //watcher.stop();
+    });
+
+    watcher.on('snapshot', function (snapshot) {
+        console.log(snapshot);
+        //watcher.stop();
+    });
+
+    watcher.watch();
+    */
 };
 
 /********************************************************************************************************
@@ -104,10 +135,42 @@ function getftpFileList(done) {
             c.on('ready', function () {
                 c.list(ftpDir, function (err, list) {
                     if (err) throw err;
-                    for (var i in list) fileNames.push(list[i].name);
+                    for (var i in list) {
+                        var ext = list[i].name.substring(list[i].name.lastIndexOf('.') + 1);
+                        if (ext == 'pdf') fileNames.push(list[i].name);
+                    }
                     return done(null, fileNames);
                     c.end();
                 });
+            });
+            c.connect(ftpConfig);
+        } catch (e) {
+            console.log(e);
+            return done(null, e);
+        }
+    });
+}
+
+// FTP server file move (ScanFiles -> uploads)
+function moveftpFile(fileName, done) {
+    sync.fiber(function () {
+        try {
+            var c = new ftp();
+            c.on('ready', function () {
+                var ftpFilePath = 'ScanFiles/' + fileName;
+                var localFilePath = './uploads/' + fileName;
+                c.get('ScanFiles/' + fileName, function (err, stream) {
+                    if (err) throw err;
+                    stream.once('close', function () { c.end(); });
+                    stream.pipe(fs.createWriteStream('./uploads/' + fileName));
+                    c.put('./uploads/' + fileName, 'uploads/' + fileName, function (err) {
+                        if (err) throw err;
+                        c.end();
+                        fs.unlinkSync('./uploads/' + fileName);
+                        return done(null, null);
+                    });
+                });
+                
             });
             c.connect(ftpConfig);
         } catch (e) {
