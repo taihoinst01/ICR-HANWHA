@@ -289,7 +289,7 @@ exports.icrRest = function (req, isAuto, done) {
                     }
                 };
                 reqInfo = { url: propertiesConfig.icrRest.serverUrl + '/fileUpload', formData: formData };
-                //reqInfo = { url: 'http://127.0.0.1:5000/fileUpload', formData: formData };
+                //reqInfo = { url: 'http://127.0.0.1:5000/fileUpload', formData: formData };               
             }
             console.time("icrRest Time");
             request.post(reqInfo, function (err, httpRes, body) {
@@ -298,12 +298,13 @@ exports.icrRest = function (req, isAuto, done) {
                     return done(null, err);
                 }
                 console.timeEnd("icrRest Time");
+                if (!isAuto) fs.unlinkSync(filepath);
                 return done(null, body);
             });
         } catch (err) {
             reject(err);
         } finally {
-            if (!isAuto) fs.unlinkSync(filepath);
+
         }
     });
 };

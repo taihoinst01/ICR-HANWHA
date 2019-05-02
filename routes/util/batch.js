@@ -9,6 +9,9 @@ var async = require('async');
 var execSync = require('child_process').execSync;
 var pythonConfig = require(appRoot + '/config/pythonConfig');
 var propertiesConfig = require(appRoot + '/config/propertiesConfig');
+var ftp = require('ftp');
+
+var ftpConfig = propertiesConfig.ftp;
 
 exports.insertDoctypeMapping = function (req, done) {
     try {
@@ -170,24 +173,51 @@ function selectDocCategoryFromDocName(data) {
 }
 
 function copyFile(src, docType) {
-	var convertedFilepath = propertiesConfig.filepath.docFilePath;
+    var convertedFilepath = propertiesConfig.filepath.docFilePath;
+    var sampleImagePath = convertedFilepath + '/' + docType + '.jpg';
     try {
+        /*
         if (!fs.existsSync(src)) {
             throw new Error('file not exist');
         }
         var data = fs.readFileSync(src, 'utf-8');
+        */
         try {
             fs.mkdirSync(convertedFilepath);
         } catch (e) {
             if (e.code != 'EEXIST') throw e;
         }
-        execSync('module\\imageMagick\\convert.exe -density 800x800 ' + src + ' ' + (convertedFilepath + '/' + docType + '.jpg'));
+        //execSync('module\\imageMagick\\convert.exe -density 800x800 ' + src + ' ' + (convertedFilepath + '/' + docType + '.jpg'));
+        sync.await(downloadFtpFileToSampleImg(src, sampleImagePath, sync.defer()));
         sync.await(oracle.updateDocCategoryToFilePath(['/' + (convertedFilepath.split('/')[2] + '/' + docType + '.jpg'), docType], sync.defer()));
 
         return (convertedFilepath + '/' + docType + '.jpg');
     } catch (e) {
         throw e;
     }
+}
+
+function downloadFtpFileToSampleImg(src, sampleImagePath, done) {
+    sync.fiber(function () {
+        var ftpFilePath = propertiesConfig.auto.destFtpFilePath + src.substring(src.lastIndexOf('/') + 1);
+        try {
+            var c = new ftp();
+            c.on('ready', function () {
+                c.get(ftpFilePath, function (err, stream) {
+                    if (err) console.log(err);
+                    stream.pipe(fs.createWriteStream(sampleImagePath));
+                    stream.once('close', function () {
+                        c.end();
+                        done(null, null);
+                    });
+                });
+
+            });
+            c.connect(ftpConfig);
+        } catch (e) {
+            throw e;
+        }
+    });
 }
 
 function getDocSid(topSentenses) {

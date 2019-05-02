@@ -146,7 +146,12 @@ router.post('/imageUpload', upload.any(), function (req, res) {
                 
             function finalize(err) {
                 if (err) console.log(err);
-                console.log('upload suceess');
+                var filePath = propertiesConfig.auto.ftpFileUrl;
+                for (var i in fileInfo) {
+                    var fileName = fileInfo[i].oriFileName;
+                    // TBL_FTP_FILE_LIST table insert   
+                    sync.await(oracle.insertFtpFileListFromUi([filePath, fileName], sync.defer()));
+                }
                 res.send({ code: 200, message: returnObj, fileInfo: fileInfo, type: 'image' });
             }         
         );
@@ -753,13 +758,12 @@ router.post('/modifyBatchUiTextData', function (req, res) {
             sync.await(oracle.insertPredLabelMapping(predLabelData, sync.defer()));
             //entry prediction ML DB insert
             sync.await(oracle.insertPredEntryMapping(predEntryData, sync.defer()));
-
-            // TBL_FTP_FILE_LIST table insert            
+      
             //var d = new Date();
             //var imgId = d.isoNum(8) + "" + Math.floor(Math.random() * 9999999) + 1000000;
             var filePath = fileFullpath.substring(0, fileFullpath.lastIndexOf('/') + 1);
             var fileName = fileFullpath.substring(fileFullpath.lastIndexOf('/') + 1);
-            sync.await(oracle.insertFtpFileListFromUi([filePath, fileName], sync.defer()));
+            //sync.await(oracle.insertFtpFileListFromUi([filePath, fileName], sync.defer()));
 
             // TBL_BATCH_PO_ML_EXPORT table insert
             var exportData = "[";
