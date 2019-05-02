@@ -148,7 +148,6 @@ function appendDocTableHeader(docLabelList) {
 
     // 헤더 체크박스 클릭 이벤트
     $('#listCheckAll').click(function () {
-        console.log($(this).is(":checked"));
         if ($(this).is(":checked")) {
             $('input[name="listCheck"]').prop('checked', true);
         } else {

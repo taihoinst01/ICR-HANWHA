@@ -4084,15 +4084,15 @@ exports.insertBatchLearningFileInfoTest = function (req, done) {
     });
 };
 
-// 개별학습 add training시 TBL_BATCH_LEARN_LIST에 파일정보 INSERT
-exports.insertBatchLearnListFromUi = function (req, done) {
+// 개별학습 add training시 TBL_FTP_FILE_LIST에 파일정보 INSERT
+exports.insertFtpFileListFromUi = function (req, done) {
     return new Promise(async function (resolve, reject) {
         let conn;
 
         try {
             conn = await oracledb.getConnection(dbConfig);
 
-            await conn.execute("INSERT INTO TBL_BATCH_LEARN_LIST VALUES (:imgId, 'D', :filePath, :docType, sysdate, :docTopType, 1)", req);
+            await conn.execute("INSERT INTO TBL_FTP_FILE_LIST(SEQ, FILEPATH, FILENAME) VALUES (SEQ_FTP_FILE_LIST.NEXTVAL, :filePath, :fileName)", req);
 
             return done(null, null);
         } catch (err) { // catches errors in getConnection and the query
@@ -4113,11 +4113,19 @@ exports.insertBatchLearnListFromUi = function (req, done) {
 exports.insertBatchPoMlExportFromUi = function (req, done) {
     return new Promise(async function (resolve, reject) {
         let conn;
-
+        let result;
         try {
             conn = await oracledb.getConnection(dbConfig);
-            let query = "INSERT INTO TBL_BATCH_PO_ML_EXPORT VALUES (SEQ_BATCH_PO_ML_EXPORT.NEXTVAL, :docTopType, :filepath, :exportData)";
-            await conn.execute(query, req);
+            let query = "SELECT SEQNUM FROM TBL_BATCH_PO_ML_EXPORT WHERE FILENAME = :filename";
+            result = await conn.execute(query, [req[1]]);
+            if (result.rows.length > 0) {
+                query = "UPDATE TBL_BATCH_PO_ML_EXPORT SET exportData = :exportData WHERE FILENAME = :filename";
+                params = [req[2], req[1]];
+            } else {
+                query = "INSERT INTO TBL_BATCH_PO_ML_EXPORT VALUES (SEQ_BATCH_PO_ML_EXPORT.NEXTVAL, :docTopType, :filepath, :exportData)";
+                params = req;
+            }
+            await conn.execute(query, params);
 
             return done(null, null);
         } catch (err) { // catches errors in getConnection and the query
@@ -5076,9 +5084,9 @@ exports.selectFtpFileList = function (req, done) {
 
         try {
             conn = await oracledb.getConnection(dbConfig);
-            let query = "SELECT FILEPATH, FILENAME FROM TBL_FTP_FILE_LIST WHERE FILENAME IN ( ";
+            let query = "SELECT FILENAME FROM TBL_FTP_FILE_LIST WHERE FILENAME IN (";
             for (var i in req) {
-                query += '\''+ req[i] + '\', '
+                query += '\'' + req[i] + '\', ';
             }
             query = query.slice(0, -2);
             query += ' )';

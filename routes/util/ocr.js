@@ -272,10 +272,9 @@ exports.correctEntryFnc = function (uiInputData, done) {
 exports.icrRest = function (req, isAuto, done) {
     return new Promise(async function (resolve, reject) {
         var filepath = req;
-        var filename = filepath.slice(filepath.lastIndexOf("/") + 1);
+        var filename = (filepath.lastIndexOf("/") != -1) ? filepath.slice(filepath.lastIndexOf("/") + 1) : filepath;
         var reqInfo;
         var formData;
-
         try {   
             if (isAuto) {
                 reqInfo = { url: propertiesConfig.icrRest.serverUrl + '/fileUpload', form: { filename: filename } };
@@ -304,6 +303,7 @@ exports.icrRest = function (req, isAuto, done) {
         } catch (err) {
             reject(err);
         } finally {
+            if (!isAuto) fs.unlinkSync(filepath);
         }
     });
 };

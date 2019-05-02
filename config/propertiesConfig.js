@@ -43,6 +43,20 @@ var propertiesConfig = {
         docFilePath: 'C:/ICR/sampleDocImage',
         doc_sampleImagePath: 'C:/ICR',
         excelUploadPath: 'C:\\ICR\\uploads\\excel\\'
+    },
+    auto: {
+        ftpScanDir: '/ScanFiles',
+        ftpFilePath: 'ScanFiles/',
+        localFilePath: 'C:/ICR/uploads/',
+        destFtpFilePath: 'uploads/',
+        ftpFileUrl: 'http://104.41.171.244/uploads/'
+
+    },
+    ftp: {
+        host: '104.41.171.244',
+        port: 21,
+        user: 'daerimicr',
+        password: 'daerimicr123!@#'
     }
 };
 

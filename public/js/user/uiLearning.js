@@ -667,7 +667,7 @@ function thumbImgEvent() {
         $(this).parent().addClass('on');
 
         
-        $('#mainImage').css('background-image', 'url("/img/' + $(this).attr('title') + '")');
+        $('#mainImage').css('background-image', 'url("' + $(this).attr('title') + '")');
 
         $(this).parents('imageBox').find('li').removeClass('on');
         $(this).parents('li').addClass('on');
@@ -1266,7 +1266,7 @@ function zoomImg(e, fileName) {
     mainImage = mainImage.substring(mainImage.lastIndexOf("/") + 1, mainImage.length);
 
     if (mainImage != fileName) {
-        $('#mainImage').css('background-image', 'url("/tif/' + fileName + '")');
+        $('#mainImage').css('background-image', 'url("' + fileName + '")');
     }
 
     //실제 이미지 사이즈와 메인이미지div 축소율 판단
@@ -1284,7 +1284,7 @@ function zoomImg(e, fileName) {
         var heightPercent = fixHeight / height;
     
         $('#mainImage').hide();
-        $('#imageZoom').css('height', '570px').css('background-image', 'url("/img/' + fileName + '")').css('background-size', fixWidth + 'px ' + fixHeight + 'px').show();
+        $('#imageZoom').css('height', '570px').css('background-image', 'url("' + fileName + '")').css('background-size', fixWidth + 'px ' + fixHeight + 'px').show();
     
         // 사각형 좌표값
         var location = $(e).find('input[type=hidden]').val().split(',');
@@ -1302,7 +1302,7 @@ function zoomImg(e, fileName) {
         $('#redZoomNemo').css('height', (textHeight + 5) + 'px');
         $('#redZoomNemo').show();
     }
-    reImg.src = '/img/' + fileName;
+    reImg.src = fileName;
 }
 
 // 마우스 아웃 이벤트
@@ -2042,7 +2042,8 @@ function fn_viewDoctypePop(obj) {
 	var filepath = data.fileinfo.filepath;
 	var imgId = data.fileinfo.imgId;
     //var rowIdx = $(obj).closest('tr').attr('id').split('_')[1];
-	var fileName = nvl(filepath.substring(filepath.lastIndexOf('/') + 1));
+	//var fileName = nvl(filepath.substring(filepath.lastIndexOf('/') + 1));
+    var fileName = data.fileinfo.convertFilepath.replace(/\/uploads/,'/img');
 	var mlDocName = data.docCategory.DOCNAME;
 	var mlPercent = data.docCategory.DOCSCORE;
 
@@ -2054,7 +2055,7 @@ function fn_viewDoctypePop(obj) {
 
     //$('#batchListRowNum').val(rowIdx);
     $('#docPopImgId').val(imgId);
-	$('#docPopImgPath').val(filepath);
+    $('#docPopImgPath').val(data.fileinfo.convertFilepath);
 	
     initLayer4();
     selectClassificationSt(filepath); // 분류제외문장 렌더링
@@ -2063,7 +2064,7 @@ function fn_viewDoctypePop(obj) {
     var appendPngHtml = '';
     //if(imgCount == 1) {
 		//var pngName = fileName + '.png';
-		appendPngHtml += '<img src="/img/' + fileName +'" id="originImg">';
+		appendPngHtml += '<img src="' + fileName +'" id="originImg">';
     //} else {
 
     //    for(var i = 0; i < imgCount; i++) {
@@ -2253,31 +2254,31 @@ function uiLayerHtml(data) {
     
     //$('#mainImage').append(imgNameHtml);
 
-
-
-    //두연두연두연
-
     var firstImgName = "";
     var appendThumbnailHtml = "";
     // imgThumbnail
     for(var i = 0; i < mlDataArray.length; i++) {
         if(i == 0) {
-            firstImgName = nvl(data.data[i].fileinfo.filepath.substring(data.data[i].fileinfo.filepath.lastIndexOf('/') + 1));
+            //firstImgName = nvl(data.data[i].fileinfo.convertFilepath.substring(data.data[i].fileinfo.convertFilepath.lastIndexOf('/') + 1));
+            firstImgName = nvl(data.data[i].fileinfo.convertFilepath.replace(/\/uploads/,'/img'));
             appendThumbnailHtml += '<li class="on">';
         } else {
             appendThumbnailHtml += '<li>';
         }
-
-        var imgName = nvl(data.data[i].fileinfo.filepath.substring(data.data[i].fileinfo.filepath.lastIndexOf('/') + 1));
-        var fileExt = data.data[i].fileinfo.filepath.substring(data.data[i].fileinfo.filepath.lastIndexOf(".") + 1, data.data[i].fileinfo.filepath.length);
-
+        var imgFullPath = nvl(data.data[i].fileinfo.convertFilepath.replace(/\/uploads/, '/img'));
+        var imgName = nvl(data.data[i].fileinfo.convertFilepath.substring(data.data[i].fileinfo.convertFilepath.lastIndexOf('/') + 1));
+        /*
+        var imgName = nvl(data.data[i].fileinfo.convertFilepath.substring(data.data[i].fileinfo.convertFilepath.lastIndexOf('/') + 1));        
+        var fileExt = data.data[i].fileinfo.convertFilepath.substring(data.data[i].fileinfo.convertFilepath.lastIndexOf(".") + 1, data.data[i].fileinfo.convertFilepath.length);
+        
         if (fileExt.toLowerCase() == "png" || fileExt.toLowerCase() == "pdf") {
             imgName = imgName.substring(0, imgName.lastIndexOf('.')) + '.png';
         } else if (fileExt.toLowerCase() == "jpg") {
             imgName = imgName.substring(0, imgName.lastIndexOf('.')) + '.jpg';
         }
+        */
         
-        appendThumbnailHtml += '<div class="box_img"><i><img src="/img/' + nvl(imgName) + '" ' +
+        appendThumbnailHtml += '<div class="box_img"><i><img src="' + nvl(imgFullPath) + '" ' +
                 'class="thumb-img" title="' + nvl(imgName) + '"></i>' +
                 '</div>' +
                 '<span>' + nvl(imgName) + '</span>' +
@@ -2295,25 +2296,19 @@ function uiLayerHtml(data) {
 
     //var height = 1600 + "px !important";
     //$("#mainImage").css("height", height);
-    $('#mainImage').css('background-image', 'url("/img/' + firstImgName + '")');
+    $('#mainImage').css('background-image', 'url("' + firstImgName + '")');
     $("#imageBox").empty().append(appendThumbnailHtml);
     //checkDocLabelDef(docLabelDefList);
     //checkDocMlData(docAnswerDataList);
     //changeTabindex();
     thumbImgEvent();
 
-
-
-
-
-
-
     // UI 레이어 화면 우측 추출 텍스트 및 컬럼 html 생성
     for (var l in mlDataArray) {
 
         mlData = mlDataArray[l].data;
-        var filePath = mlDataArray[l].fileinfo.filepath;
-        filePath = filePath.substring(filePath.lastIndexOf("/") + 1, filePath.length);
+        var filePath = mlDataArray[l].fileinfo.convertFilepath.replace(/\/uploads/,'/img');
+        //filePath = filePath.substring(filePath.lastIndexOf("/") + 1, filePath.length);
 
         //tblSortTag = '';
         for (var i in mlData) {

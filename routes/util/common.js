@@ -35,14 +35,15 @@ const upload = multer({
             }
         },
         filename: function (req, file, cb) {
+            
             var fileName = file.originalname.substring(0, file.originalname.lastIndexOf("."));
             var fileExt = file.originalname.substring(file.originalname.lastIndexOf(".") + 1, file.originalname.length);
 
             var tempName = new Date().isoNum(14) + "" + Math.floor(Math.random() * 99);
 
-            file.originalname = "tempFileName" + "_" + tempName + "." + fileExt;
-            //file.originalname = fileName + "_" + tempName + "." + fileExt;
-
+            //file.originalname = "tempFileName" + "_" + tempName + "." + fileExt;
+            file.originalname = fileName + "_" + tempName + "." + fileExt;
+            
             cb(null, file.originalname);
         }
     }),
@@ -583,7 +584,7 @@ router.post('/modifyBatchUiTextData', function (req, res) {
     var afterData = req.body.afterData;
     var predLabelData = req.body.predLabelData;
     var predEntryData = req.body.predEntryData;
-    var filepath = req.body.beforeData.fileinfo.filepath;
+    var fileFullpath = req.body.beforeData.fileinfo.filepath;
     var docTopType = beforeData.docCategory.DOCTOPTYPE;
     var docType = beforeData.docCategory.DOCTYPE;
     var returnObj;
@@ -753,10 +754,12 @@ router.post('/modifyBatchUiTextData', function (req, res) {
             //entry prediction ML DB insert
             sync.await(oracle.insertPredEntryMapping(predEntryData, sync.defer()));
 
-            // TBL_BATCH_LEARN_LIST table insert            
-            var d = new Date();
-            var imgId = d.isoNum(8) + "" + Math.floor(Math.random() * 9999999) + 1000000;
-            sync.await(oracle.insertBatchLearnListFromUi([imgId, filepath, docType, docTopType], sync.defer()));
+            // TBL_FTP_FILE_LIST table insert            
+            //var d = new Date();
+            //var imgId = d.isoNum(8) + "" + Math.floor(Math.random() * 9999999) + 1000000;
+            var filePath = fileFullpath.substring(0, fileFullpath.lastIndexOf('/') + 1);
+            var fileName = fileFullpath.substring(fileFullpath.lastIndexOf('/') + 1);
+            sync.await(oracle.insertFtpFileListFromUi([filePath, fileName], sync.defer()));
 
             // TBL_BATCH_PO_ML_EXPORT table insert
             var exportData = "[";
@@ -776,7 +779,7 @@ router.post('/modifyBatchUiTextData', function (req, res) {
             exportData = exportData.slice(0, -1);
             exportData += "]";
 
-            sync.await(oracle.insertBatchPoMlExportFromUi([docTopType, filepath.substring(filepath.lastIndexOf('/') + 1), exportData], sync.defer()));
+            sync.await(oracle.insertBatchPoMlExportFromUi([docTopType, fileName, exportData], sync.defer()));
 
             returnObj = { code: 200, message: 'modify textData success' };
 

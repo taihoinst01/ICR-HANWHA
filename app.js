@@ -106,7 +106,7 @@ app.use('/templateRegistration', templateRegistration);
 app.use('/setting', setting);
 
 app.use('/adminLearning', adminLearning);
-app.use('/wF_WorkflowProc', wF_WorkflowProc);//jmh
+app.use('/wF_WorkflowProc', wF_WorkflowProc);
 
 // admin
 app.use('/adminDashboard', adminDashboard);
