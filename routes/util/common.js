@@ -670,7 +670,6 @@ router.post('/modifyBatchUiTextData', function (req, res) {
                             
                             sync.await(oracle.insertBatchColumnMapping(afterData.data[i], docType, beforeData.data[j], sync.defer()));  
 
-                            break;
                             /* 기존소스
                             var itemLoc = beforeData.data[j].location.split(",");
                             var yData = [];
