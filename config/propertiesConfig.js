@@ -56,7 +56,8 @@ var propertiesConfig = {
         host: '104.41.171.244',
         port: 21,
         user: 'daerimicr',
-        password: 'daerimicr123!@#'
+        password: 'daerimicr123!@#',
+        keepalive: 10000
     }
 };
 

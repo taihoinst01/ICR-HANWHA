@@ -302,7 +302,8 @@ exports.icrRest = function (req, isAuto, done) {
                 return done(null, body);
             });
         } catch (err) {
-            reject(err);
+            //reject(err);
+            console.log(err);
         } finally {
 
         }
