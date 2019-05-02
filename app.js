@@ -54,6 +54,9 @@ var xlsx = require('xlsx');
 //auto scan
 //var auto = require('./routes/util/auto');
 
+//api server
+var apiServerTest = require('./routes/util/apiServerTest'); 
+
 // 
 app.use('/tifTest', express.static(path.join(appRoot)));
 app.use('/tif', express.static(path.join(propertiesConfig.filepath.uploadsPath)));
@@ -119,6 +122,8 @@ app.use('/common', common);
 //etc
 //app.use('/listProc', listProc);
 
+// api server
+app.use('/apiServerTest', apiServerTest);
 
 // server 
 app.set('port', process.env.PORT || 80);
