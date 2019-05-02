@@ -304,7 +304,7 @@ function findEntry(req,docTypeVal, docTopTypeVal, done) {
             {
                 if(departureTimeList.length == 2)
                 {
-                    if(departureTimeList[0].loc.split(",")[0] < departureTimeList[1].loc.split(",")[0])
+                    if(Number(departureTimeList[0].loc.split(",")[0]) < (Number(departureTimeList[1].loc.split(",")[0])))
                     {
                         departureTime = departureTimeList[0].text + "시" + departureTimeList[1].text + "분" ;
                     }
