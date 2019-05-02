@@ -192,6 +192,8 @@ function uiLearnTraining_auto(filepath, isAuto, callback) {
                 }
                 else {
                     retData.docCategory.DOCNAME = "unKnown";
+                    retData.docCategory.DOCTYPE = 0;
+                    retData.docCategory.DOCTOPTYPE = 0;
                 }
 
                 retData.labelData = labelData.rows;
