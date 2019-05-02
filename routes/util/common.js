@@ -602,12 +602,12 @@ router.post('/modifyBatchUiTextData', function (req, res) {
                         //사용자가 글자를 직접 수정한 경우 TBL_CONTRACT_MAPPING에 insert
                         if (afterData.data[i].text != beforeData.data[j].text) {
                             var item = [beforeData.data[j].originText, '', afterData.data[i].text, ''];
-                            sync.await(oracle.insertContractMapping(item, sync.defer()));
-                            sync.await(oracle.insertSymspell(afterData.data[i], sync.defer()));
+                            //sync.await(oracle.insertContractMapping(item, sync.defer()));
+                            //sync.await(oracle.insertSymspell(afterData.data[i], sync.defer()));
                         }
                         //사용자가 지정한 컬럼라벨의 텍스트가 유효한 컬럼의 경우 OcrSymspell에 before text(중요!!) insert
                         if (afterData.data[i].colLbl >= 1) {
-                            sync.await(oracle.insertOcrSymsSingle(beforeData.data[j], sync.defer()));
+                            //sync.await(oracle.insertOcrSymsSingle(beforeData.data[j], sync.defer()));
                         }
                         afterData.data[i].sid = sync.await(oracle.selectSid(beforeData.data[j], sync.defer()));
                         //라벨이 변경된 경우만 트레이닝 insert
@@ -667,9 +667,10 @@ router.post('/modifyBatchUiTextData', function (req, res) {
                             beforeData.data[j].inputOcrData = afterData.data[i].inputOcrData = inputOcrData;
                             beforeData.data[j].yData = afterData.data[i].yData = yData;
                             beforeData.data[j].xData = afterData.data[i].xData = xData;
-
+                            
                             sync.await(oracle.insertBatchColumnMapping(afterData.data[i], docType, beforeData.data[j], sync.defer()));  
 
+                            break;
                             /* 기존소스
                             var itemLoc = beforeData.data[j].location.split(",");
                             var yData = [];
@@ -783,7 +784,7 @@ router.post('/modifyBatchUiTextData', function (req, res) {
             exportData = exportData.slice(0, -1);
             exportData += "]";
 
-            sync.await(oracle.insertBatchPoMlExportFromUi([docTopType, fileName, exportData], sync.defer()));
+            sync.await(oracle.insertBatchPoMlExportFromUi([docTopType, fileFullpath, exportData], sync.defer()));
 
             returnObj = { code: 200, message: 'modify textData success' };
 
