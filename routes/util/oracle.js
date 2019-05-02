@@ -5105,7 +5105,7 @@ exports.insertFtpFileList = function (path, req, done) {
 
         try {
             conn = await oracledb.getConnection(dbConfig);
-            let query = "INSERT INTO TBL_FTP_FILE_LIST VALUES (SEQ_FTP_FILE_LIST.NEXTVAL, :filePath, :fileName, 'N')";
+            let query = "INSERT INTO TBL_FTP_FILE_LIST(SEQ, FILEPATH,FILENAME) VALUES (SEQ_FTP_FILE_LIST.NEXTVAL, :filePath, :fileName )";
             for (var i in req) await conn.execute(query, [path, req[i]]);
 
             return done(null, null);
@@ -5117,6 +5117,70 @@ exports.insertFtpFileList = function (path, req, done) {
                     await conn.release();
                 } catch (e) {
                     console.error(e);
+                }
+            }
+        }
+    });
+};
+
+exports.updateFtpFileList = function (fileNm,filePath,fileSeq, done) {
+    return new Promise(async function (resolve, reject) {
+        let conn;
+
+        try {
+            conn = await oracledb.getConnection(dbConfig);
+
+
+            console.log(fileNm+" || "+filePath+" || "+fileSeq);
+
+            // let query = "INSERT INTO TBL_FTP_FILE_LIST VALUES (SEQ_FTP_FILE_LIST.NEXTVAL, :filePath, :fileName, 'N')";
+            let query = "UPDATE TBL_FTP_FILE_LIST SET RETURNFLAG = 'Y', RETURNTIME = sysdate WHERE SEQ = '"+fileSeq+"' AND FILENAME = '"+fileNm+"' AND FILEPATH = '"+filePath+"'";
+            // for (var i in req) 
+            let result = await conn.execute(query);
+            console.log(result);
+            console.log(result.rowsAffected);
+            return done(null, result.rowsAffected);
+        } catch (err) { // catches errors in getConnection and the query
+            reject(err);
+        } finally {
+            if (conn) {   // the conn assignment worked, must release
+                try {
+                    await conn.release();
+                } catch (e) {
+                    console.error(e);
+                    return done(null, e);
+                }
+            }
+        }
+    });
+};
+
+
+exports.getFtpFileList = function (fileNm,filePath,fileSeq, done) {
+    return new Promise(async function (resolve, reject) {
+        let conn;
+
+        try {
+            conn = await oracledb.getConnection(dbConfig);
+
+
+            console.log(fileNm+" || "+filePath+" || "+fileSeq);
+
+            // let query = "INSERT INTO TBL_FTP_FILE_LIST VALUES (SEQ_FTP_FILE_LIST.NEXTVAL, :filePath, :fileName, 'N')";
+            let query = "SELECT SEQ,FILENAME, FILEPATH FROM TBL_FTP_FILE_LIST  WHERE SEQ = '"+fileSeq+"' AND FILENAME = '"+fileNm+"' AND FILEPATH = '"+filePath+"'";
+            // for (var i in req) 
+            let result = await conn.execute(query);
+            console.log(result);
+            return done(null, result.rows);
+        } catch (err) { // catches errors in getConnection and the query
+            reject(err);
+        } finally {
+            if (conn) {   // the conn assignment worked, must release
+                try {
+                    await conn.release();
+                } catch (e) {
+                    console.error(e);
+                    return done(null, e);
                 }
             }
         }
