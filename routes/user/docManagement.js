@@ -38,12 +38,20 @@ router.post('/selectDocTopType', function (req, res) {
 
 router.post('/selectBatchPoMlExport', function (req, res) {
     sync.fiber(function () {
-        let docTopType = req.body.docTopType;
+        try {
+            let docTopType = req.body.docTopType;
+            let startDate = (req.body.startDate) ? req.body.startDate.replace(/-/gi, '') : null;
+            let endDate = (req.body.endDate) ? req.body.endDate.replace(/-/gi, '') : null;
+            let processState = (req.body.processState) ? req.body.processState : null;
 
-        let docLabelList = sync.await(oracle.selectDocLabelDefList([docTopType], sync.defer()));
-        let docDataList = sync.await(oracle.selectBatchPoMlExport([docTopType], sync.defer()));
+            let docLabelList = sync.await(oracle.selectDocLabelDefList([docTopType], sync.defer()));
+            let docDataList = sync.await(oracle.selectBatchPoMlExport([docTopType, startDate, endDate, processState], sync.defer()));
 
-        res.send({ 'docDataList': docDataList, 'docLabelList': docLabelList });
+            res.send({ 'docDataList': docDataList, 'docLabelList': docLabelList });
+        } catch (e) {
+            console.log(e);
+            res.send({});
+        }
     });
 });
 

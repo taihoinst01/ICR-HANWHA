@@ -9,9 +9,9 @@ $(function () {
 function _init() {
     $('.um_select select').stbDropdown(); // 검색 메뉴 드랍 초기화
     $('.batch_tbl_right_divBodyScroll').scrollTop(0).scrollLeft(0); // 스크롤 초기화
-    selectDocTopType(); // 대메뉴 조회(docTopType)
     datePickerEvent(); // datePicker 적용
     clickEventHandlers();
+    selectDocTopType(); // 대메뉴 조회(docTopType)
 }
 
 // 버튼 이벤트 핸들러 함수 모음
@@ -41,7 +41,14 @@ function selectDocTopType() {
             $('#docTopTypeSelect').append(optionHTML);
             if (data.docToptypeList.length > 0) {
                 $('#docTopTypeSelect').prev().text(data.docToptypeList[0].KORNM);
-                selectBatchPoMlExport(data.docToptypeList[0].SEQNUM, true);
+                var params = {
+                    'docTopType': data.docToptypeList[0].SEQNUM,
+                    'startDate': $('#searchStartDate').val(),
+                    'endDate': $('#searchEndDate').val(),
+                    'processState': $('#processStateSelect').val()
+                };
+
+                selectBatchPoMlExport(params, true);
             }
         },
         error: function (err) {
@@ -92,18 +99,29 @@ function datePickerEvent() {
 // 문서양식 조회 버튼 click 이벤트
 function selectBtnClick() {
     $('#btn_search').click(function () {
-        selectBatchPoMlExport($('#docTopTypeSelect').val(), false);
+        var docTopType = $('#docTopTypeSelect').val();
+        var startDate = $('#searchStartDate').val();
+        var endDate = $('#searchEndDate').val();
+        var processState = $('#processStateSelect').val();
+
+        var params = {
+            'docTopType': docTopType,
+            'startDate': startDate,
+            'endDate': endDate,
+            'processState': processState
+        };
+        selectBatchPoMlExport(params, false);
     });
 }
 
 // 문서양식 데이터 조회 이벤트
-function selectBatchPoMlExport(docTopType, isInit) {
+function selectBatchPoMlExport(params, isInit) {
     
     $.ajax({
         url: '/docManagement/selectBatchPoMlExport',
         type: 'post',
         datatype: 'json',
-        data: JSON.stringify({ 'docTopType': docTopType}),
+        data: JSON.stringify(params),
         contentType: 'application/json; charset=UTF-8',
         beforeSend: function () {
             $('#progressMsgTitle').html("문서데이터 조회중...");

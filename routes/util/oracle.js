@@ -5202,10 +5202,22 @@ exports.selectBatchPoMlExport = function (req, done) {
         try {
             conn = await oracledb.getConnection(dbConfig);
             let query = "" +
-                "SELECT PME.FILENAME, PME.EXPORTDATA " +
-                "FROM TBL_BATCH_PO_ML_EXPORT PME, (SELECT FILEPATH || FILENAME AS FILENAME FROM TBL_FTP_FILE_LIST) FFL " +
-                "WHERE PME.FILENAME = FFL.FILENAME " +
-                "AND PME.DOCID = :docId";
+            "SELECT " +
+                "PME.FILENAME, PME.EXPORTDATA " +
+            "FROM " +
+                "TBL_BATCH_PO_ML_EXPORT PME, " +
+                "(SELECT " +
+                    "FILEPATH || FILENAME AS FILENAME, AUTOSENDFLAG, AUTOSENDTIME, " +
+                    "AUTOTRAINFLAG, AUTOTRAINTIME, MANUALSENDFLAG, MANUALSENDTIME, " +
+                    "MANUALTRAINFLAG, MANUALTRAINTIME, RETURNFLAG, RETURNTIME " +
+                "FROM " +
+                    "TBL_FTP_FILE_LIST) FFL " +
+            "WHERE PME.FILENAME = FFL.FILENAME " +
+            "AND PME.DOCID = :docId " +
+            "AND CAST(FFL.AUTOSENDTIME as Date) >= TO_DATE(:startDate, 'YY/MM/DD') " +
+            "AND CAST(FFL.AUTOSENDTIME as Date) <= TO_DATE(:endDate, 'YY/MM/DD') " +
+            "AND RETURNFLAG = :retrinFlag";
+
             result = await conn.execute(query, req);
             if (result.rows.length != 0) {
                 return done(null, result.rows);
