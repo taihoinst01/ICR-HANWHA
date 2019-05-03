@@ -139,8 +139,10 @@ function uiLearnTraining_new(filepath, isAuto, callback) {
                     filepath: propertiesConfig.auto.ftpFileUrl + resPyArr[i].originFileName,
                     convertFilepath: propertiesConfig.auto.ftpFileUrl + resPyArr[i].convertFileName
                 };
+                retData.xAxis = resPyArr[i]['x-axis'];
+                retData.yAxis = resPyArr[i]['y-axis'];
                 retDataList.push(retData);
-            }
+            }        
             console.log("for end");
             //console.log(retDataList);
             // resPyArr = sync.await(transPantternVar.trans(resPyArr, sync.defer()));

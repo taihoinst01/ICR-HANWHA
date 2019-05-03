@@ -259,7 +259,7 @@ function findEntry(req,docTypeVal, docTopTypeVal, done) {
                             {
                                 if(req.data[j]["text"].indexOf("분") == -1)
                                 {
-                                    console.log(req.data[j]);
+                                    //console.log(req.data[j]);
                                     departureTimeData["loc"] = req.data[j].location;
                                     departureTimeData["text"] = req.data[j].text;
                                     departureTimeList.push(departureTimeData);

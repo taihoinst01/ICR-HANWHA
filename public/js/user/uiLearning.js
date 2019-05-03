@@ -1249,8 +1249,7 @@ function dbColumnsOption(data, column) {
 }
 
 // 마우스 오버 이벤트
-function zoomImg(e, fileName) {
-
+function zoomImg(e, fileName) {   
     // 해당 페이지로 이동
     // 몇 페이지 어디인지 표시
     //var fileName = $(e).find('input[type=hidden]').attr('alt');
@@ -1271,7 +1270,9 @@ function zoomImg(e, fileName) {
 
     //실제 이미지 사이즈와 메인이미지div 축소율 판단
     var reImg = new Image();
-    reImg.onload = function() {
+    reImg.onload = function () {
+        var axis = $('#imageBox').find('li.on').find('.axis').val().split(',');
+
         var width;
         var height;
         width = reImg.width;
@@ -1288,8 +1289,8 @@ function zoomImg(e, fileName) {
     
         // 사각형 좌표값
         var location = $(e).find('input[type=hidden]').val().split(',');
-        x = parseInt(location[0]);
-        y = parseInt(location[1]);
+        x = parseInt(location[0]) + parseInt(axis[0]);
+        y = parseInt(location[1]) + parseInt(axis[1]);
         textWidth = parseInt(location[2]);
         textHeight = parseInt(location[3]);
     
@@ -1300,6 +1301,7 @@ function zoomImg(e, fileName) {
     
 
         $('#redZoomNemo').css('height', (textHeight + 5) + 'px');
+        $('#redZoomNemo').css('top', '171px');
         $('#redZoomNemo').show();
     }
     reImg.src = fileName;
@@ -2278,7 +2280,7 @@ function uiLayerHtml(data) {
         }
         */
         
-        appendThumbnailHtml += '<div class="box_img"><i><img src="' + nvl(imgFullPath) + '" ' +
+        appendThumbnailHtml += '<div class="box_img"><i><input type="hidden" class="axis" value="' + data.data[i].xAxis + ',' + data.data[i].yAxis+'"/><img src="' + nvl(imgFullPath) + '" ' +
                 'class="thumb-img" title="' + nvl(imgName) + '"></i>' +
                 '</div>' +
                 '<span>' + nvl(imgName) + '</span>' +
