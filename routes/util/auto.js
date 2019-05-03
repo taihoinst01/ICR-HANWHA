@@ -45,7 +45,7 @@ var remoteFTP = function () {
 // 지정된 시간마다 FTP서버의 특정 디렉토리에서 파일 리스트를 가져와 DB와 비교하여 해당 row가 없으면 프로세스 수행, 있으면 continue
 var remoteFTP_v2 = function () {
 
-    cron.schedule('*/1 * * * *', function () {
+    cron.schedule('*/30 * * * * *', function () {
         sync.fiber(function () {
             try {
                 var execFileNames = [];
@@ -70,7 +70,7 @@ var remoteFTP_v2 = function () {
                         execFileNames = fileNames;
                     }
                 }
-                
+                console.log('auto processing start -------------> fileName : [' + execFileNames.toString() + ']');
                 // ocr 및 ml 프로세스 실행
                 if (execFileNames.lengh != 0) {
                     for (var i in execFileNames) {
@@ -96,7 +96,7 @@ var remoteFTP_v2 = function () {
                         }                       
                     }
                 }
-                console.log('auto processing end -------------> fileName : [' + execFileNames.toString() + ']');
+                console.log('auto processing end ---------------> fileName : [' + execFileNames.toString() + ']');
             } catch (e) {
                 console.log(e);
             } finally {

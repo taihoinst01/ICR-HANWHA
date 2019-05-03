@@ -190,7 +190,7 @@ function appendMLData(docDataList) {
 //이미지 팝업 이벤트
 function openImagePop(fileName) {
     var convertFilePath = fileName.split('.pdf')[0] + '-0.jpg';
-    $('#PopupImg').attr('src', convertFilePath);
+    $('#PopupImg').attr('src', convertFilePath.replace(/\/uploads/,'/img'));
     layer_open('docPop');
     return false;
 }

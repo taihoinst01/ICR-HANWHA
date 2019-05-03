@@ -52,7 +52,7 @@ var xlsx = require('xlsx');
 //var listProc = require('./routes/util/listProc'); // legacy interface
 
 //auto scan
-//var auto = require('./routes/util/auto');
+var auto = require('./routes/util/auto');
 
 //api server
 var apiServerTest = require('./routes/util/apiServerTest'); 
