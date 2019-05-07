@@ -128,7 +128,7 @@ function selectBatchPoMlExport(params, isInit) {
             if (!isInit) progressId = showProgressBar();
         },
         success: function (data) {
-            //console.log(data);
+            console.log(data);
             appendDocTableHeader(data.docLabelList);
             appendMLData(data.docDataList);
             endProgressBar(progressId);
@@ -144,6 +144,7 @@ function selectBatchPoMlExport(params, isInit) {
 // 문서양식에 따른 table 헤더 렌더링
 function appendDocTableHeader(docLabelList) {
     $('#docTableColumn').empty();
+    $('#docMlDataColGroup').empty();
 
     var headerColGroupHTML = '<colgroup>' +
 	'<col style="width:50px;">' +
@@ -182,7 +183,7 @@ function appendMLData(docDataList) {
     for (var i in docDataList) {
         if (i == 10) break; // jhy
         var mlDataListHTML = '' +
-        '<tr class="originalTr" data-seq="">' +
+        '<tr class="originalTr">' +
             '<td><div class="checkbox-options mauto"><input type="checkbox" class="sta00_all" value="" name="listCheck" /></div></td>' +
             '<td>' +
 		        '<a href="#" title="양식" onclick="openImagePop(\'' + docDataList[i].FILENAME + '\')">' +
