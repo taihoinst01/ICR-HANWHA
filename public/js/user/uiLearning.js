@@ -1296,7 +1296,7 @@ function zoomImg(e, fileName) {
         textWidth = parseInt(location[2]);
         textHeight = parseInt(location[3]);
     
-        var xPosition = '0px';
+        var xPosition = '100px';
         var yPosition = ((- (y * heightPercent)) + (parseInt(axis[1]) * chgHeightPercent) + ((height - parseInt(axis[3])) * chgHeightPercent) + 191) + 'px';
 
         $('#imageZoom').css('background-position', xPosition + ' ' + yPosition);
