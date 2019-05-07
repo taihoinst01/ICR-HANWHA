@@ -40,8 +40,8 @@ router.post('/selectBatchPoMlExport', function (req, res) {
     sync.fiber(function () {
         try {
             let docTopType = req.body.docTopType;
-            let startDate = (req.body.startDate) ? req.body.startDate.replace(/-/gi, '') : null;
-            let endDate = (req.body.endDate) ? req.body.endDate.replace(/-/gi, '') : null;
+            let startDate = (req.body.startDate) ? req.body.startDate.replace(/-/gi, '') + '000000' : null;
+            let endDate = (req.body.endDate) ? req.body.endDate.replace(/-/gi, '') + '235959' : null;
             let processState = (req.body.processState) ? req.body.processState : null;
 
             let docLabelList = sync.await(oracle.selectDocLabelDefList([docTopType], sync.defer()));
