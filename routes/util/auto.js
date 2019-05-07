@@ -217,6 +217,8 @@ function uiLearnTraining_auto(filepath, isAuto, callback) {
                 };
                 retData.xAxis = resPyArr[i]['x-axis'];
                 retData.yAxis = resPyArr[i]['y-axis'];
+                retData.width = resPyArr[i]['width'];
+                retData.height = resPyArr[i]['height'];
                 retDataList.push(retData);
             }
             callback(null, retDataList);

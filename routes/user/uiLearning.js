@@ -141,6 +141,8 @@ function uiLearnTraining_new(filepath, isAuto, callback) {
                 };
                 retData.xAxis = resPyArr[i]['x-axis'];
                 retData.yAxis = resPyArr[i]['y-axis'];
+                retData.width = resPyArr[i]['width'];
+                retData.height = resPyArr[i]['height'];
                 retDataList.push(retData);
             }        
             console.log("for end");
