@@ -247,16 +247,70 @@ function findEntry(req,docTypeVal, docTopTypeVal, done) {
             //entry data 추출
             let entryTrainRows = sync.await(oracle.selectTrainDataList(docTypeParam, sync.defer()));
             var departureTimeList=[];
+            var concreteTypeList=[];
             for(var j in req.data) {
                 for (var k in entryTrainRows) {
                     if (predictionColumn(req.docCategory, req.data[j], entryTrainRows[k], 'E') && isValid(labelRows, entryTrainRows[k].CLASS, req.data[j]["text"])) {
                         req.data[j]["entryLbl"] = entryTrainRows[k].CLASS;
                         delete req.data[j].colLbl;
                         var departureTimeData={};
-                        if(req.data[j]["entryLbl"] == 766)
+                        var concreteTypeData={};
+
+                        // concreteTypeData["loc"] = "478,1507,53,40";
+                        // concreteTypeData["text"] = "고";
+                        // concreteTypeList.push(concreteTypeData);
+                        if(req.data[j]["entryLbl"] == 769)
+                        {
+                            concreteTypeData["loc"] = req.data[j].location;
+                            concreteTypeData["text"] = req.data[j].text.replace("법","").replace("호","");
+                            concreteTypeList.push(concreteTypeData);
+                        }
+                        if(req.data[j]["entryLbl"] == 765)
+                        {
+                            if(req.data[j].text.substring(0,1) == "호")
+                            {
+                                req.data[j].text = req.data[j].text.substring(1,req.data[j].text.length);
+                            }
+                        }                       
+                        else if(req.data[j]["entryLbl"] == 762)
+                        {
+                            if(req.data[j].text == "소" ||req.data[j].text == "소 :")
+                            {
+                                delete req.data[j].entryLbl;
+                                req.data[j]["colLbl"] = -1;
+                            }
+
+                            if(req.data[j].text.substring(0,1) == "소")
+                            {
+                                req.data[j].text = req.data[j].text.substring(1,req.data[j].text.length);
+                            }
+                            
+                        }
+                        else if(req.data[j]["entryLbl"] == 768 || req.data[j]["entryLbl"] == 767 )
+                        {
+                            req.data[j].text = req.data[j].text.replace("-",".");
+                        }
+                        else if(req.data[j]["entryLbl"] == 766)
                         {
                             if(req.data[j]["text"].indexOf("시") == -1 )
                             {
+                                if(req.data[j]["text"].indexOf("분") == -1)
+                                {
+                                    //console.log(req.data[j]);
+                                    departureTimeData["loc"] = req.data[j].location;
+                                    departureTimeData["text"] = req.data[j].text;
+                                    departureTimeList.push(departureTimeData);
+                                }
+                                else
+                                {
+                                    departureTimeData["loc"] = req.data[j].location;
+                                    departureTimeData["text"] = req.data[j].text.replace("분","");
+                                    departureTimeList.push(departureTimeData);
+                                }
+                            }
+                            else
+                            {
+                                
                                 if(req.data[j]["text"].indexOf("분") == -1)
                                 {
                                     //console.log(req.data[j]);
@@ -300,10 +354,48 @@ function findEntry(req,docTypeVal, docTopTypeVal, done) {
                 }
             }
             var departureTime ="";
-            if(departureTimeList.length > 1)                
+            var concreteType ="";
+            console.log(concreteTypeList);
+            concreteTypeList.sort(function(a,b)
+            {
+                console.log(a.loc.split(",")[0]);
+                console.log(b.loc.split(",")[0]);
+                return Number(a.loc.split(",")[0]) - Number(b.loc.split(",")[0]);
+            });
+            console.log(concreteTypeList);
+            
+            if(concreteTypeList.length > 1)                
+            {
+                for(var i in concreteTypeList)
+                {
+                    concreteType +=concreteTypeList[i].text;
+                }
+                console.log(concreteType);
+
+                var cnt = 0;
+                for(var l in req.data)
+                {
+                    if(req.data[l]["entryLbl"] == 769)
+                    {
+                        req.data[l]["text"] = concreteType;
+                        if(cnt > 0)
+                        {
+                            delete req.data[l].entryLbl;
+                            req.data[l]["colLbl"] = -1;
+                        }
+                        cnt++;
+                    }
+                }
+            }
+
+            if(departureTimeList.length > 1)
             {
                 if(departureTimeList.length == 2)
                 {
+                    departureTimeList[0].text = departureTimeList[0].text.replace("시","");
+                    departureTimeList[0].text = departureTimeList[0].text.replace("분","");
+                    departureTimeList[1].text = departureTimeList[1].text.replace("시","");
+                    departureTimeList[1].text = departureTimeList[1].text.replace("분","");
                     if(Number(departureTimeList[0].loc.split(",")[0]) < (Number(departureTimeList[1].loc.split(",")[0])))
                     {
                         departureTime = departureTimeList[0].text + "시" + departureTimeList[1].text + "분" ;
@@ -314,7 +406,14 @@ function findEntry(req,docTypeVal, docTopTypeVal, done) {
                     }
                 }
                 console.log(departureTime);
-
+                if(departureTime.indexOf("분") == -1)
+                {
+                    departureTime = departureTime + "분";
+                }
+                if(departureTime.indexOf("도") != -1)
+                {
+                    departureTime = departureTime.replace("도","");
+                }
                 var cnt = 0;
                 for(var l in req.data)
                 {
@@ -330,6 +429,32 @@ function findEntry(req,docTypeVal, docTopTypeVal, done) {
                     }
                 }
             }
+            else if(departureTimeList.length == 1)
+            {
+                if(departureTimeList[0].text.indexOf("시") != -1 && departureTimeList[0].text.indexOf("분") == -1)
+                {
+                    departureTime = departureTimeList[0].text + "분";
+                }
+                else if(departureTimeList[0].text.indexOf("시") == -1 && departureTimeList[0].text.indexOf("분") == -1)
+                {
+                    departureTime = departureTimeList[0].text.replace(" ","시") + "분";
+                }
+            }
+            var cnt = 0;
+                for(var l in req.data)
+                {
+                    if(req.data[l]["entryLbl"] == 766)
+                    {
+                        req.data[l]["text"] = departureTime;
+                        if(cnt > 0)
+                        {
+                            delete req.data[l].entryLbl;
+                            req.data[l]["colLbl"] = -1;
+                        }
+                        cnt++;
+                    }
+                }
+            
             retData["docCategory"] = req.docCategory;
             retData["data"] = req.data;
 
