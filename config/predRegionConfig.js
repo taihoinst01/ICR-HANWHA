@@ -61,11 +61,11 @@ var config = {
     'default': {
         'LU': {
             'L': { up: 0, right: 0, down: 0, left: 0 },
-            'E': { up: 5, right: 5, down: 5, left: 5 }
+            'E': { up: 10, right: 10, down: 10, left: 10 }
         },
         'RD': {
             'L': { up: 0, right: 0, down: 0, left: 0 },
-            'E': { up: 5, right: 5, down: 5, left: 5 }
+            'E': { up: 10, right: 10, down: 10, left: 10 }
         }
     }
 };

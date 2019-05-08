@@ -159,7 +159,7 @@ function uiLearnTraining_new(filepath, isAuto, callback) {
             callback(null, retDataList);
 
         } catch (e) {
-            console.log(e);
+            console.log(icrRestResult);
             callback(null, null);
         }
 
