@@ -292,9 +292,9 @@ function findEntry(req,docTypeVal, docTopTypeVal, done) {
                         }
                         else if(req.data[j]["entryLbl"] == 766)
                         {
-                            if(req.data[j]["text"].indexOf("시") == -1 )
+                            if (req.data[j]["text"].indexOf("시") == -1 )
                             {
-                                if(req.data[j]["text"].indexOf("분") == -1)
+                                if (req.data[j]["text"].indexOf("분") == -1)
                                 {
                                     //console.log(req.data[j]);
                                     departureTimeData["loc"] = req.data[j].location;
@@ -303,15 +303,17 @@ function findEntry(req,docTypeVal, docTopTypeVal, done) {
                                 }
                                 else
                                 {
-                                    departureTimeData["loc"] = req.data[j].location;
-                                    departureTimeData["text"] = req.data[j].text.replace("분","");
-                                    departureTimeList.push(departureTimeData);
+                                    if (req.data[j]["text"] != "분") {
+                                        departureTimeData["loc"] = req.data[j].location;
+                                        departureTimeData["text"] = req.data[j].text.replace("분", "");
+                                        departureTimeList.push(departureTimeData);
+                                    }
                                 }
                             }
                             else
                             {
                                 
-                                if(req.data[j]["text"].indexOf("분") == -1)
+                                if (req.data[j]["text"].indexOf("분") == -1)
                                 {
                                     //console.log(req.data[j]);
                                     departureTimeData["loc"] = req.data[j].location;
@@ -387,7 +389,7 @@ function findEntry(req,docTypeVal, docTopTypeVal, done) {
                     }
                 }
             }
-
+            console.log(departureTimeList)
             if(departureTimeList.length > 1)
             {
                 if(departureTimeList.length == 2)
