@@ -93,7 +93,7 @@ function editOcrTextTypos(req, done) {
                     // }
                 }
             }
-			
+            
 		} catch (e) {
 			console.log(e);
 		} finally {
@@ -248,6 +248,9 @@ function findEntry(req,docTypeVal, docTopTypeVal, done) {
             let entryTrainRows = sync.await(oracle.selectTrainDataList(docTypeParam, sync.defer()));
             var departureTimeList=[];
             var concreteTypeList=[];
+            var cementeTypeList=[];
+            var deliveryLocList=[];
+            var companyNameList=[];
             for(var j in req.data) {
                 for (var k in entryTrainRows) {
                     if (predictionColumn(req.docCategory, req.data[j], entryTrainRows[k], 'E') && isValid(labelRows, entryTrainRows[k].CLASS, req.data[j]["text"])) {
@@ -255,6 +258,9 @@ function findEntry(req,docTypeVal, docTopTypeVal, done) {
                         delete req.data[j].colLbl;
                         var departureTimeData={};
                         var concreteTypeData={};
+                        var cementeTypeData={};
+                        var deliveryLocData={};
+                        var companyNameData={};
 
                         // concreteTypeData["loc"] = "478,1507,53,40";
                         // concreteTypeData["text"] = "고";
@@ -265,14 +271,37 @@ function findEntry(req,docTypeVal, docTopTypeVal, done) {
                             concreteTypeData["text"] = req.data[j].text.replace("법","").replace("호","");
                             concreteTypeList.push(concreteTypeData);
                         }
-                        if(req.data[j]["entryLbl"] == 765)
+                        else if(req.data[j]["entryLbl"] == 765)
                         {
+                            if(req.data[j].text == "호")
+                            {
+                                delete req.data[j].entryLbl;
+                                req.data[j]["colLbl"] = -1;
+                            }
                             if(req.data[j].text.substring(0,1) == "호")
                             {
                                 req.data[j].text = req.data[j].text.substring(1,req.data[j].text.length);
                             }
+                        } 
+                        else if(req.data[j]["entryLbl"] == 764)
+                        {
+                            deliveryLocData["loc"] = req.data[j].location;
+                            deliveryLocData["text"] = req.data[j].text;
+                            deliveryLocList.push(deliveryLocData);
+                        }
+                        else if(req.data[j]["entryLbl"] == 773)
+                        {
+                            cementeTypeData["loc"] = req.data[j].location;
+                            cementeTypeData["text"] = req.data[j].text;
+                            cementeTypeList.push(cementeTypeData);
+                        }
+                        else if(req.data[j]["entryLbl"] == 760)
+                        {
+                            companyNameData["loc"] = req.data[j].location;
+                            companyNameData["text"] = req.data[j].text;
+                            companyNameList.push(companyNameData);
                         }                       
-                        else if(req.data[j]["entryLbl"] == 762)
+                        else if(req.data[j]["entryLbl"] == 762 || req.data[j]["entryLbl"] == 764)
                         {
                             if(req.data[j].text == "소" ||req.data[j].text == "소 :")
                             {
@@ -291,22 +320,37 @@ function findEntry(req,docTypeVal, docTopTypeVal, done) {
                             req.data[j].text = req.data[j].text.replace("-",".");
                         }
                         else if(req.data[j]["entryLbl"] == 766)
-                        {
-                            if (req.data[j]["text"].indexOf("시") == -1 )
+                        {   
+                            if(req.data[j]["text"] != "시")
                             {
-                                if (req.data[j]["text"].indexOf("분") == -1)
+                                if(req.data[j]["text"] != "분")
                                 {
-                                    //console.log(req.data[j]);
-                                    departureTimeData["loc"] = req.data[j].location;
-                                    departureTimeData["text"] = req.data[j].text;
-                                    departureTimeList.push(departureTimeData);
-                                }
-                                else
-                                {
-                                    if (req.data[j]["text"] != "분") {
-                                        departureTimeData["loc"] = req.data[j].location;
-                                        departureTimeData["text"] = req.data[j].text.replace("분", "");
-                                        departureTimeList.push(departureTimeData);
+                                    if(req.data[j]["text"].indexOf("시") == -1 )
+                                    {
+                                        if(req.data[j]["text"].indexOf("분") == -1)
+                                        {
+                                            //console.log(req.data[j]);
+                                            departureTimeData["loc"] = req.data[j].location;
+                                            departureTimeData["text"] = req.data[j].text;
+                                            departureTimeList.push(departureTimeData);
+                                        }
+                                        else
+                                        {
+                                            departureTimeData["loc"] = req.data[j].location;
+                                            departureTimeData["text"] = req.data[j].text.replace("분","");
+                                            departureTimeList.push(departureTimeData);
+                                        }
+                                    }
+                                    else
+                                    {
+                                        
+                                        if(req.data[j]["text"].indexOf("분") == -1)
+                                        {
+                                            //console.log(req.data[j]);
+                                            departureTimeData["loc"] = req.data[j].location;
+                                            departureTimeData["text"] = req.data[j].text;
+                                            departureTimeList.push(departureTimeData);
+                                        }
                                     }
                                 }
                             }
@@ -357,22 +401,75 @@ function findEntry(req,docTypeVal, docTopTypeVal, done) {
             }
             var departureTime ="";
             var concreteType ="";
-            console.log(concreteTypeList);
+            var cementeType ="";
+            var deliveryLoc ="";
+            var companyName ="";
+
             concreteTypeList.sort(function(a,b)
             {
                 console.log(a.loc.split(",")[0]);
                 console.log(b.loc.split(",")[0]);
                 return Number(a.loc.split(",")[0]) - Number(b.loc.split(",")[0]);
             });
-            console.log(concreteTypeList);
-            
-            if(concreteTypeList.length > 1)                
+            cementeTypeList.sort(function(a,b)
+            {
+                console.log(a.loc.split(",")[0]);
+                console.log(b.loc.split(",")[0]);
+                return Number(a.loc.split(",")[0]) - Number(b.loc.split(",")[0]);
+            });
+
+            companyNameList.sort(function(a,b)
+            {
+                console.log(a.loc.split(",")[0]);
+                console.log(b.loc.split(",")[0]);
+                return Number(a.loc.split(",")[0]) - Number(b.loc.split(",")[0]);
+            });
+
+
+            if(deliveryLocList.length > 1)
+            {
+                for(var i in deliveryLocList)
+                {
+                    if(Number(deliveryLocList[0].loc.split(",")[0]) < (Number(deliveryLocList[1].loc.split(",")[0])))
+                    {
+                        deliveryLoc = deliveryLocList[0].text + " " + deliveryLocList[1].text ;
+                    }
+                    else if(Number(deliveryLocList[0].loc.split(",")[0]) > (Number(deliveryLocList[1].loc.split(",")[0])))
+                    {
+                        deliveryLoc = deliveryLocList[1].text + " " + deliveryLocList[0].text ;
+                    }
+                }
+                var deliveryLocCnt = 0;
+                for(var l in req.data)
+                {
+                    if(req.data[l]["entryLbl"] == 764)
+                    {
+                        req.data[l]["text"] = deliveryLoc;
+                        if(deliveryLocCnt > 0)
+                        {
+                            delete req.data[l].entryLbl;
+                            req.data[l]["colLbl"] = -1;
+                        }
+                        deliveryLocCnt++;
+                    }
+                }
+            }
+
+            if(concreteTypeList.length > 0)                
             {
                 for(var i in concreteTypeList)
                 {
                     concreteType +=concreteTypeList[i].text;
                 }
-                console.log(concreteType);
+                
+                if(concreteType == "물자")
+                {
+                    concreteType = "물차";
+                }
+                if(concreteType == "콘크리트보통" || concreteType == "콘크리트" || concreteType == "콘크리트보")
+                {
+                    concreteType = "보통콘크리트";
+                }
 
                 var cnt = 0;
                 for(var l in req.data)
@@ -380,6 +477,55 @@ function findEntry(req,docTypeVal, docTopTypeVal, done) {
                     if(req.data[l]["entryLbl"] == 769)
                     {
                         req.data[l]["text"] = concreteType;
+                        if(cnt > 0)
+                        {
+                            delete req.data[l].entryLbl;
+                            req.data[l]["colLbl"] = -1;
+                        }
+                        cnt++;
+                    }
+                }
+            }
+
+
+            
+            if(companyNameList.length > 0)                
+            {
+                for(var i in companyNameList)
+                {
+                    companyName +=companyNameList[i].text;
+                }
+
+                var cnt = 0;
+                for(var l in req.data)
+                {
+                    if(req.data[l]["entryLbl"] == 760)
+                    {
+                        req.data[l]["text"] = companyName;
+                        if(cnt > 0)
+                        {
+                            delete req.data[l].entryLbl;
+                            req.data[l]["colLbl"] = -1;
+                        }
+                        cnt++;
+                    }
+                }
+            }
+            
+            if(cementeTypeList.length > 0)                
+            {
+                for(var i in cementeTypeList)
+                {
+                    cementeType +=cementeTypeList[i].text;
+                }
+                console.log(cementeType);
+
+                var cnt = 0;
+                for(var l in req.data)
+                {
+                    if(req.data[l]["entryLbl"] == 773)
+                    {
+                        req.data[l]["text"] = cementeType;
                         if(cnt > 0)
                         {
                             delete req.data[l].entryLbl;
