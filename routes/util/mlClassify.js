@@ -389,7 +389,7 @@ function findEntry(req,docTypeVal, docTopTypeVal, done) {
                     }
                 }
             }
-            console.log(departureTimeList)
+
             if(departureTimeList.length > 1)
             {
                 if(departureTimeList.length == 2)
