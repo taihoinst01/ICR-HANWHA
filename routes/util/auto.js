@@ -205,7 +205,9 @@ function uiLearnTraining_auto(filepath, isAuto, callback) {
                             if (retData.data[ii]["entryLbl"] == labelData.rows[jj].SEQNUM) {
                                 var re = new RegExp(labelData.rows[jj].VALID, 'gi');
                                 var keyParts = retData.data[ii]["text"].match(re);
-                                retData.data[ii]["text"] = keyParts.toString().replace(/,/gi, '');
+                                if (keyParts != null) {
+                                    retData.data[ii]["text"] = keyParts.toString().replace(/,/gi, '');
+                                }
                             }
                         }
                     }

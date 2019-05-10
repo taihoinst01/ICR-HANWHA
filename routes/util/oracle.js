@@ -5203,11 +5203,11 @@ exports.selectBatchPoMlExport = function (req, done) {
             conn = await oracledb.getConnection(dbConfig);
             let query = "" +
             "SELECT " +
-                "PME.FILENAME, PME.EXPORTDATA " +
+                "PME.FILENAME, PME.EXPORTDATA, FFL.SEQ" +
             "FROM " +
                 "TBL_BATCH_PO_ML_EXPORT PME, " +
                 "(SELECT " +
-                    "FILEPATH || FILENAME AS FILENAME, AUTOSENDFLAG, AUTOSENDTIME, " +
+                    "SEQ, FILEPATH || FILENAME AS FILENAME, AUTOSENDFLAG, AUTOSENDTIME, " +
                     "AUTOTRAINFLAG, AUTOTRAINTIME, MANUALSENDFLAG, MANUALSENDTIME, " +
                     "MANUALTRAINFLAG, MANUALTRAINTIME, RETURNFLAG, RETURNTIME " +
                 "FROM " +
@@ -5216,7 +5216,8 @@ exports.selectBatchPoMlExport = function (req, done) {
             "AND PME.DOCID = :docId " +
             "AND CAST(FFL.AUTOSENDTIME as Date) >= TO_DATE(:startDate, 'YY/MM/DD HH24MISS') " +
             "AND CAST(FFL.AUTOSENDTIME as Date) <= TO_DATE(:endDate, 'YY/MM/DD HH24MISS') " +
-            "AND RETURNFLAG = :retrinFlag";
+            "AND RETURNFLAG = :retrinFlag " +
+            "ORDER BY FFL.SEQ DESC";
 
             result = await conn.execute(query, req);
             if (result.rows.length != 0) {
