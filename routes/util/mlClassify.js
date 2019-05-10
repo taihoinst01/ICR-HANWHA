@@ -398,21 +398,21 @@ function findEntry(req, docTypeVal, docTopTypeVal, done) {
 
             concreteTypeList.sort(function(a,b)
             {
-                console.log(a.loc.split(",")[0]);
-                console.log(b.loc.split(",")[0]);
+                //console.log(a.loc.split(",")[0]);
+                //console.log(b.loc.split(",")[0]);
                 return Number(a.loc.split(",")[0]) - Number(b.loc.split(",")[0]);
             });
             cementeTypeList.sort(function(a,b)
             {
-                console.log(a.loc.split(",")[0]);
-                console.log(b.loc.split(",")[0]);
+                //console.log(a.loc.split(",")[0]);
+                //console.log(b.loc.split(",")[0]);
                 return Number(a.loc.split(",")[0]) - Number(b.loc.split(",")[0]);
             });
 
             companyNameList.sort(function(a,b)
             {
-                console.log(a.loc.split(",")[0]);
-                console.log(b.loc.split(",")[0]);
+                //console.log(a.loc.split(",")[0]);
+                //console.log(b.loc.split(",")[0]);
                 return Number(a.loc.split(",")[0]) - Number(b.loc.split(",")[0]);
             });
 
