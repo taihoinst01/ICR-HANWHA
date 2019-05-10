@@ -124,7 +124,8 @@ function getftpFileList(done) {
                     if (err) throw err;
                     for (var i in list) {
                         var ext = list[i].name.substring(list[i].name.lastIndexOf('.') + 1);
-                        if (ext == 'pdf') fileNames.push(list[i].name);
+                        var size = list[i].size;
+                        if (ext == 'pdf' && size > 0) fileNames.push(list[i].name);
                     }
                     c.end();
                     return done(null, fileNames);
