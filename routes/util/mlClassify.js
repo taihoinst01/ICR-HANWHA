@@ -181,7 +181,7 @@ function refindDocTopType(req, done) {
 	});
 }
 
-function findEntry(req,docTypeVal, docTopTypeVal, done) {
+function findEntry(req, docTypeVal, docTopTypeVal, done) {
 	sync.fiber(function () {
         try 
         {
@@ -254,7 +254,12 @@ function findEntry(req,docTypeVal, docTopTypeVal, done) {
             for(var j in req.data) {
                 for (var k in entryTrainRows) {
                     if (predictionColumn(req.docCategory, req.data[j], entryTrainRows[k], 'E') && isValid(labelRows, entryTrainRows[k].CLASS, req.data[j]["text"])) {
-                        req.data[j]["entryLbl"] = entryTrainRows[k].CLASS;
+                        if (!req.data[j]["entryLbls"]) {
+                            req.data[j]["entryLbls"] = [entryTrainRows[k]];
+                        } else {
+                            req.data[j]["entryLbls"].push(entryTrainRows[k]);
+                        }
+                        //req.data[j]["entryLbl"] = entryTrainRows[k].CLASS;
                         delete req.data[j].colLbl;
                         var departureTimeData={};
                         var concreteTypeData={};
@@ -366,37 +371,23 @@ function findEntry(req,docTypeVal, docTopTypeVal, done) {
                                 }
                             }
                         }
-                        break;
+                        //break;
                     }
-
-                    /*
-                    var locataionX = 0; var locataionWidth = 0; var locataionY = 0; var locataionHeight = 0;
-
-                    locataionX = entryTrainRows[k].OCR_TEXT_X.split(",")[0];
-                    locataionWidth = entryTrainRows[k].OCR_TEXT_X.split(",")[1];
-                    locataionY = entryTrainRows[k].OCR_TEXT_Y.split(",")[0];
-                    locataionHeight = entryTrainRows[k].OCR_TEXT_Y.split(",")[1];
-
-                    // if(location[0] == locataionX && location[2] == locataionWidth && location[1] == locataionY && location[3] == locataionHeight)
-                    if(parseInt(location[0]) == parseInt(locataionX) && parseInt(location[1]) == parseInt(locataionY) )
-                    {
-                        req.data[j]["entryLbl"] = entryTrainRows[k].CLASS;
-                        delete req.data[j].colLbl;
-
+                }
+                var minDis = 10000;
+                if (req.data[j]["entryLbls"]) {
+                    for (var k in req.data[j]["entryLbls"]) {
+                        var entryItem = req.data[j]["entryLbls"][k];
+                        var targetLoc = req.data[j].location.split(',');
+                        var entryLoc = [entryItem.OCR_TEXT_X.split(',')[0], entryItem.OCR_TEXT_Y.split(',')[0], entryItem.OCR_TEXT_X.split(',')[1], entryItem.OCR_TEXT_Y.split(',')[1]];
+                        var dx = Math.abs((targetLoc[0]) - (entryLoc[0]));
+                        var dy = Math.abs((targetLoc[1]) - (entryLoc[1]));
+                        var tragetDis = Math.sqrt((dx * dx) + (dy * dy));
+                        if (tragetDis < minDis) {
+                            minDis = tragetDis;
+                            req.data[j]["entryLbl"] = entryItem.CLASS;
+                        }
                     }
-                    else if((parseInt(location[0])+ parseInt(location[2]) == (parseInt(locataionX)+parseInt(locataionWidth))) && 
-                            (parseInt(location[1])+ parseInt(location[3]) == (parseInt(locataionY)+parseInt(locataionHeight))) )
-                    {
-                        req.data[j]["entryLbl"] = entryTrainRows[k].CLASS;
-                        delete req.data[j].colLbl;
-                    }
-                    else if(((parseInt(location[0])+ parseInt(location[2])/2) == ((parseInt(locataionX)+parseInt(locataionWidth))/2)) && 
-                            ((parseInt(location[1])+ parseInt(location[3])/2) == ((parseInt(locataionY)+parseInt(locataionHeight))/2)))
-                    {
-                        req.data[j]["entryLbl"] = entryTrainRows[k].CLASS;
-                        delete req.data[j].colLbl;
-                    }
-                    */
                 }
             }
             var departureTime ="";
