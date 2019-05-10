@@ -5203,7 +5203,7 @@ exports.selectBatchPoMlExport = function (req, done) {
             conn = await oracledb.getConnection(dbConfig);
             let query = "" +
             "SELECT " +
-                "PME.FILENAME, PME.EXPORTDATA, FFL.SEQ" +
+                "PME.FILENAME, PME.EXPORTDATA, FFL.SEQ " +
             "FROM " +
                 "TBL_BATCH_PO_ML_EXPORT PME, " +
                 "(SELECT " +
