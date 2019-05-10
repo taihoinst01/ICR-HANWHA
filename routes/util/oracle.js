@@ -5216,7 +5216,8 @@ exports.selectBatchPoMlExport = function (req, done) {
             "AND PME.DOCID = :docId " +
             "AND CAST(FFL.AUTOSENDTIME as Date) >= TO_DATE(:startDate, 'YY/MM/DD HH24MISS') " +
             "AND CAST(FFL.AUTOSENDTIME as Date) <= TO_DATE(:endDate, 'YY/MM/DD HH24MISS') " +
-            "AND RETURNFLAG = :retrinFlag";
+            "AND RETURNFLAG = :retrinFlag " +
+            "ORDER BY PME.FILENAME DESC";
 
             result = await conn.execute(query, req);
             if (result.rows.length != 0) {
