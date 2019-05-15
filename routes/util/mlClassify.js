@@ -228,7 +228,7 @@ function findEntry(req, docTypeVal, docTopTypeVal, done) {
             for(var j in req.data) {
                 if(labelTrainRows.length > 0) {
                     for (var k in labelTrainRows) {
-                        if (predictionColumn(req.docCategory, req.data[j], labelTrainRows[k], 'L')) {
+                        if (checkColumn(req.docCategory, req.data[j], labelTrainRows[k], 'L')) {
                             req.data[j]["colLbl"] = labelTrainRows[k].CLASS;
                             break;
                         }
@@ -253,7 +253,7 @@ function findEntry(req, docTypeVal, docTopTypeVal, done) {
             var companyNameList=[];
             for(var j in req.data) {
                 for (var k in entryTrainRows) {
-                    if (predictionColumn(req.docCategory, req.data[j], entryTrainRows[k], 'E') && isValid(labelRows, entryTrainRows[k].CLASS, req.data[j]["text"])) {
+                    if (checkColumn(req.docCategory, req.data[j], entryTrainRows[k], 'E') && isValid(labelRows, entryTrainRows[k].CLASS, req.data[j]["text"])) {
                         if (!req.data[j]["entryLbls"]) {
                             req.data[j]["entryLbls"] = [entryTrainRows[k]];
                         } else {
@@ -679,4 +679,12 @@ function predictionColumn(docCategory, targetData, dbRowData, type) {
     var isRDCheck = (leftXLoc <= tgXLoc && tgXLoc <= rightXLoc) && (upYLoc <= tgYLoc && tgYLoc <= downYLoc);
 
     return (isLUCheck || isRDCheck) ? true : false;
+}
+
+function checkColumn(docCategory, targetData, dbRowData, type) {
+    var loc = targetData.location.split(",");   
+    var dbXLoc = (type == 'L') ? Number(dbRowData.LOCATION_X.split(",")[0]) : Number(dbRowData.OCR_TEXT_X.split(",")[0]);
+    var dbYLoc = (type == 'L') ? Number(dbRowData.LOCATION_Y.split(",")[0]) : Number(dbRowData.OCR_TEXT_Y.split(",")[0]);
+
+    return (loc[0] == dbXLoc && loc[1] == dbYLoc);
 }
