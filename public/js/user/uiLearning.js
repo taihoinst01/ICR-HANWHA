@@ -1268,11 +1268,11 @@ function zoomImg(e, fileName) {
         $('#mainImage').css('background-image', 'url("' + fileName + '")');
     }
 
-    var fileNm = fileName.substring(fileName.lastIndexOf('/') + 1);
+    //var fileNm = fileName.substring(fileName.lastIndexOf('/') + 1);
     //실제 이미지 사이즈와 메인이미지div 축소율 판단
     var reImg = new Image();
     reImg.onload = function () {
-        var axis = $('#imageBox').find('li.on').find('.axis').val().split(',');
+        //var axis = $('#imageBox').find('li.on').find('.axis').val().split(',');
 
         var width;
         var height;
@@ -1284,20 +1284,22 @@ function zoomImg(e, fileName) {
     
         var widthPercent = fixWidth / width;
         var heightPercent = fixHeight / height;
-        var chgHeightPercent = fixHeight / parseInt(axis[3]);
+        //var chgHeightPercent = fixHeight / parseInt(axis[3]);
 
         $('#mainImage').hide();
-        $('#imageZoom').css('height', '570px').css('background-image', 'url("' + fileName.replace(fileNm, 'chg_' + fileNm) + '")').css('background-size', fixWidth + 'px ' + fixHeight + 'px').show();
+        $('#imageZoom').css('height', '570px').css('background-image', 'url("' + fileName + '")').css('background-size', fixWidth + 'px ' + fixHeight + 'px').show();
     
         // 사각형 좌표값
         var location = $(e).find('input[type=hidden]').val().split(',');
         x = parseInt(location[0]);
-        y = parseInt(location[1]) + parseInt(axis[1]);
+        y = parseInt(location[1])
+        //y = parseInt(location[1]) + parseInt(axis[1]);
         textWidth = parseInt(location[2]);
         textHeight = parseInt(location[3]);
     
         var xPosition = '100px';
-        var yPosition = ((- (y * heightPercent)) + (parseInt(axis[1]) * chgHeightPercent) + ((height - parseInt(axis[3])) * chgHeightPercent) + 191) + 'px';
+        var yPosition = ((- (y * heightPercent)) + 191) + 'px';
+        //var yPosition = ((- (y * heightPercent)) + (parseInt(axis[1]) * chgHeightPercent) + ((height - parseInt(axis[3])) * chgHeightPercent) + 191) + 'px';
 
         $('#imageZoom').css('background-position', xPosition + ' ' + yPosition);
     
@@ -1306,7 +1308,7 @@ function zoomImg(e, fileName) {
         $('#redZoomNemo').css('top', '171px');
         $('#redZoomNemo').show();
     }
-    reImg.src = fileName.replace(fileNm, 'chg_' + fileNm);
+    reImg.src = fileName;
 }
 
 // 마우스 아웃 이벤트
@@ -2281,12 +2283,18 @@ function uiLayerHtml(data) {
             imgName = imgName.substring(0, imgName.lastIndexOf('.')) + '.jpg';
         }
         */
-        
+        appendThumbnailHtml += '<div class="box_img"><i><img src="' + nvl(imgFullPath) + '" ' +
+            'class="thumb-img" title="' + nvl(imgName) + '"></i>' +
+            '</div>' +
+            '<span>' + nvl(imgName) + '</span>' +
+            '</li> ';
+        /*
         appendThumbnailHtml += '<div class="box_img"><i><input type="hidden" class="axis" value="' + data.data[i].xAxis + ',' + data.data[i].yAxis + ',' + data.data[i].width + ',' + data.data[i].height +'"/><img src="' + nvl(imgFullPath) + '" ' +
                 'class="thumb-img" title="' + nvl(imgName) + '"></i>' +
                 '</div>' +
                 '<span>' + nvl(imgName) + '</span>' +
                 '</li> ';
+        */
     }
 
     var mainImgHtml = '';
