@@ -228,7 +228,7 @@ function findEntry(req, docTypeVal, docTopTypeVal, done) {
             for(var j in req.data) {
                 if(labelTrainRows.length > 0) {
                     for (var k in labelTrainRows) {
-                        if (checkColumn(req.docCategory, req.data[j], labelTrainRows[k], 'L')) {
+                        if (predictionColumn(req.docCategory, req.data[j], labelTrainRows[k], 'L')) {
                             req.data[j]["colLbl"] = labelTrainRows[k].CLASS;
                             break;
                         }
@@ -253,7 +253,7 @@ function findEntry(req, docTypeVal, docTopTypeVal, done) {
             var companyNameList=[];
             for(var j in req.data) {
                 for (var k in entryTrainRows) {
-                    if (checkColumn(req.docCategory, req.data[j], entryTrainRows[k], 'E') && isValid(labelRows, entryTrainRows[k].CLASS, req.data[j]["text"])) {
+                    if (predictionColumn(req.docCategory, req.data[j], entryTrainRows[k], 'E') && isValid(labelRows, entryTrainRows[k].CLASS, req.data[j]["text"])) {
                         if (!req.data[j]["entryLbls"]) {
                             req.data[j]["entryLbls"] = [entryTrainRows[k]];
                         } else {
@@ -377,6 +377,13 @@ function findEntry(req, docTypeVal, docTopTypeVal, done) {
                                     //console.log(req.data[j]);
                                     departureTimeData["loc"] = req.data[j].location;
                                     departureTimeData["text"] = req.data[j].text;
+                                    departureTimeList.push(departureTimeData);
+                                }
+                                else 
+                                {
+                                    //시02분 들어왔을때 예외처리
+                                    departureTimeData["loc"] = req.data[j].location;
+                                    departureTimeData["text"] = req.data[j].text.replace("시","").replace("분","");
                                     departureTimeList.push(departureTimeData);
                                 }
                             }
@@ -536,6 +543,13 @@ function findEntry(req, docTypeVal, docTopTypeVal, done) {
 
             if(departureTimeList.length > 1)
             {
+                // departureTimeList.length == 3일때 출발시간 출력이 안됨
+
+                for(var kk in departureTimeList) {
+                    if(departureTimeList[kk].text == "도"){
+                        departureTimeList.splice(kk,1)
+                    }
+                }
                 if(departureTimeList.length == 2)
                 {
                     departureTimeList[0].text = departureTimeList[0].text.replace("시","");
@@ -681,10 +695,10 @@ function predictionColumn(docCategory, targetData, dbRowData, type) {
     return (isLUCheck || isRDCheck) ? true : false;
 }
 
-function checkColumn(docCategory, targetData, dbRowData, type) {
-    var loc = targetData.location.split(",");   
-    var dbXLoc = (type == 'L') ? Number(dbRowData.LOCATION_X.split(",")[0]) : Number(dbRowData.OCR_TEXT_X.split(",")[0]);
-    var dbYLoc = (type == 'L') ? Number(dbRowData.LOCATION_Y.split(",")[0]) : Number(dbRowData.OCR_TEXT_Y.split(",")[0]);
+// function predictionColumn(docCategory, targetData, dbRowData, type) {
+//     var loc = targetData.location.split(",");   
+//     var dbXLoc = (type == 'L') ? Number(dbRowData.LOCATION_X.split(",")[0]) : Number(dbRowData.OCR_TEXT_X.split(",")[0]);
+//     var dbYLoc = (type == 'L') ? Number(dbRowData.LOCATION_Y.split(",")[0]) : Number(dbRowData.OCR_TEXT_Y.split(",")[0]);
 
-    return (loc[0] == dbXLoc && loc[1] == dbYLoc);
-}
+//     return (loc[0] == dbXLoc && loc[1] == dbYLoc);
+// }
