@@ -544,9 +544,8 @@ function findEntry(req, docTypeVal, docTopTypeVal, done) {
             if(departureTimeList.length > 1)
             {
                 // departureTimeList.length == 3일때 출발시간 출력이 안됨
-
                 for(var kk in departureTimeList) {
-                    if(departureTimeList[kk].text == "도"){
+                    if(departureTimeList[kk].text.replace(" 도","") == "도"){
                         departureTimeList.splice(kk,1)
                     }
                 }
@@ -565,7 +564,6 @@ function findEntry(req, docTypeVal, docTopTypeVal, done) {
                         departureTime = departureTimeList[1].text + "시" + departureTimeList[0].text + "분" ;
                     }
                 }
-                console.log(departureTime);
                 if(departureTime.indexOf("분") == -1)
                 {
                     departureTime = departureTime + "분";
