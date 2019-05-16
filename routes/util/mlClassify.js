@@ -357,7 +357,6 @@ function findEntry(req, docTypeVal, docTopTypeVal, done) {
                             {
                                 if(req.data[j]["text"].indexOf("분") == -1)
                                 {
-                                    //console.log(req.data[j]);
                                     departureTimeData["loc"] = req.data[j].location;
                                     departureTimeData["text"] = req.data[j].text;
                                     departureTimeList.push(departureTimeData);
@@ -374,7 +373,6 @@ function findEntry(req, docTypeVal, docTopTypeVal, done) {
                                 
                                 if(req.data[j]["text"].indexOf("분") == -1)
                                 {
-                                    //console.log(req.data[j]);
                                     departureTimeData["loc"] = req.data[j].location;
                                     departureTimeData["text"] = req.data[j].text;
                                     departureTimeList.push(departureTimeData);
@@ -491,8 +489,6 @@ function findEntry(req, docTypeVal, docTopTypeVal, done) {
                     }
                 }
             }
-
-
             
             if(companyNameList.length > 0)                
             {
@@ -523,7 +519,6 @@ function findEntry(req, docTypeVal, docTopTypeVal, done) {
                 {
                     cementeType +=cementeTypeList[i].text;
                 }
-                console.log(cementeType);
 
                 var cnt = 0;
                 for(var l in req.data)
@@ -545,7 +540,7 @@ function findEntry(req, docTypeVal, docTopTypeVal, done) {
             {
                 // departureTimeList.length == 3일때 출발시간 출력이 안됨
                 for(var kk in departureTimeList) {
-                    if(departureTimeList[kk].text.replace(" 도","") == "도"){
+                    if(departureTimeList[kk].text == "도" || departureTimeList[kk].text == " 도"){
                         departureTimeList.splice(kk,1)
                     }
                 }
