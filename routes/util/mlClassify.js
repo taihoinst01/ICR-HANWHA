@@ -407,13 +407,22 @@ function findEntry(req, docTypeVal, docTopTypeVal, done) {
             var cementeType ="";
             var deliveryLoc ="";
             var companyName ="";
-
-            concreteTypeList.sort(function(a,b)
-            {
-                console.log(a.loc.split(",")[0]);
-                console.log(b.loc.split(",")[0]);
-                return Number(a.loc.split(",")[0]) - Number(b.loc.split(",")[0]);
-            });
+            //콘크리트의 종류에 따른 구분이 두줄로 나올때 or 한줄에 나눠서 출력될때 정렬해서 출력
+            if(concreteTypeList.length != 1) {
+                if(concreteTypeList[1].loc.split(",")[1] - concreteTypeList[0].loc.split(",")[1] > 20) {
+                    concreteTypeList.sort(function(a,b)
+                    {
+                        return Number(a.loc.split(",")[1]) - Number(b.loc.split(",")[1]);
+                    });
+                } else {
+                    concreteTypeList.sort(function(a,b)
+                    {
+                        return Number(a.loc.split(",")[0]) - Number(b.loc.split(",")[0]);
+                    });
+                }
+            }
+            
+            
             cementeTypeList.sort(function(a,b)
             {
                 console.log(a.loc.split(",")[0]);
