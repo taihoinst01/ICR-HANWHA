@@ -71,8 +71,14 @@ var remoteFTP_v2 = function () {
                     }
                 }
                 console.log('auto processing start -------------> fileName : [' + execFileNames.toString() + ']');
+
                 // ocr 및 ml 프로세스 실행
                 if (execFileNames.lengh != 0) {
+                    for (var i in execFileNames) {
+                        // TBL_FTP_FILE_LIST tabel insert
+                        sync.await(oracle.insertFtpFileListFromUi([propertiesConfig.auto.ftpFileUrl, execFileNames[i]], sync.defer()));
+                    }
+
                     for (var i in execFileNames) {
                         // ftp file move ScanFiles -> uploads directory
                         sync.await(moveFtpFile(execFileNames[i], sync.defer()));
@@ -82,10 +88,8 @@ var remoteFTP_v2 = function () {
                         for (var j in resultData) {
 
                             var fileFullPath = resultData[j].fileinfo.filepath;
-                            var filePath = fileFullPath.substring(0, fileFullPath.lastIndexOf('/') + 1);
-                            var fileName = fileFullPath.substring(fileFullPath.lastIndexOf('/') + 1);
-                            // TBL_FTP_FILE_LIST tabel insert
-                            sync.await(oracle.insertFtpFileListFromUi([filePath, fileName], sync.defer()));
+                            //var filePath = fileFullPath.substring(0, fileFullPath.lastIndexOf('/') + 1);
+                            //var fileName = fileFullPath.substring(fileFullPath.lastIndexOf('/') + 1);
 
                             var mlData = resultData[j].data;
                             var labels = resultData[j].labelData;
