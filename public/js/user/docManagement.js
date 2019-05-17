@@ -147,12 +147,14 @@ function appendDocTableHeader(docLabelList) {
     $('#docMlDataColGroup').empty();
 
     var headerColGroupHTML = '<colgroup>' +
-	'<col style="width:50px;">' +
-        '<col style="width:300px;">';
+	    '<col style="width:50px;">' +
+        '<col style="width:270px;">' +
+        '<col style="width:150px;">';
     var headerTheadHTML = '<thead>';
     headerTheadHTML += '<tr>';
     headerTheadHTML += '<th scope="row"><div class="checkbox-options mauto"><input type="checkbox" class="sta00_all" value="" id="listCheckAll" name="listCheckAll_before" /></div></th>';
     headerTheadHTML += '<th scope="row">파일명</th>';
+    headerTheadHTML += '<th scope="row">날짜</th>';
 
     for (var i in docLabelList) {
         headerColGroupHTML += '<col style="width:180px;">';
@@ -189,7 +191,8 @@ function appendMLData(docDataList) {
 		        '<a href="#" title="양식" onclick="openImagePop(\'' + docDataList[i].FILENAME + '\')">' +
             '<input type="text" value="' + docDataList[i].FILENAME + '" class="inputst_box03_15radius" data-originalvalue="' + docDataList[i].FILENAME + '">' +
 		        '</a>' +
-            '</td>';
+            '</td>' + 
+            '<td><input type="text" value="' + docDataList[i].AUTOSENDTIME + '" class="inputst_box03_15radius" data-originalvalue="' + docDataList[i].AUTOSENDTIME + '" disabled></td>';
         var items = docDataList[i].EXPORTDATA;
         items = items.replace(/\"/gi, '').slice(1, -1);
         items = items.split(',');
