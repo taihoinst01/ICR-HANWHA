@@ -5405,6 +5405,11 @@ thead .ez-checked {
     width: 99.5%;
 }
 
+#targetZoom {
+    display: none;
+    border: 2px solid #EA7169;
+}
+
 button[disabled] {
     opacity: 0.5;
     cursor: default;
