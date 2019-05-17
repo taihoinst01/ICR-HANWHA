@@ -678,7 +678,7 @@ function thumbImgEvent() {
         $(this).parent().addClass('on');
 
         
-        $('#mainImage').css('background-image', 'url("' + $(this).attr('title') + '")');
+        $('#mainImage').css('background-image', 'url("http://104.41.171.244/img/' + $(this).attr('title') + '")');
 
         $(this).parents('imageBox').find('li').removeClass('on');
         $(this).parents('li').addClass('on');
