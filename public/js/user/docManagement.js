@@ -189,7 +189,7 @@ function appendMLData(docDataList) {
             '<td><div class="checkbox-options mauto"><input type="checkbox" class="sta00_all" value="" name="listCheck" /></div></td>' +
             '<td>' +
 		        '<a href="#" title="양식" onclick="openImagePop(\'' + docDataList[i].FILENAME + '\')">' +
-            '<input type="text" value="' + docDataList[i].FILENAME.substring(docDataList[i].FILENAME.lastIndexOf('/')+1) + '" class="inputst_box03_15radius" data-originalvalue="' + docDataList[i].FILENAME + '">' +
+            '<input type="text" value="' + docDataList[i].FILENAME.substring(docDataList[i].FILENAME.lastIndexOf('/') + 1) + '" class="inputst_box03_15radius" data-originalvalue="' + docDataList[i].FILENAME + '" disabled>' +
 		        '</a>' +
             '</td>' + 
             '<td><input type="text" value="' + docDataList[i].AUTOSENDTIME + '" class="inputst_box03_15radius" data-originalvalue="' + docDataList[i].AUTOSENDTIME + '" disabled></td>';
