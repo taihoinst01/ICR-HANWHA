@@ -273,11 +273,12 @@ function findEntry(req, docTypeVal, docTopTypeVal, done) {
                         if (tragetDis < minDis) {
                             minDis = tragetDis;
                             req.data[j]["entryLbl"] = entryItem.CLASS;
+                            delete req.data[j]["colLbl"];
                         }
                     }
                 }
             }
-            console.log(req.data);
+            //console.log(req.data);
             var docScore = parseInt(retData["docCategory"].DOCSCORE * 100);
             // docTopTypeParam = 58 레미콘
             if(docTopTypeParam==58 && docScore > 50)
