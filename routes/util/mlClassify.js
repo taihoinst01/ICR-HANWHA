@@ -280,21 +280,26 @@ function findEntry(req, docTypeVal, docTopTypeVal, done) {
             console.log(req.data);
             var docScore = parseInt(retData["docCategory"].DOCSCORE * 100);
             // docTopTypeParam = 58 레미콘
-            if(docTopTypeParam==58 && docScore > 50){
+            if(docTopTypeParam==58 && docScore > 50)
+            {
                 var departureTimeList=[];
                 var concreteTypeList=[];
                 var cementeTypeList=[];
                 var deliveryLocList=[];
                 var companyNameList=[];
-
+                var totalDeliveryVolList=[];
+                var deliveryVolList=[];
                 for(var j in req.data)
                 {
                     // delete req.data[j].colLbl;
+
                     var departureTimeData={};
                     var concreteTypeData={};
                     var cementeTypeData={};
                     var deliveryLocData={};
                     var companyNameData={};
+                    var totalDeliveryVolData={};
+                    var deliveryVolData={};
 
                     // concreteTypeData["loc"] = "478,1507,53,40";
                     // concreteTypeData["text"] = "고";
@@ -349,9 +354,21 @@ function findEntry(req, docTypeVal, docTopTypeVal, done) {
                         }
                         
                     }
-                    else if(req.data[j]["entryLbl"] == 768 || req.data[j]["entryLbl"] == 767 )
+                    else if(req.data[j]["entryLbl"] == 767)
                     {
                         req.data[j].text = req.data[j].text.replace("-",".");
+
+                        deliveryVolData["loc"] = req.data[j].location;
+                        deliveryVolData["text"] = req.data[j].text;
+                        deliveryVolList.push(deliveryVolData);
+                    }
+                    else if(req.data[j]["entryLbl"] == 768)
+                    {
+                        req.data[j].text = req.data[j].text.replace("-",".");
+
+                        totalDeliveryVolData["loc"] = req.data[j].location;
+                        totalDeliveryVolData["text"] = req.data[j].text;
+                        totalDeliveryVolList.push(totalDeliveryVolData);
                     }
                     else if(req.data[j]["entryLbl"] == 766)
                     {   
@@ -394,8 +411,7 @@ function findEntry(req, docTypeVal, docTopTypeVal, done) {
                             }
                         }
                         else
-                        {
-                            
+                        {                            
                             if (req.data[j]["text"].indexOf("분") == -1)
                             {
                                 //console.log(req.data[j]);
@@ -413,6 +429,8 @@ function findEntry(req, docTypeVal, docTopTypeVal, done) {
                 var cementeType ="";
                 var deliveryLoc ="";
                 var companyName ="";
+                var totalDeliveryVol ="";
+                var deliveryVol ="";
                 //콘크리트의 종류에 따른 구분이 두줄로 나올때 or 한줄에 나눠서 출력될때 정렬해서 출력
                 if(concreteTypeList.length != 1) {
                     if(concreteTypeList[1].loc.split(",")[1] - concreteTypeList[0].loc.split(",")[1] > 20) {
@@ -443,6 +461,19 @@ function findEntry(req, docTypeVal, docTopTypeVal, done) {
                     return Number(a.loc.split(",")[0]) - Number(b.loc.split(",")[0]);
                 });
 
+                deliveryVolList.sort(function(a,b)
+                {
+                    console.log(a.loc.split(",")[0]);
+                    console.log(b.loc.split(",")[0]);
+                    return Number(a.loc.split(",")[0]) - Number(b.loc.split(",")[0]);
+                });
+
+                totalDeliveryVolList.sort(function(a,b)
+                {
+                    console.log(a.loc.split(",")[0]);
+                    console.log(b.loc.split(",")[0]);
+                    return Number(a.loc.split(",")[0]) - Number(b.loc.split(",")[0]);
+                });
 
                 if(deliveryLocList.length > 1)
                 {
@@ -480,13 +511,14 @@ function findEntry(req, docTypeVal, docTopTypeVal, done) {
                         concreteType +=concreteTypeList[i].text;
                     }
                 
-                if(concreteType == "물자")
-                {
-                    concreteType = "물차";
-                }
-                if(concreteType == "콘크리트보통" || concreteType == "콘크리트" || concreteType == "콘크리트보")
-                {
-                    concreteType = "보통콘크리트";
+                    if(concreteType == "물자")
+                    {
+                        concreteType = "물차";
+                    }
+                    if(concreteType == "콘크리트보통" || concreteType == "콘크리트" || concreteType == "콘크리트보")
+                    {
+                        concreteType = "보통콘크리트";
+                    }
                 }
 
                 var cnt = 0;
@@ -553,7 +585,8 @@ function findEntry(req, docTypeVal, docTopTypeVal, done) {
                 if(departureTimeList.length > 1)
                 {
                     // departureTimeList.length == 3일때 출발시간 출력이 안됨
-                    for(var kk in departureTimeList) {
+                    for(var kk in departureTimeList) 
+                    {
                         if(departureTimeList[kk].text == "도" || departureTimeList[kk].text == " 도"){
                             departureTimeList.splice(kk,1)
                         }
@@ -574,72 +607,114 @@ function findEntry(req, docTypeVal, docTopTypeVal, done) {
                         }
                     }
                     if(departureTime.indexOf("분") == -1)
-                {
-                    departureTime = departureTime + "분";
+                    {
+                        departureTime = departureTime + "분";
+                    }
+                    if(departureTime.indexOf("도") != -1)
+                    {
+                        departureTime = departureTime.replace("도","");
+                    }
+                    var cnt = 0;
+                    for(var l in req.data)
+                    {
+                        if(req.data[l]["entryLbl"] == 766)
+                        {
+                            req.data[l]["text"] = departureTime;
+                            if(cnt > 0)
+                            {
+                                delete req.data[l].entryLbl;
+                                req.data[l]["colLbl"] = -1;
+                            }
+                            cnt++;
+                        }
+                    }
                 }
-                if(departureTime.indexOf("도") != -1)
+                else if(departureTimeList.length == 1)
                 {
-                    departureTime = departureTime.replace("도","");
+                    if(departureTimeList[0].text.indexOf("시") != -1 && departureTimeList[0].text.indexOf("분") == -1)
+                    {
+                        departureTime = departureTimeList[0].text + "분";
+                    }
+                    else if(departureTimeList[0].text.indexOf("시") == -1 && departureTimeList[0].text.indexOf("분") == -1)
+                    {
+                        departureTime = departureTimeList[0].text.replace(" ","시") + "분";
+                    }
                 }
                 var cnt = 0;
                 for(var l in req.data)
                 {
                     if(req.data[l]["entryLbl"] == 766)
                     {
-                        req.data[l]["text"] = departureTime;
-                        if(cnt > 0)
+                        if(departureTime.length > 0 )
                         {
-                            delete req.data[l].entryLbl;
-                            req.data[l]["colLbl"] = -1;
+                            req.data[l]["text"] = departureTime;
+                            if(cnt > 0)
+                            {
+                                delete req.data[l].entryLbl;
+                                req.data[l]["colLbl"] = -1;
+                            }
+                            cnt++;
                         }
-                        cnt++;
                     }
                 }
-            }
-            else if(departureTimeList.length == 1)
-            {
-                if(departureTimeList[0].text.indexOf("시") != -1 && departureTimeList[0].text.indexOf("분") == -1)
+                // 납품용적
+                if(deliveryVolList.length > 0)                
                 {
-                    departureTime = departureTimeList[0].text + "분";
-                }
-                else if(departureTimeList[0].text.indexOf("시") == -1 && departureTimeList[0].text.indexOf("분") == -1)
-                {
-                    departureTime = departureTimeList[0].text.replace(" ","시") + "분";
-                }
-            }
-            var cnt = 0;
-            for(var l in req.data)
-            {
-                if(req.data[l]["entryLbl"] == 766)
-                {
-                    if(departureTime.length > 0 )
+                    for(var i in deliveryVolList)
                     {
-                        req.data[l]["text"] = departureTime;
-                        if(cnt > 0)
+                        deliveryVol +=deliveryVolList[i].text;
+                    }
+
+                    var cnt = 0;
+                    for(var l in req.data)
+                    {
+                        if(req.data[l]["entryLbl"] == 767)
                         {
-                            delete req.data[l].entryLbl;
-                            req.data[l]["colLbl"] = -1;
+                            req.data[l]["text"] = deliveryVol;
+                            if(cnt > 0)
+                            {
+                                delete req.data[l].entryLbl;
+                                req.data[l]["colLbl"] = -1;
+                            }
+                            cnt++;
                         }
-                        cnt++;
+                    }
+                }
+                // 누계
+                if(totalDeliveryVolList.length > 0)                
+                {
+                    for(var i in totalDeliveryVolList)
+                    {
+                        totalDeliveryVol +=totalDeliveryVolList[i].text;
+                    }
+
+                    var cnt = 0;
+                    for(var l in req.data)
+                    {
+                        if(req.data[l]["entryLbl"] == 768)
+                        {
+                            req.data[l]["text"] = totalDeliveryVol;
+                            if(cnt > 0)
+                            {
+                                delete req.data[l].entryLbl;
+                                req.data[l]["colLbl"] = -1;
+                            }
+                            cnt++;
+                        }
                     }
                 }
             }
-        }
                 
-    }
-            
-            
-             
-    retData["docCategory"] = req.docCategory;
-    retData["data"] = req.data;
+            retData["docCategory"] = req.docCategory;
+            retData["data"] = req.data;
 
-        //console.log(retData);
-        
-    } catch (e) {
-        console.log(e);
-    } finally {
-        return done(null, retData);
-    }
+            //console.log(retData);
+            
+        } catch (e) {
+            console.log(e);
+        } finally {
+            return done(null, retData);
+        }
 
 	});
 }
