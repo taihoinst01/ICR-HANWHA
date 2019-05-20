@@ -433,7 +433,7 @@ function findEntry(req, docTypeVal, docTopTypeVal, done) {
                 var totalDeliveryVol ="";
                 var deliveryVol ="";
                 //콘크리트의 종류에 따른 구분이 두줄로 나올때 or 한줄에 나눠서 출력될때 정렬해서 출력
-                if(concreteTypeList.length != 1) {
+                if(concreteTypeList.length > 1) {
                     if(concreteTypeList[1].loc.split(",")[1] - concreteTypeList[0].loc.split(",")[1] > 20) {
                         concreteTypeList.sort(function(a,b)
                         {

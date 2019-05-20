@@ -183,7 +183,7 @@ function appendMLData(docDataList) {
 
     var totalHTML = '';
     for (var i in docDataList) {
-        if (i == 30) break; // jhy
+        if (i == 300) break; // jhy
         var mlDataListHTML = '' +
         '<tr class="originalTr">' +
             '<td><div class="checkbox-options mauto"><input type="checkbox" class="sta00_all" value="" name="listCheck" /></div></td>' +
