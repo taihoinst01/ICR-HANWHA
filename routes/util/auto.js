@@ -48,6 +48,7 @@ var remoteFTP_v2 = function () {
     cron.schedule('*/30 * * * * *', function () {
         sync.fiber(function () {
             try {
+
                 var execFileNames = [];
                 // TBL_FTP_FILE_LIST 데이터 조회
                 var fileNames = sync.await(getftpFileList(sync.defer()));
@@ -106,6 +107,47 @@ var remoteFTP_v2 = function () {
             } finally {
             }
         });
+    });
+};
+
+var autoTest = function () {
+
+    sync.fiber(function () {
+        try {
+
+            var execFileNames = ['test.pdf'];
+            console.log('auto test processing start -------------> fileName : [' + execFileNames.toString() + ']');
+
+            // ocr 및 ml 프로세스 실행
+            if (execFileNames.lengh != 0) {
+
+                for (var i in execFileNames) {
+                    // ftp file move ScanFiles -> uploads directory
+                    sync.await(moveFtpFile(execFileNames[i], sync.defer()));
+
+                    // ocr processing and label & entry mapping  
+                    var resultData = sync.await(uiLearnTraining_auto(execFileNames[i], true, sync.defer()));
+                    for (var j in resultData) {
+
+                        var fileFullPath = resultData[j].fileinfo.filepath;
+                        //var filePath = fileFullPath.substring(0, fileFullPath.lastIndexOf('/') + 1);
+                        //var fileName = fileFullPath.substring(fileFullPath.lastIndexOf('/') + 1);
+
+                        var mlData = resultData[j].data;
+                        var labels = resultData[j].labelData;
+                        // TBL_BATCH_PO_ML_EXPORT table에 exportData 가공
+                        var exportData = sync.await(processingExportData(mlData, labels, sync.defer()));
+                        console.log(exportData);
+                        // TBL_BATCH_PO_ML_EXPORT table insert
+                        //sync.await(oracle.insertBatchPoMlExportFromUi([resultData[j].docCategory.DOCTOPTYPE, fileFullPath, exportData], sync.defer()));
+                    }
+                }
+            }
+            console.log('auto test processing end ---------------> fileName : [' + execFileNames.toString() + ']');
+        } catch (e) {
+            console.log(e);
+        } finally {
+        }
     });
 };
 
@@ -248,7 +290,7 @@ function processingExportData(mlData, labels, callback) {
                         entryData += item;
                     }
                 }
-                exportData += ((entryData != "") ? "\"" + entryData + "\"" : null);
+                exportData += ((entryData != "") ? "\"" + entryData.replace(/,/gi,'') + "\"" : null);
                 exportData += ",";
             }
             exportData = exportData.slice(0, -1);
@@ -269,5 +311,6 @@ function processingExportData(mlData, labels, callback) {
 module.exports = {
     local: local,
     remoteFTP: remoteFTP,
-    remoteFTP_v2: remoteFTP_v2
+    remoteFTP_v2: remoteFTP_v2,
+    autoTest: autoTest
 };

@@ -133,4 +133,5 @@ var server = app.listen(app.get('port'), function () {
     //auto.local(); // local directory watch (update, remove type)
     //auto.remoteFTP(); // remote FTP file server schedule and file download
     //auto.remoteFTP_v2(); // remote FTP file list and file db data compare process
+    //auto.autoTest();
 });
