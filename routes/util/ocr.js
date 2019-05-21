@@ -277,7 +277,7 @@ exports.icrRest = function (req, isAuto, done) {
         var formData;
         try {   
             if (isAuto) {
-                reqInfo = { url: propertiesConfig.icrRest.serverUrl + '/fileUpload', form: { filename: filename } };
+                reqInfo = { url: propertiesConfig.icrRest.serverUrl + '/fileUploadGoogle', form: { filename: filename } };
                 //reqInfo = { url: 'http://127.0.0.1:5000/fileUpload', form: { filename: filename } };
             } else {
                 formData = {
@@ -288,7 +288,7 @@ exports.icrRest = function (req, isAuto, done) {
                         }
                     }
                 };
-                reqInfo = { url: propertiesConfig.icrRest.serverUrl + '/fileUpload', formData: formData };
+                reqInfo = { url: propertiesConfig.icrRest.serverUrl + '/fileUploadGoogle', formData: formData };
                 //reqInfo = { url: 'http://127.0.0.1:5000/fileUpload', formData: formData };               
             }
             console.time("icrRest Time");
