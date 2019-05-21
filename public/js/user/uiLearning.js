@@ -1315,7 +1315,7 @@ function zoomImg(e, fileName) {
         $('#imageZoom').css('background-position', xPosition + 'px ' + yPosition + 'px');
     
 
-        $('#redZoomNemo').css('height', ((textHeight * heightPercent) + 3) + 'px');
+        $('#redZoomNemo').css('height', ((textHeight * heightPercent) + 10) + 'px');
         $('#redZoomNemo').css('top', '168px')
         $('#redZoomNemo').show();
 
