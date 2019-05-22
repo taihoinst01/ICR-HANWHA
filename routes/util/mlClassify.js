@@ -224,16 +224,18 @@ function findEntry(req, docTypeVal, docTopTypeVal, done) {
             
             for(var j in req.data) {
                 for (var k in entryTrainRows) {
-                    if (predictionColumn(req.docCategory, req.data[j], entryTrainRows[k], 'E') && isValid(labelRows, entryTrainRows[k].CLASS, req.data[j]["text"])) {
-                        if (!req.data[j]["entryLbls"]) {
-                            req.data[j]["entryLbls"] = [entryTrainRows[k]];
-                        } else {
-                            req.data[j]["entryLbls"].push(entryTrainRows[k]);
-                        }
-                        //req.data[j]["entryLbl"] = entryTrainRows[k].CLASS;
-                        
-                        //break;
-                    }
+					if (entryTrainRows[k].CLASS != "760" && entryTrainRows[k].CLASS != "761" && entryTrainRows[k].CLASS != "502") {
+						if (predictionColumn(req.docCategory, req.data[j], entryTrainRows[k], 'E') && isValid(labelRows, entryTrainRows[k].CLASS, req.data[j]["text"])) {
+							if (!req.data[j]["entryLbls"]) {
+								req.data[j]["entryLbls"] = [entryTrainRows[k]];
+							} else {
+								req.data[j]["entryLbls"].push(entryTrainRows[k]);
+							}
+							//req.data[j]["entryLbl"] = entryTrainRows[k].CLASS;
+
+							//break;
+						}
+					}
                 }
                 var minDis = 10000;
                 if (req.data[j]["entryLbls"]) {
