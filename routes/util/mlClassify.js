@@ -195,33 +195,7 @@ function findEntry(req, docTypeVal, docTopTypeVal, done) {
             let docTypeParam = [docTypeVal];
             
             let labelRows = sync.await(oracle.selectDocIdLabelDefList(docTopTypeParam, sync.defer()));
-            /*
-            for(var i in labelRows)
-            {
-                if(labelRows[i].LABELTYPE == 'T' && labelRows[i].AMOUNT == "submulti")
-                {
-                    subLabel.push(labelRows[i].SEQNUM);
-                }
-                else if(labelRows[i].LABELTYPE == 'T' && labelRows[i].AMOUNT == "multi")
-                {
-                    fixMultiLabel.push(labelRows[i].SEQNUM);
-                }
-                else if(labelRows[i].LABELTYPE == 'T' && labelRows[i].AMOUNT == "single")
-                {
-                    fixSingleLabel.push(labelRows[i].SEQNUM);
-                }
 
-                if(labelRows[i].LABELTYPE == 'T')
-                {
-                    fixLabel.push(labelRows[i].SEQNUM);
-                }
-
-                if(labelRows[i].LABELTYPE == 'P')
-                {
-                    variLabel.push(labelRows[i].SEQNUM);
-                }
-            }    
-            */
             //label data 추출
             let labelTrainRows = sync.await(oracle.selectLabelTrainDataList(docTypeParam, sync.defer()));
 
@@ -279,41 +253,9 @@ function findEntry(req, docTypeVal, docTopTypeVal, done) {
                     }
                 }
             }
+
             // Add single entry text
-            for (var i = 0; i < req.data.length; i++) {
-                for (var j = 0; j < req.data.length; j++) {
-                    if (i != j && req.data[i]["entryLbl"] && req.data[j]["entryLbl"] && req.data[i]["entryLbl"] == req.data[j]["entryLbl"]
-                        && req.data[i]["amount"] == "single" && req.data[j]["amount"] == "single") {
-                        var targetLoc = req.data[i]["location"].split(',');
-                        var compareLoc = req.data[j]["location"].split(',');
-                        if ((req.data[i]["entryLbl"] == "769" || req.data[i]["entryLbl"] == "773") &&
-                            (Number(targetLoc[1]) + Number(targetLoc[3])) < Number(compareLoc[1])) { // 콘크리트종류 or 시멘트 종류
-                            req.data[i]["text"] = req.data[j]["text"] + req.data[i]["text"];
-                            req.data[i]["location"] = targetLoc[0] + ',' + targetLoc[1]
-                                + ',' + (compareLoc[2])
-                                + ',' + (Number(targetLoc[3]) + Number(compareLoc[3]) + (Number(compareLoc[1]) - (Number(targetLoc[1]) + Number(targetLoc[3]))))
-                            req.data.splice(j, 1);
-                            i--;
-                        } else if (req.data[i]["entryLbl"] == "760" || req.data[i]["entryLbl"] == "761" || req.data[i]["entryLbl"] == "502") {
-                        } else {
-                            if (Number(targetLoc[0]) < Number(compareLoc[0])) {
-                                req.data[i]["text"] += req.data[j]["text"];
-                                req.data[i]["location"] = targetLoc[0] + ',' + targetLoc[1]
-                                    + ',' + (Number(compareLoc[0]) + Number(compareLoc[2]) - Number(targetLoc[0]))
-                                    + ',' + ((Number(targetLoc[3]) > Number(compareLoc[3])) ? targetLoc[3] : compareLoc[3])
-                            } else {
-                                req.data[i]["text"] = req.data[j]["text"] + req.data[i]["text"];
-                                req.data[i]["location"] = compareLoc[0] + ',' + compareLoc[1]
-                                    + ',' + (Number(targetLoc[0]) + Number(targetLoc[2]) - Number(compareLoc[0]))
-                                    + ',' + ((Number(targetLoc[3]) > Number(compareLoc[3])) ? targetLoc[3] : compareLoc[3])
-                            }
-                            req.data.splice(j, 1);
-                            i--;
-                        }                       
-                        break;
-                    }
-                }
-            }
+            req.data = sync.await(addEntryTextOfSingleLabel(req.data, sync.defer()));
             
             //Multy entry search
             var diffHeight = 200;
@@ -772,6 +714,52 @@ function findEntry(req, docTypeVal, docTopTypeVal, done) {
         }
 
 	});
+}
+
+function addEntryTextOfSingleLabel(data, done) {
+    sync.fiber(function () {
+        try {           
+            for (var i = 0; i < data.length; i++) {
+                for (var j = 0; j < data.length; j++) {
+                    if (i != j && data[i]["entryLbl"] && data[j]["entryLbl"] && data[i]["entryLbl"] == data[j]["entryLbl"]
+                        && data[i]["amount"] == "single" && data[j]["amount"] == "single") {
+                        var targetLoc = data[i]["location"].split(',');
+                        var compareLoc = data[j]["location"].split(',');
+                        if ((data[i]["entryLbl"] == "769" || data[i]["entryLbl"] == "773") &&
+                            (Number(targetLoc[1]) + Number(targetLoc[3])) < Number(compareLoc[1])) { // 콘크리트종류 or 시멘트 종류
+                            data[i]["text"] = data[j]["text"] + data[i]["text"];
+                            data[i]["location"] = targetLoc[0] + ',' + targetLoc[1]
+                                + ',' + (compareLoc[2])
+                                + ',' + (Number(targetLoc[3]) + Number(compareLoc[3]) + (Number(compareLoc[1]) - (Number(targetLoc[1]) + Number(targetLoc[3]))))
+                            data.splice(j, 1);
+                            i--;
+                        } else if (data[i]["entryLbl"] == "760" || data[i]["entryLbl"] == "761" || data[i]["entryLbl"] == "502") {
+                        } else {
+                            if (Number(targetLoc[0]) < Number(compareLoc[0])) {
+                                data[i]["text"] += data[j]["text"];
+                                data[i]["location"] = targetLoc[0] + ',' + targetLoc[1]
+                                    + ',' + (Number(compareLoc[0]) + Number(compareLoc[2]) - Number(targetLoc[0]))
+                                    + ',' + ((Number(targetLoc[3]) > Number(compareLoc[3])) ? targetLoc[3] : compareLoc[3])
+                            } else {
+                                data[i]["text"] = data[j]["text"] + data[i]["text"];
+                                data[i]["location"] = compareLoc[0] + ',' + compareLoc[1]
+                                    + ',' + (Number(targetLoc[0]) + Number(targetLoc[2]) - Number(compareLoc[0]))
+                                    + ',' + ((Number(targetLoc[3]) > Number(compareLoc[3])) ? targetLoc[3] : compareLoc[3])
+                            }
+                            data.splice(j, 1);
+                            i--;
+                        }
+                        break;
+                    }
+                }
+            }
+        } catch (e) {
+            console.log(e);
+        } finally {
+            return done(null, data);
+        }
+
+    });
 }
 
 function entryHeightCheck(data1, data2, diffHeight) {
