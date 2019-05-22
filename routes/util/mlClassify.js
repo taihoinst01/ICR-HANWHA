@@ -279,7 +279,6 @@ function findEntry(req, docTypeVal, docTopTypeVal, done) {
                     }
                 }
             }
-            
             // Add single entry text
             for (var i = 0; i < req.data.length; i++) {
                 for (var j = 0; j < req.data.length; j++) {
@@ -298,6 +297,11 @@ function findEntry(req, docTypeVal, docTopTypeVal, done) {
                                 req.data[i]["text"] += req.data[j]["text"];
                                 req.data[i]["location"] = targetLoc[0] + ',' + targetLoc[1]
                                     + ',' + (Number(compareLoc[0]) + Number(compareLoc[2]) - Number(targetLoc[0]))
+                                    + ',' + ((Number(targetLoc[3]) > Number(compareLoc[3])) ? targetLoc[3] : compareLoc[3])
+                            } else {
+                                req.data[i]["text"] = req.data[j]["text"] + req.data[i]["text"];
+                                req.data[i]["location"] = compareLoc[0] + ',' + compareLoc[1]
+                                    + ',' + (Number(targetLoc[0]) + Number(targetLoc[2]) - Number(compareLoc[0]))
                                     + ',' + ((Number(targetLoc[3]) > Number(compareLoc[3])) ? targetLoc[3] : compareLoc[3])
                             }
                         }
