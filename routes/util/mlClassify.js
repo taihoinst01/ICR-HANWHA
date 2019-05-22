@@ -195,7 +195,7 @@ function findEntry(req, docTypeVal, docTopTypeVal, done) {
             let docTypeParam = [docTypeVal];
             
             let labelRows = sync.await(oracle.selectDocIdLabelDefList(docTopTypeParam, sync.defer()));
-            
+            /*
             for(var i in labelRows)
             {
                 if(labelRows[i].LABELTYPE == 'T' && labelRows[i].AMOUNT == "submulti")
@@ -221,7 +221,7 @@ function findEntry(req, docTypeVal, docTopTypeVal, done) {
                     variLabel.push(labelRows[i].SEQNUM);
                 }
             }    
-            
+            */
             //label data 추출
             let labelTrainRows = sync.await(oracle.selectLabelTrainDataList(docTypeParam, sync.defer()));
 
@@ -281,29 +281,22 @@ function findEntry(req, docTypeVal, docTopTypeVal, done) {
             }
             
             // Add single entry text
-            var isStop;
             for (var i = 0; i < req.data.length; i++) {
-                isStop = false;
                 for (var j = 0; j < req.data.length; j++) {
-                    if (i != j && req.data[i]["entryLbl"] && req.data[j]["entryLbl"] && req.data[i]["entryLbl"] == req.data[j]["entryLbl"]) {
-                        for (var k in fixSingleLabel) {
-                            if (req.data[i]["entryLbl"] == fixSingleLabel[k] && req.data[j]["entryLbl"] == fixSingleLabel[k]) {
-                                var targetLoc = req.data[i]["location"].split(',');
-                                var compareLoc = req.data[j]["location"].split(',');
-                                if (Number(targetLoc[0]) < Number(compareLoc[0])) {
-                                    req.data[i]["text"] += req.data[j]["text"];
-                                    req.data[i]["location"] = targetLoc[0] + ',' + targetLoc[1]
-                                        + ',' + (Number(compareLoc[0]) + Number(compareLoc[2]) - Number(targetLoc[0]))
-                                        + ',' + ((Number(targetLoc[3]) > Number(compareLoc[3])) ? targetLoc[3] : compareLoc[3])
-                                    req.data.splice(j, 1);
-                                    isStop = true;
-                                    i--;
-                                }
-                                break;
-                            }
+                    if (i != j && req.data[i]["entryLbl"] && req.data[j]["entryLbl"] && req.data[i]["entryLbl"] == req.data[j]["entryLbl"]
+                        && req.data[i]["amount"] == "single" && req.data[j]["amount"] == "single") {
+                        var targetLoc = req.data[i]["location"].split(',');
+                        var compareLoc = req.data[j]["location"].split(',');
+                        if (Number(targetLoc[0]) < Number(compareLoc[0])) {
+                            req.data[i]["text"] += req.data[j]["text"];
+                            req.data[i]["location"] = targetLoc[0] + ',' + targetLoc[1]
+                                + ',' + (Number(compareLoc[0]) + Number(compareLoc[2]) - Number(targetLoc[0]))
+                                + ',' + ((Number(targetLoc[3]) > Number(compareLoc[3])) ? targetLoc[3] : compareLoc[3])
+                            req.data.splice(j, 1);
+                            i--;
                         }
+                        break;
                     }
-                    if (isStop) break;
                 }
             }
             
