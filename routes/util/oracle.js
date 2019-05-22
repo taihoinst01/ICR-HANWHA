@@ -4932,7 +4932,8 @@ exports.selectTrainDataList = function (req, done) {
 		
 		try {
 			conn = await oracledb.getConnection(dbConfig);
-            let query = "SELECT CLASS, DOCTYPE, OCR_TEXT, OCR_TEXT_X, OCR_TEXT_Y FROM TBL_NEW_BATCH_COLUMN_MAPPING WHERE DOCTYPE = '"+req+"' ";
+            let query = "SELECT CLASS, DOCTYPE, OCR_TEXT, OCR_TEXT_X, OCR_TEXT_Y, AMOUNT FROM TBL_NEW_BATCH_COLUMN_MAPPING A,"
+                      +  "TBL_ICR_LABEL_DEF B WHERE A.CLASS = B.SEQNUM AND DOCTYPE = '" + req + "' ";
             //console.log("DOCTYPE : "+req);
 			let result = await conn.execute(query);
             //console.log("selectTrainDataList.rows");

@@ -273,11 +273,30 @@ function findEntry(req, docTypeVal, docTopTypeVal, done) {
                         if (tragetDis < minDis) {
                             minDis = tragetDis;
                             req.data[j]["entryLbl"] = entryItem.CLASS;
+                            req.data[j]["amount"] = entryItem.AMOUNT;
                             delete req.data[j]["colLbl"];
                         }
                     }
                 }
             }
+                
+            //Multy entry search
+            var diffHeight = 200;
+            for (var j in req.data) {
+                var amount = req.data[j]["amount"];
+                if(typeof amount != "undefined" && amount == "multi") {
+                    console.log(req.data[j]);
+                    var firstEntry = req.data[j];
+                    var preEntryHeight = req.data[j];
+                    for (var k in req.data) {
+                        if (multiEntryCheck(firstEntry, req.data[k]) && entryHeightCheck(preEntryHeight, req.data[k], diffHeight)) {
+                            req.data[k]['entryLbl'] = firstEntry['entryLbl'];
+                            preEntryHeight = req.data[k];
+                        }
+                    }
+                }
+            }
+
             //console.log(req.data);
             var docScore = parseInt(retData["docCategory"].DOCSCORE * 100);
             // docTopTypeParam = 58 레미콘
@@ -718,6 +737,55 @@ function findEntry(req, docTypeVal, docTopTypeVal, done) {
         }
 
 	});
+}
+
+function entryHeightCheck(data1, data2, diffHeight) {
+    var check = false;
+    data1 = data1['location'].split(',');
+    data2 = data2['location'].split(',');
+    var res = parseInt(data2[1]) - parseInt(data1[1]);
+
+    if (res < diffHeight) {
+        check = true;
+    }
+
+    return check;
+}
+
+function multiEntryCheck(firstEntry, entry) {
+    var check = false;
+    var firstLoc = firstEntry['location'].split(',');
+    var entryLoc = entry['location'].split(',');
+
+    if (verticalCheck(firstLoc, entryLoc, 100, -100) && locationCheck(firstLoc[1], entryLoc[1], 0, -2000)) {
+        check = true;
+    }
+
+    return check;
+}
+
+function verticalCheck(data1, data2, plus, minus) {
+    var check = false;
+    var dataWidthLoc1 = (parseInt(data1[0]) + parseInt(data1[0]) + parseInt(data1[2])) / 2;
+    var dataWidthLoc2 = (parseInt(data2[0]) + parseInt(data2[0]) + parseInt(data2[2])) / 2;
+
+    var res = dataWidthLoc1 - dataWidthLoc2;
+
+    if (res < plus && res > minus) {
+        check = true;
+    }
+
+    return check;
+}
+
+function locationCheck(data1, data2, plus, minus) {
+    var res = parseInt(data1) - parseInt(data2);
+    var check = false;
+    if (res < plus && res > minus) {
+        check = true;
+    }
+
+    return check;
 }
 
 // db 컬럼 정규식과 현재 타겟 text 비교
