@@ -307,7 +307,7 @@ function findEntry(req, docTypeVal, docTopTypeVal, done) {
             for (var j in req.data) {
                 var amount = req.data[j]["amount"];
                 if(typeof amount != "undefined" && amount == "multi") {
-                    console.log(req.data[j]);
+                    //console.log(req.data[j]);
                     var firstEntry = req.data[j];
                     var preEntryHeight = req.data[j];
                     for (var k in req.data) {
