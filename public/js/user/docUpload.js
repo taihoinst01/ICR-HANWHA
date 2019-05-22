@@ -335,16 +335,15 @@ var imgOcr = function(fileInfoList) {
                 for(var i = 0; i < trainResultList.length; i++) {
                     var trainResult = trainResultList[i].data;
                     for(var j = 0; j < trainResult.length; j++) {
-
                         // Single Record Entry 추출
                         $('.singleRecordTr').each(function(){
                             var appendSingleRecordEntryHtml
                             if($(this).attr('data-entryLbl') == trainResult[j].entryLbl) {
                                 $(this).find('.singleRecordEntryIpt').val(trainResult[j].text);
-                                $(this).find('.singleRecordEntryIpt').attr('data-location', trainResult[j].location).attr('data-filename', trainResultList[i].fileName);
+                                $(this).find('.singleRecordEntryIpt').attr('data-location', trainResult[j].location).attr('data-filename', trainResultList[i].fileinfo.convertFilepath.substring(trainResultList[i].fileinfo.convertFilepath.lastIndexOf('/') + 1));
                             }
                         })
-
+// trainResultList[i].fileinfo.convertFilepath.substring(trainResultList[i].fileinfo.convertFilepath.lastIndexOf('/') + 1)
                         // Multi Record entry
                         var data = trainResult[j];
                         var dataLocation = data.location.split(",");
@@ -355,7 +354,7 @@ var imgOcr = function(fileInfoList) {
 
                                 if (arrayList.length == 0) {
                                     var array = [];
-                                    data.fileName = trainResultList[i].fileName;
+                                    data.fileName = trainResultList[i].fileinfo.convertFilepath.substring(trainResultList[i].fileinfo.convertFilepath.lastIndexOf('/') + 1);
                                     array.push(data);
                                     arrayList.push(array);
                                 } else {
@@ -364,7 +363,7 @@ var imgOcr = function(fileInfoList) {
                                     for (var l = 0; l < aLength; l++) {
                                         var mlLocation = arrayList[l][0].location.split(",");
                                         if (dataLocation[1] - mlLocation[1] < 20 && dataLocation[1] - mlLocation[1] > -20) {
-                                            data.fileName = trainResultList[i].fileName;
+                                            data.fileName = trainResultList[i].fileinfo.convertFilepath.substring(trainResultList[i].fileinfo.convertFilepath.lastIndexOf('/') + 1);
                                             arrayList[l].push(data);
                                             break;
                                         }
@@ -376,7 +375,7 @@ var imgOcr = function(fileInfoList) {
 
                                     if (bool) {
                                         var array = [];
-                                        data.fileName = trainResultList[i].fileName;
+                                        data.fileName = trainResultList[i].fileinfo.convertFilepath.substring(trainResultList[i].fileinfo.convertFilepath.lastIndexOf('/') + 1);
                                         array.push(data);
                                         arrayList.push(array);
                                         bool = false;
@@ -418,15 +417,17 @@ var imgOcr = function(fileInfoList) {
 
                 // imgThumbnail
                 for (var i = 0; i < trainResultList.length; i++) {
+                    var imgFullPath = nvl(trainResultList[i].fileinfo.convertFilepath.replace(/\/uploads/, '/img'));
+                    var imgName = nvl(trainResultList[i].fileinfo.convertFilepath.substring(trainResultList[i].fileinfo.convertFilepath.lastIndexOf('/') + 1));
                     if(i == 0) {
                         appendThumbnailHtml += '<li class="on">';
                     } else {
                         appendThumbnailHtml += '<li>';
                     }
-                    appendThumbnailHtml += '<div class="box_img"><i><img src="/img/' + nvl(trainResultList[i].fileName) + '" ' +
-                            'class="thumb-img" title="' + nvl(trainResultList[i].fileName) + '"></i>' +
+                    appendThumbnailHtml += '<div class="box_img"><i><img src="' + nvl(imgFullPath) + '" ' +
+                            'class="thumb-img" title="' + nvl(imgName) + '"></i>' +
                             '</div>' +
-                            '<span>' + nvl(trainResultList[i].fileName) + '</span>' +
+                            '<span>' + nvl(imgName) + '</span>' +
                             '</li> ';
                 }
 
@@ -438,7 +439,7 @@ var imgOcr = function(fileInfoList) {
                         mainImgHtml += '</div>';
                         mainImgHtml += '</div>';
                 $('#div_invoice_view_image').html(mainImgHtml);
-                $('#mainImage').css('background-image', 'url("/img/' + trainResultList[0].fileName + '")');
+                $('#mainImage').css('background-image', 'url("' + nvl(trainResultList[0].fileinfo.convertFilepath.replace(/\/uploads/, '/img')) + '")');
                 $("#ul_image").empty().append(appendThumbnailHtml);
                 $('#multiRecordTblTbody').append(appendMultiRecordHtml);
                 checkDocLabelDef(docLabelDefList);
@@ -2738,6 +2739,7 @@ function zoomImgTarget(e) {
 }
 
 function zoomImg_new(obj) {
+
     $('#div_invoice_view_image').scrollTop(0);
     var filename = $(obj).attr('data-filename');
     var location = $(obj).attr('data-location');
@@ -2746,7 +2748,7 @@ function zoomImg_new(obj) {
     mainImage = mainImage.substring(mainImage.lastIndexOf("/") + 1);
     
     if (mainImage != filename) {
-        $('#mainImage').css('background-image', 'url("/img/' + filename + '")');
+        $('#mainImage').css('background-image', 'url("http://104.41.171.244/img/' + filename + '")');
     }
     
     $('#ul_image li').removeClass('on');
@@ -2759,7 +2761,7 @@ function zoomImg_new(obj) {
 
     //실제 이미지 사이즈와 메인이미지div 축소율 판단
     var reImg = new Image();
-    reImg.src = '/img/' + filename;
+    reImg.src = 'http://104.41.171.244/img/' + filename;
     reImg.onload = function() {
         var width = reImg.width;
         var height = reImg.height;

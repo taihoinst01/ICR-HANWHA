@@ -444,13 +444,14 @@ router.post('/imgOcr', function (req, res) {
         var docAnswerDataList;
         try {
 
-            pythonConfig.columnMappingOptions.args = [];
-            pythonConfig.columnMappingOptions.args.push(fileInfoList[0].filePath);
-            var resPyStr = sync.await(PythonShell.run('pyOcr.py', pythonConfig.columnMappingOptions, sync.defer()));
-            var testStr = resPyStr[0].replace('b', '');
-            testStr = testStr.replace(/'/g, '');
-            var decode = new Buffer(testStr, 'base64').toString('utf-8');
-            var resPyArr = JSON.parse(decode);
+            // pythonConfig.columnMappingOptions.args = [];
+            // pythonConfig.columnMappingOptions.args.push(fileInfoList[0].filePath);
+            // var resPyStr = sync.await(PythonShell.run('pyOcr.py', pythonConfig.columnMappingOptions, sync.defer()));
+            // var testStr = resPyStr[0].replace('b', '');
+            // testStr = testStr.replace(/'/g, '');
+            // var decode = new Buffer(testStr, 'base64').toString('utf-8');
+            var icrRestResult = sync.await(ocrUtil.icrRest(fileInfoList[0].filePath, false, sync.defer()));
+            var resPyArr = JSON.parse(icrRestResult);
             var retData = {};
             var retDataList = [];
             var docCategory = {};
@@ -462,9 +463,34 @@ router.post('/imgOcr', function (req, res) {
                 retData = sync.await(mlclassify.classify(resPyArr[i], sync.defer()));
                 var labelData = sync.await(oracle.selectIcrLabelDef(retData.docCategory.DOCTOPTYPE, sync.defer()));
                 var docName = sync.await(oracle.selectDocName(retData.docCategory.DOCTYPE, sync.defer()));
-                retData.docCategory.DOCNAME = docName[0].DOCNAME;
+                // retData.docCategory.DOCNAME = docName[0].DOCNAME;
+                if (docName.length != 0) {
+					retData.docCategory.DOCNAME = docName[0].DOCNAME;
+				}
+				else {
+					retData.docCategory.DOCNAME = "unKnown";
+				}
                 retData.labelData = labelData.rows;
-                retData.fileName = resPyArr[i].fileName;
+                // 정규식 적용
+                for(var ii= 0; ii < resPyArr[i].data.length; ii++){
+                    if(retData.data[ii]["colLbl"] != -1){
+                        for(var jj = 0; jj < labelData.rows.length; jj++) {
+                            if(retData.data[ii]["entryLbl"] == labelData.rows[jj].SEQNUM) {
+                                var re = new RegExp(labelData.rows[jj].VALID,'gi');   
+                                var keyParts = retData.data[ii]["text"].match(re); 
+                                if(keyParts != null)
+                                {
+                                    retData.data[ii]["text"] = keyParts.toString().replace(/,/gi,'');
+                                }
+                            }                                
+                        }
+                    }                        
+                }
+                // retData.fileName = resPyArr[i].fileName;
+                retData.fileinfo = {
+                    filepath: propertiesConfig.auto.ftpFileUrl + resPyArr[i].originFileName,
+                    convertFilepath: propertiesConfig.auto.ftpFileUrl + resPyArr[i].convertFileName
+                };
 
                 retDataList.push(retData);
             }

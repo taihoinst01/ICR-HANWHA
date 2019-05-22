@@ -113,22 +113,41 @@ function popUpRunEvent() {
             docName = 'NotInvoice';
 		}
 
+        console.log(layer4Data);
+        console.log(layer4Data.data.length);
+		// if (layer4Data.data.length > 20) {
 
-		if (layer4Data.data.length > 20) {
+		// 	for (var i = 0; i < 20; i++) {
+
+		// 		// console.log(layer4Data.data[i].originText);
+		// 		docSentenceList.push({ "text": layer4Data.data[i].originText })
+		// 		docSentence = docSentence + layer4Data.data[i].originText;
+		// 	}
+		// }
+		// else {
+		// 	for (var i = 0; i < layer4Data.data.length; i++) {
+
+		// 		//console.log(layer4Data.data[i].originText);
+		// 		docSentenceList.push({ "text": layer4Data.data[i].originText })
+		// 		docSentence = docSentence + layer4Data.data[i].originText;
+		// 	}
+        // }
+        
+        if (layer4Data.data.length > 20) {
 
 			for (var i = 0; i < 20; i++) {
 
-				//console.log(layer4Data.data[i].originText);
-				docSentenceList.push({ "text": layer4Data.data[i].originText })
-				docSentence = docSentence + layer4Data.data[i].originText;
+				// console.log(layer4Data.data[i].originText);
+				docSentenceList.push({ "text": layer4Data.data[i].text })
+				docSentence = docSentence + layer4Data.data[i].text;
 			}
 		}
 		else {
 			for (var i = 0; i < layer4Data.data.length; i++) {
 
 				//console.log(layer4Data.data[i].originText);
-				docSentenceList.push({ "text": layer4Data.data[i].originText })
-				docSentence = docSentence + layer4Data.data[i].originText;
+				docSentenceList.push({ "text": layer4Data.data[i].text })
+				docSentence = docSentence + layer4Data.data[i].text;
 			}
 		}
 
