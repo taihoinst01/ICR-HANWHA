@@ -279,7 +279,28 @@ function findEntry(req, docTypeVal, docTopTypeVal, done) {
                     }
                 }
             }
-                
+            /*
+            // Add single entry text
+            for (var j = 0; j < req.data.length - 1; j++) {
+                for (var k in fixSingleLabel) {
+                    if (req.data[j]["entryLbl"] && req.data[j + 1]["entryLbl"]
+                        && req.data[j]["entryLbl"] == fixSingleLabel[k] && req.data[j + 1]["entryLbl"] == fixSingleLabel[k]
+                        && req.data[j]["entryLbl"] == req.data[j + 1]["entryLbl"]) {
+                        var targetLoc = req.data[j]["location"].split(',');
+                        var compareLoc = req.data[j + 1]["location"].split(',');
+                        if (Number(targetLoc[0]) < Number(compareLoc[0])) {
+                            req.data[j]["text"] += req.data[j + 1]["text"];
+                            req.data[j]["location"] = targetLoc[0] + ',' + targetLoc[1]
+                                + ',' + (Number(compareLoc[0]) + Number(compareLoc[2]) - Number(targetLoc[0]))
+                                + ',' + ((Number(targetLoc[3]) > Number(compareLoc[3])) ? targetLoc[3] : compareLoc[3])
+                            delete req.data[j + 1]
+                            j--;
+                        }
+                        break;
+                    }
+                }
+            } 
+            */
             //Multy entry search
             var diffHeight = 200;
             for (var j in req.data) {
@@ -296,7 +317,7 @@ function findEntry(req, docTypeVal, docTopTypeVal, done) {
                     }
                 }
             }
-
+            /*
             //console.log(req.data);
             var docScore = parseInt(retData["docCategory"].DOCSCORE * 100);
             // docTopTypeParam = 58 레미콘
@@ -723,7 +744,7 @@ function findEntry(req, docTypeVal, docTopTypeVal, done) {
                         }
                     }
                 }
-            }
+            }*/
                 
             retData["docCategory"] = req.docCategory;
             retData["data"] = req.data;
