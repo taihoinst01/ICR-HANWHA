@@ -281,26 +281,31 @@ function findEntry(req, docTypeVal, docTopTypeVal, done) {
             }
             /*
             // Add single entry text
-            for (var j = 0; j < req.data.length - 1; j++) {
-                if (req.data[j]["entryLbl"] && req.data[j + 1]["entryLbl"]) {
-                    for (var k in fixSingleLabel) {
-                        if (req.data[j]["entryLbl"] == fixSingleLabel[k] && req.data[j + 1]["entryLbl"] == fixSingleLabel[k]
-                            && req.data[j]["entryLbl"] == req.data[j + 1]["entryLbl"]) {
-                            var targetLoc = req.data[j]["location"].split(',');
-                            var compareLoc = req.data[j + 1]["location"].split(',');
-                            if (Number(targetLoc[0]) < Number(compareLoc[0])) {
-                                req.data[j]["text"] += req.data[j + 1]["text"];
-                                req.data[j]["location"] = targetLoc[0] + ',' + targetLoc[1]
-                                    + ',' + (Number(compareLoc[0]) + Number(compareLoc[2]) - Number(targetLoc[0]))
-                                    + ',' + ((Number(targetLoc[3]) > Number(compareLoc[3])) ? targetLoc[3] : compareLoc[3])
-                                delete req.data[j + 1]
-                                j--;
+            var isStop;
+            for (var i = 0; i < req.data.length; i++) {
+                isStop = false;
+                for (var j = 0; j < req.data.length; j++) {
+                    if (i != j && req.data[i]["entryLbl"] && req.data[j]["entryLbl"] && req.data[i]["entryLbl"] == req.data[j]["entryLbl"]) {
+                        for (var k in fixSingleLabel) {
+                            if (req.data[i]["entryLbl"] == fixSingleLabel[k] && req.data[j]["entryLbl"] == fixSingleLabel[k]) {
+                                var targetLoc = req.data[i]["location"].split(',');
+                                var compareLoc = req.data[j]["location"].split(',');
+                                if (Number(targetLoc[0]) < Number(compareLoc[0])) {
+                                    req.data[i]["text"] += req.data[j]["text"];
+                                    req.data[i]["location"] = targetLoc[0] + ',' + targetLoc[1]
+                                        + ',' + (Number(compareLoc[0]) + Number(compareLoc[2]) - Number(targetLoc[0]))
+                                        + ',' + ((Number(targetLoc[3]) > Number(compareLoc[3])) ? targetLoc[3] : compareLoc[3])
+                                    req.data.splice(j, 1);
+                                    isStop = true;
+                                    i--;
+                                }
+                                break;
                             }
-                            break;
                         }
                     }
+                    if (isStop) break;
                 }
-            } 
+            }
             */
             //Multy entry search
             var diffHeight = 200;
