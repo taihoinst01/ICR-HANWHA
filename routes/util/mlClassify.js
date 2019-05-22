@@ -195,7 +195,7 @@ function findEntry(req, docTypeVal, docTopTypeVal, done) {
             let docTypeParam = [docTypeVal];
             
             let labelRows = sync.await(oracle.selectDocIdLabelDefList(docTopTypeParam, sync.defer()));
-            /*
+            
             for(var i in labelRows)
             {
                 if(labelRows[i].LABELTYPE == 'T' && labelRows[i].AMOUNT == "submulti")
@@ -221,7 +221,7 @@ function findEntry(req, docTypeVal, docTopTypeVal, done) {
                     variLabel.push(labelRows[i].SEQNUM);
                 }
             }    
-            */
+            
             //label data 추출
             let labelTrainRows = sync.await(oracle.selectLabelTrainDataList(docTypeParam, sync.defer()));
 
@@ -279,7 +279,7 @@ function findEntry(req, docTypeVal, docTopTypeVal, done) {
                     }
                 }
             }
-            /*
+            
             // Add single entry text
             var isStop;
             for (var i = 0; i < req.data.length; i++) {
@@ -306,7 +306,7 @@ function findEntry(req, docTypeVal, docTopTypeVal, done) {
                     if (isStop) break;
                 }
             }
-            */
+            
             //Multy entry search
             var diffHeight = 200;
             for (var j in req.data) {
