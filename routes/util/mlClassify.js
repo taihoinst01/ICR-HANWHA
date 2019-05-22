@@ -286,12 +286,15 @@ function findEntry(req, docTypeVal, docTopTypeVal, done) {
                         && req.data[i]["amount"] == "single" && req.data[j]["amount"] == "single") {
                         var targetLoc = req.data[i]["location"].split(',');
                         var compareLoc = req.data[j]["location"].split(',');
-                        if ((req.data[i]["entryLbl"] == "769" || req.data[i]["entryLbl"] == "773") && 
+                        if ((req.data[i]["entryLbl"] == "769" || req.data[i]["entryLbl"] == "773") &&
                             (Number(targetLoc[1]) + Number(targetLoc[3])) < Number(compareLoc[1])) { // 콘크리트종류 or 시멘트 종류
                             req.data[i]["text"] = req.data[j]["text"] + req.data[i]["text"];
                             req.data[i]["location"] = targetLoc[0] + ',' + targetLoc[1]
                                 + ',' + (compareLoc[2])
                                 + ',' + (Number(targetLoc[3]) + Number(compareLoc[3]) + (Number(compareLoc[1]) - (Number(targetLoc[1]) + Number(targetLoc[3]))))
+                            req.data.splice(j, 1);
+                            i--;
+                        } else if (req.data[i]["entryLbl"] == "760" || req.data[i]["entryLbl"] == "761" || req.data[i]["entryLbl"] == "502") {
                         } else {
                             if (Number(targetLoc[0]) < Number(compareLoc[0])) {
                                 req.data[i]["text"] += req.data[j]["text"];
@@ -304,9 +307,9 @@ function findEntry(req, docTypeVal, docTopTypeVal, done) {
                                     + ',' + (Number(targetLoc[0]) + Number(targetLoc[2]) - Number(compareLoc[0]))
                                     + ',' + ((Number(targetLoc[3]) > Number(compareLoc[3])) ? targetLoc[3] : compareLoc[3])
                             }
-                        }
-                        req.data.splice(j, 1);
-                        i--;
+                            req.data.splice(j, 1);
+                            i--;
+                        }                       
                         break;
                     }
                 }
