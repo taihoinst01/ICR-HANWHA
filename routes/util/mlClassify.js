@@ -254,10 +254,7 @@ function findEntry(req, docTypeVal, docTopTypeVal, done) {
                         }
                     }
                 }
-            }
-
-            // Add single entry text
-            req.data = sync.await(addEntryTextOfSingleLabel(req.data, sync.defer()));
+            }         
             
             //Multy entry search
             var diffHeight = 200;
@@ -270,439 +267,15 @@ function findEntry(req, docTypeVal, docTopTypeVal, done) {
                     for (var k in req.data) {
                         if (multiEntryCheck(firstEntry, req.data[k]) && entryHeightCheck(preEntryHeight, req.data[k], diffHeight)) {
                             req.data[k]['entryLbl'] = firstEntry['entryLbl'];
+                            req.data[k]["amount"] = firstEntry['amount'];
                             preEntryHeight = req.data[k];
                         }
                     }
                 }
             }
-            /*
-            //console.log(req.data);
-            var docScore = parseInt(retData["docCategory"].DOCSCORE * 100);
-            // docTopTypeParam = 58 레미콘
-            if(docTopTypeParam==58 && docScore > 50)
-            {
-                var departureTimeList=[];
-                var concreteTypeList=[];
-                var cementeTypeList=[];
-                var deliveryLocList=[];
-                var companyNameList=[];
-                var totalDeliveryVolList=[];
-                var deliveryVolList=[];
-                for(var j in req.data)
-                {
-                    // delete req.data[j].colLbl;
 
-                    var departureTimeData={};
-                    var concreteTypeData={};
-                    var cementeTypeData={};
-                    var deliveryLocData={};
-                    var companyNameData={};
-                    var totalDeliveryVolData={};
-                    var deliveryVolData={};
-
-                    // concreteTypeData["loc"] = "478,1507,53,40";
-                    // concreteTypeData["text"] = "고";
-                    // concreteTypeList.push(concreteTypeData);
-                    if(req.data[j]["entryLbl"] == 769)
-                    {
-                        concreteTypeData["loc"] = req.data[j].location;
-                        concreteTypeData["text"] = req.data[j].text.replace("법","").replace("호","");
-                        concreteTypeList.push(concreteTypeData);
-                    }
-                    else if(req.data[j]["entryLbl"] == 765)
-                    {
-                        if(req.data[j].text == "호")
-                        {
-                            delete req.data[j].entryLbl;
-                            req.data[j]["colLbl"] = -1;
-                        }
-                        if(req.data[j].text.substring(0,1) == "호")
-                        {
-                            req.data[j].text = req.data[j].text.substring(1,req.data[j].text.length);
-                        }
-                    } 
-                    else if(req.data[j]["entryLbl"] == 764)
-                    {
-                        deliveryLocData["loc"] = req.data[j].location;
-                        deliveryLocData["text"] = req.data[j].text;
-                        deliveryLocList.push(deliveryLocData);
-                    }
-                    else if(req.data[j]["entryLbl"] == 773)
-                    {
-                        cementeTypeData["loc"] = req.data[j].location;
-                        cementeTypeData["text"] = req.data[j].text;
-                        cementeTypeList.push(cementeTypeData);
-                    }
-                    else if(req.data[j]["entryLbl"] == 760)
-                    {
-                        companyNameData["loc"] = req.data[j].location;
-                        companyNameData["text"] = req.data[j].text;
-                        companyNameList.push(companyNameData);
-                    }                       
-                    else if(req.data[j]["entryLbl"] == 762 || req.data[j]["entryLbl"] == 764)
-                    {
-                        if(req.data[j].text == "소" ||req.data[j].text == "소 :")
-                        {
-                            delete req.data[j].entryLbl;
-                            req.data[j]["colLbl"] = -1;
-                        }
-
-                        if(req.data[j].text.substring(0,1) == "소")
-                        {
-                            req.data[j].text = req.data[j].text.substring(1,req.data[j].text.length);
-                        }
-                        
-                    }
-                    else if(req.data[j]["entryLbl"] == 767)
-                    {
-                        req.data[j].text = req.data[j].text.replace("-",".");
-
-                        deliveryVolData["loc"] = req.data[j].location;
-                        deliveryVolData["text"] = req.data[j].text;
-                        deliveryVolList.push(deliveryVolData);
-                    }
-                    else if(req.data[j]["entryLbl"] == 768)
-                    {
-                        req.data[j].text = req.data[j].text.replace("-",".");
-
-                        totalDeliveryVolData["loc"] = req.data[j].location;
-                        totalDeliveryVolData["text"] = req.data[j].text;
-                        totalDeliveryVolList.push(totalDeliveryVolData);
-                    }
-                    else if(req.data[j]["entryLbl"] == 766)
-                    {   
-                        if(req.data[j]["text"] != "시")
-                        {
-                            if(req.data[j]["text"] != "분")
-                            {
-                                if(req.data[j]["text"].indexOf("시") == -1 )
-                                {
-                                    if(req.data[j]["text"].indexOf("분") == -1)
-                                    {
-                                        departureTimeData["loc"] = req.data[j].location;
-                                        departureTimeData["text"] = req.data[j].text;
-                                        departureTimeList.push(departureTimeData);
-                                    }
-                                    else
-                                    {
-                                        departureTimeData["loc"] = req.data[j].location;
-                                        departureTimeData["text"] = req.data[j].text.replace("분","");
-                                        departureTimeList.push(departureTimeData);
-                                    }
-                                }
-                                else
-                                {
-                                    
-                                    if(req.data[j]["text"].indexOf("분") == -1)
-                                    {
-                                        departureTimeData["loc"] = req.data[j].location;
-                                        departureTimeData["text"] = req.data[j].text;
-                                        departureTimeList.push(departureTimeData);
-                                    }
-                                    else 
-                                    {
-                                        //시02분 들어왔을때 예외처리
-                                        departureTimeData["loc"] = req.data[j].location;
-                                        departureTimeData["text"] = req.data[j].text.replace("시","").replace("분","");
-                                        departureTimeList.push(departureTimeData);
-                                    }
-                                }
-                            }
-                        }
-                        else
-                        {                            
-                            if (req.data[j]["text"].indexOf("분") == -1)
-                            {
-                                //console.log(req.data[j]);
-                                departureTimeData["loc"] = req.data[j].location;
-                                departureTimeData["text"] = req.data[j].text;
-                                departureTimeList.push(departureTimeData);
-                            }
-                        }
-                    }
-                }
-
-
-                var departureTime ="";
-                var concreteType ="";
-                var cementeType ="";
-                var deliveryLoc ="";
-                var companyName ="";
-                var totalDeliveryVol ="";
-                var deliveryVol ="";
-                //콘크리트의 종류에 따른 구분이 두줄로 나올때 or 한줄에 나눠서 출력될때 정렬해서 출력
-                if(concreteTypeList.length > 1) {
-                    if(concreteTypeList[1].loc.split(",")[1] - concreteTypeList[0].loc.split(",")[1] > 20) {
-                        concreteTypeList.sort(function(a,b)
-                        {
-                            return Number(a.loc.split(",")[1]) - Number(b.loc.split(",")[1]);
-                        });
-                    } else {
-                        concreteTypeList.sort(function(a,b)
-                        {
-                            return Number(a.loc.split(",")[0]) - Number(b.loc.split(",")[0]);
-                        });
-                    }
-                }
-                
-                
-                cementeTypeList.sort(function(a,b)
-                {
-                    console.log(a.loc.split(",")[0]);
-                    console.log(b.loc.split(",")[0]);
-                    return Number(a.loc.split(",")[0]) - Number(b.loc.split(",")[0]);
-                });
-
-                companyNameList.sort(function(a,b)
-                {
-                    console.log(a.loc.split(",")[0]);
-                    console.log(b.loc.split(",")[0]);
-                    return Number(a.loc.split(",")[0]) - Number(b.loc.split(",")[0]);
-                });
-
-                deliveryVolList.sort(function(a,b)
-                {
-                    console.log(a.loc.split(",")[0]);
-                    console.log(b.loc.split(",")[0]);
-                    return Number(a.loc.split(",")[0]) - Number(b.loc.split(",")[0]);
-                });
-
-                totalDeliveryVolList.sort(function(a,b)
-                {
-                    console.log(a.loc.split(",")[0]);
-                    console.log(b.loc.split(",")[0]);
-                    return Number(a.loc.split(",")[0]) - Number(b.loc.split(",")[0]);
-                });
-
-                if(deliveryLocList.length > 1)
-                {
-                    for(var i in deliveryLocList)
-                    {
-                        if(Number(deliveryLocList[0].loc.split(",")[0]) < (Number(deliveryLocList[1].loc.split(",")[0])))
-                        {
-                            deliveryLoc = deliveryLocList[0].text + " " + deliveryLocList[1].text ;
-                        }
-                        else if(Number(deliveryLocList[0].loc.split(",")[0]) > (Number(deliveryLocList[1].loc.split(",")[0])))
-                        {
-                            deliveryLoc = deliveryLocList[1].text + " " + deliveryLocList[0].text ;
-                        }
-                    }
-                    var deliveryLocCnt = 0;
-                    for(var l in req.data)
-                    {
-                        if(req.data[l]["entryLbl"] == 764)
-                        {
-                            req.data[l]["text"] = deliveryLoc;
-                            if(deliveryLocCnt > 0)
-                            {
-                                delete req.data[l].entryLbl;
-                                req.data[l]["colLbl"] = -1;
-                            }
-                            deliveryLocCnt++;
-                        }
-                    }
-                }
-
-                if(concreteTypeList.length > 0)                
-                {
-                    for(var i in concreteTypeList)
-                    {
-                        concreteType +=concreteTypeList[i].text;
-                    }
-                
-                    if(concreteType == "물자")
-                    {
-                        concreteType = "물차";
-                    }
-                    if(concreteType == "콘크리트보통" || concreteType == "콘크리트" || concreteType == "콘크리트보")
-                    {
-                        concreteType = "보통콘크리트";
-                    }
-                }
-
-                var cnt = 0;
-                for(var l in req.data)
-                {
-                    if(req.data[l]["entryLbl"] == 769)
-                    {
-                        req.data[l]["text"] = concreteType;
-                        if(cnt > 0)
-                        {
-                            delete req.data[l].entryLbl;
-                            req.data[l]["colLbl"] = -1;
-                        }
-                        cnt++;
-                    }
-                }
-
-                if(companyNameList.length > 0)                
-                {
-                    for(var i in companyNameList)
-                    {
-                        companyName +=companyNameList[i].text;
-                    }
-
-                    var cnt = 0;
-                    for(var l in req.data)
-                    {
-                        if(req.data[l]["entryLbl"] == 760)
-                        {
-                            req.data[l]["text"] = companyName;
-                            if(cnt > 0)
-                            {
-                                delete req.data[l].entryLbl;
-                                req.data[l]["colLbl"] = -1;
-                            }
-                            cnt++;
-                        }
-                    }
-                }
-                
-                if(cementeTypeList.length > 0)                
-                {
-                    for(var i in cementeTypeList)
-                    {
-                        cementeType +=cementeTypeList[i].text;
-                    }
-
-                    var cnt = 0;
-                    for(var l in req.data)
-                    {
-                        if(req.data[l]["entryLbl"] == 773)
-                        {
-                            req.data[l]["text"] = cementeType;
-                            if(cnt > 0)
-                            {
-                                delete req.data[l].entryLbl;
-                                req.data[l]["colLbl"] = -1;
-                            }
-                            cnt++;
-                        }
-                    }
-                }
-
-                if(departureTimeList.length > 1)
-                {
-                    // departureTimeList.length == 3일때 출발시간 출력이 안됨
-                    for(var kk in departureTimeList) 
-                    {
-                        if(departureTimeList[kk].text == "도" || departureTimeList[kk].text == " 도"){
-                            departureTimeList.splice(kk,1)
-                        }
-                    }
-                    if(departureTimeList.length == 2)
-                    {
-                        departureTimeList[0].text = departureTimeList[0].text.replace("시","");
-                        departureTimeList[0].text = departureTimeList[0].text.replace("분","");
-                        departureTimeList[1].text = departureTimeList[1].text.replace("시","");
-                        departureTimeList[1].text = departureTimeList[1].text.replace("분","");
-                        if(Number(departureTimeList[0].loc.split(",")[0]) < (Number(departureTimeList[1].loc.split(",")[0])))
-                        {
-                            departureTime = departureTimeList[0].text + "시" + departureTimeList[1].text + "분" ;
-                        }
-                        else
-                        {
-                            departureTime = departureTimeList[1].text + "시" + departureTimeList[0].text + "분" ;
-                        }
-                    }
-                    if(departureTime.indexOf("분") == -1)
-                    {
-                        departureTime = departureTime + "분";
-                    }
-                    if(departureTime.indexOf("도") != -1)
-                    {
-                        departureTime = departureTime.replace("도","");
-                    }
-                    var cnt = 0;
-                    for(var l in req.data)
-                    {
-                        if(req.data[l]["entryLbl"] == 766)
-                        {
-                            req.data[l]["text"] = departureTime;
-                            if(cnt > 0)
-                            {
-                                delete req.data[l].entryLbl;
-                                req.data[l]["colLbl"] = -1;
-                            }
-                            cnt++;
-                        }
-                    }
-                }
-                else if(departureTimeList.length == 1)
-                {
-                    if(departureTimeList[0].text.indexOf("시") != -1 && departureTimeList[0].text.indexOf("분") == -1)
-                    {
-                        departureTime = departureTimeList[0].text + "분";
-                    }
-                    else if(departureTimeList[0].text.indexOf("시") == -1 && departureTimeList[0].text.indexOf("분") == -1)
-                    {
-                        departureTime = departureTimeList[0].text.replace(" ","시") + "분";
-                    }
-                }
-                var cnt = 0;
-                for(var l in req.data)
-                {
-                    if(req.data[l]["entryLbl"] == 766)
-                    {
-                        if(departureTime.length > 0 )
-                        {
-                            req.data[l]["text"] = departureTime;
-                            if(cnt > 0)
-                            {
-                                delete req.data[l].entryLbl;
-                                req.data[l]["colLbl"] = -1;
-                            }
-                            cnt++;
-                        }
-                    }
-                }
-                // 납품용적
-                if(deliveryVolList.length > 0)                
-                {
-                    for(var i in deliveryVolList)
-                    {
-                        deliveryVol +=deliveryVolList[i].text;
-                    }
-
-                    var cnt = 0;
-                    for(var l in req.data)
-                    {
-                        if(req.data[l]["entryLbl"] == 767)
-                        {
-                            req.data[l]["text"] = deliveryVol;
-                            if(cnt > 0)
-                            {
-                                delete req.data[l].entryLbl;
-                                req.data[l]["colLbl"] = -1;
-                            }
-                            cnt++;
-                        }
-                    }
-                }
-                // 누계
-                if(totalDeliveryVolList.length > 0)                
-                {
-                    for(var i in totalDeliveryVolList)
-                    {
-                        totalDeliveryVol +=totalDeliveryVolList[i].text;
-                    }
-
-                    var cnt = 0;
-                    for(var l in req.data)
-                    {
-                        if(req.data[l]["entryLbl"] == 768)
-                        {
-                            req.data[l]["text"] = totalDeliveryVol;
-                            if(cnt > 0)
-                            {
-                                delete req.data[l].entryLbl;
-                                req.data[l]["colLbl"] = -1;
-                            }
-                            cnt++;
-                        }
-                    }
-                }
-            }*/
+            // Add single entry text
+            req.data = sync.await(addEntryTextOfLabel(req.data, sync.defer()));          
                 
             retData["docCategory"] = req.docCategory;
             retData["data"] = req.data;
@@ -718,37 +291,81 @@ function findEntry(req, docTypeVal, docTopTypeVal, done) {
 	});
 }
 
-function addEntryTextOfSingleLabel(data, done) {
+function addEntryTextOfLabel(data, done) {
     sync.fiber(function () {
         try {           
             for (var i = 0; i < data.length; i++) {
-                for (var j = 0; j < data.length; j++) {
-                    if (i != j && data[i]["entryLbl"] && data[j]["entryLbl"] && data[i]["entryLbl"] == data[j]["entryLbl"]
-                        && data[i]["amount"] == "single" && data[j]["amount"] == "single") {
+                for (var j = 0; j < data.length; j++) {                   
+                    if (i != j && data[i]["entryLbl"] && data[j]["entryLbl"] && data[i]["entryLbl"] == data[j]["entryLbl"]) {
                         var targetLoc = data[i]["location"].split(',');
                         var compareLoc = data[j]["location"].split(',');
-                        if ((data[i]["entryLbl"] == "769" || data[i]["entryLbl"] == "773") &&
-                            (Number(compareLoc[1]) - Number(targetLoc[1])) > 30) { // 콘크리트종류 or 시멘트 종류
-                            // 붙여진 text 정보를 확인하기 위한 용도 (텍스트가 붙여지면 entryLbls로는 확인이 어려움)
-                            if (data[i]["addItem"]) {
-                                data[i]["addItem"].push(JSON.parse(JSON.stringify(data[j])));
+                        if (data[i]["amount"] == "single" && data[j]["amount"] == "single") { // 싱글
+                            if ((data[i]["entryLbl"] == "769" || data[i]["entryLbl"] == "773") &&
+                                (Number(compareLoc[1]) - Number(targetLoc[1])) > 30) { // 콘크리트종류 or 시멘트 종류
+                                // 붙여진 text 정보를 확인하기 위한 용도 (텍스트가 붙여지면 entryLbls로는 확인이 어려움)
+                                if (data[i]["addItem"]) {
+                                    data[i]["addItem"].push(JSON.parse(JSON.stringify(data[j])));
+                                } else {
+                                    data[i]["addItem"] = [JSON.parse(JSON.stringify(data[i])), JSON.parse(JSON.stringify(data[j]))];
+                                    delete data[i]["entryLbls"];
+                                }
+
+                                // 텍스트와 위치 데이터 가공
+                                data[i]["text"] = data[i]["text"] + data[j]["text"];
+                                data[i]["location"] = targetLoc[0] + ',' + targetLoc[1]
+                                    + ',' + (compareLoc[2])
+                                    + ',' + (Number(targetLoc[3]) + Number(compareLoc[3]) + (Number(compareLoc[1]) - (Number(targetLoc[1]) + Number(targetLoc[3]))))
+
+                                // 붙여진 text row 제거하고 배열 인덱스 한단계 전으로 돌아가서 현재 row 기준으로 다시 실행 
+                                data.splice(j, 1);
+                                i--;
+                                break;
                             } else {
-                                data[i]["addItem"] = [JSON.parse(JSON.stringify(data[i])), JSON.parse(JSON.stringify(data[j]))];
-                                delete data[i]["entryLbls"];
+                                if (data[i]["addItem"]) {
+                                    data[i]["addItem"].push(JSON.parse(JSON.stringify(data[j])));
+                                } else {
+                                    data[i]["addItem"] = [JSON.parse(JSON.stringify(data[i])), JSON.parse(JSON.stringify(data[j]))];
+                                    delete data[i]["entryLbls"];
+                                }
+
+                                if (Number(targetLoc[0]) < Number(compareLoc[0])) {
+                                    data[i]["text"] += data[j]["text"];
+                                    data[i]["location"] = targetLoc[0] + ',' + targetLoc[1]
+                                        + ',' + (Number(compareLoc[0]) + Number(compareLoc[2]) - Number(targetLoc[0]))
+                                        + ',' + ((Number(targetLoc[3]) > Number(compareLoc[3])) ? targetLoc[3] : compareLoc[3])
+                                } else {
+                                    data[i]["text"] = data[j]["text"] + data[i]["text"];
+                                    data[i]["location"] = compareLoc[0] + ',' + compareLoc[1]
+                                        + ',' + (Number(targetLoc[0]) + Number(targetLoc[2]) - Number(compareLoc[0]))
+                                        + ',' + ((Number(targetLoc[3]) > Number(compareLoc[3])) ? targetLoc[3] : compareLoc[3])
+                                }       
+                                data.splice(j, 1);
+                                i--;
+                                break;
                             }
+                        } else if (data[i]["amount"] == "multi" && data[j]["amount"] == "multi") { // 멀티
+                            var yGap = ((Number(targetLoc[1]) - Number(compareLoc[1])) > 0) ? (Number(targetLoc[1]) - Number(compareLoc[1])) : -(Number(targetLoc[1]) - Number(compareLoc[1]));
 
-                            // 텍스트와 위치 데이터 가공
-                            data[i]["text"] = data[i]["text"] + data[j]["text"];
-                            data[i]["location"] = targetLoc[0] + ',' + targetLoc[1]
-                                + ',' + (compareLoc[2])
-                                + ',' + (Number(targetLoc[3]) + Number(compareLoc[3]) + (Number(compareLoc[1]) - (Number(targetLoc[1]) + Number(targetLoc[3]))))                            
+                            // 텍스트와 위치 데이터 가공                        
+                            if (Number(targetLoc[0]) < Number(compareLoc[0]) && yGap < 7) {                               
+                                // 붙여진 text 정보를 확인하기 위한 용도 (텍스트가 붙여지면 entryLbls로는 확인이 어려움)
+                                if (data[i]["addItem"]) {
+                                    data[i]["addItem"].push(JSON.parse(JSON.stringify(data[j])));
+                                } else {
+                                    data[i]["addItem"] = [JSON.parse(JSON.stringify(data[i])), JSON.parse(JSON.stringify(data[j]))];
+                                    delete data[i]["entryLbls"];
+                                }
 
-                            // 붙여진 text row 제거하고 배열 인덱스 한단계 전으로 돌아가서 현재 row 기준으로 다시 실행 
-                            data.splice(j, 1);
-                            i--;
+                                data[i]["text"] += data[j]["text"];
+                                data[i]["location"] = targetLoc[0] + ',' + targetLoc[1]
+                                    + ',' + (Number(compareLoc[0]) + Number(compareLoc[2]) - Number(targetLoc[0]))
+                                    + ',' + ((Number(targetLoc[3]) > Number(compareLoc[3])) ? targetLoc[3] : compareLoc[3])
+                                data.splice(j, 1);
+                                i--;
+                                break;
+                            }
                         } else if (data[i]["entryLbl"] == "760" || data[i]["entryLbl"] == "761" || data[i]["entryLbl"] == "502") {
                         } else {
-
                             if (data[i]["addItem"]) {
                                 data[i]["addItem"].push(JSON.parse(JSON.stringify(data[j])));
                             } else {
@@ -766,11 +383,11 @@ function addEntryTextOfSingleLabel(data, done) {
                                 data[i]["location"] = compareLoc[0] + ',' + compareLoc[1]
                                     + ',' + (Number(targetLoc[0]) + Number(targetLoc[2]) - Number(compareLoc[0]))
                                     + ',' + ((Number(targetLoc[3]) > Number(compareLoc[3])) ? targetLoc[3] : compareLoc[3])
-                            }          
+                            }
                             data.splice(j, 1);
                             i--;
-                        }
-                        break;
+                            break;
+                        }                        
                     }
                 }
             }
