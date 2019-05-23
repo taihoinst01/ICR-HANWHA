@@ -224,7 +224,7 @@ function findEntry(req, docTypeVal, docTopTypeVal, done) {
             
             for(var j in req.data) {
                 for (var k in entryTrainRows) {
-					if (entryTrainRows[k].CLASS != "760" && entryTrainRows[k].CLASS != "761" && entryTrainRows[k].CLASS != "502") {
+                    if (entryTrainRows[k].CLASS != "760" && entryTrainRows[k].CLASS != "761" && entryTrainRows[k].CLASS != "502") {
 						if (predictionColumn(req.docCategory, req.data[j], entryTrainRows[k], 'E') && isValid(labelRows, entryTrainRows[k].CLASS, req.data[j]["text"])) {
 							if (!req.data[j]["entryLbls"]) {
 								req.data[j]["entryLbls"] = [entryTrainRows[k]];
@@ -729,14 +729,35 @@ function addEntryTextOfSingleLabel(data, done) {
                         var compareLoc = data[j]["location"].split(',');
                         if ((data[i]["entryLbl"] == "769" || data[i]["entryLbl"] == "773") &&
                             (Number(targetLoc[1]) + Number(targetLoc[3])) < Number(compareLoc[1])) { // 콘크리트종류 or 시멘트 종류
+                            // 붙여진 text 정보를 확인하기 위한 용도 (텍스트가 붙여지면 entryLbls로는 확인이 어려움)
+                            if (data[i]["addItem"]) {
+                                data[i]["addItem"].push(JSON.parse(JSON.stringify(data[j])));
+                                delete data[j]["entryLbls"];
+                            } else {
+                                data[i]["addItem"] = [JSON.parse(JSON.stringify(data[i])), JSON.parse(JSON.stringify(data[j]))];
+                                delete data[i]["entryLbls"];
+                            }
+
+                            // 텍스트와 위치 데이터 가공
                             data[i]["text"] = data[j]["text"] + data[i]["text"];
                             data[i]["location"] = targetLoc[0] + ',' + targetLoc[1]
                                 + ',' + (compareLoc[2])
-                                + ',' + (Number(targetLoc[3]) + Number(compareLoc[3]) + (Number(compareLoc[1]) - (Number(targetLoc[1]) + Number(targetLoc[3]))))
+                                + ',' + (Number(targetLoc[3]) + Number(compareLoc[3]) + (Number(compareLoc[1]) - (Number(targetLoc[1]) + Number(targetLoc[3]))))                            
+
+                            // 붙여진 text row 제거하고 배열 인덱스 한단계 전으로 돌아가서 현재 row 기준으로 다시 실행 
                             data.splice(j, 1);
                             i--;
                         } else if (data[i]["entryLbl"] == "760" || data[i]["entryLbl"] == "761" || data[i]["entryLbl"] == "502") {
                         } else {
+
+                            if (data[i]["addItem"]) {
+                                data[i]["addItem"].push(JSON.parse(JSON.stringify(data[j])));
+                                delete data[j]["entryLbls"];
+                            } else {
+                                data[i]["addItem"] = [JSON.parse(JSON.stringify(data[i])), JSON.parse(JSON.stringify(data[j]))];
+                                delete data[i]["entryLbls"];
+                            }
+
                             if (Number(targetLoc[0]) < Number(compareLoc[0])) {
                                 data[i]["text"] += data[j]["text"];
                                 data[i]["location"] = targetLoc[0] + ',' + targetLoc[1]
@@ -747,7 +768,7 @@ function addEntryTextOfSingleLabel(data, done) {
                                 data[i]["location"] = compareLoc[0] + ',' + compareLoc[1]
                                     + ',' + (Number(targetLoc[0]) + Number(targetLoc[2]) - Number(compareLoc[0]))
                                     + ',' + ((Number(targetLoc[3]) > Number(compareLoc[3])) ? targetLoc[3] : compareLoc[3])
-                            }
+                            }          
                             data.splice(j, 1);
                             i--;
                         }
@@ -852,7 +873,7 @@ function predictionColumn(docCategory, targetData, dbRowData, type) {
             leftXLoc -= mapJson['default']['LU'][type].left;
     }
     var isLUCheck = (leftXLoc <= tgXLoc && tgXLoc <= rightXLoc) && (upYLoc <= tgYLoc && tgYLoc <= downYLoc);
-
+    if (targetData["text"] == "22분도") console.log(isLUCheck);
     // 우하단 좌표를 기준으로 영역 계산
     var tgXLoc = Number(loc[0]) + Number(loc[2]), tgYLoc = Number(loc[1]) + Number(loc[3]);
     var dbXLoc = (type == 'L') ? Number(dbRowData.LOCATION_X.split(",")[0]) + Number(dbRowData.LOCATION_X.split(",")[1]) : Number(dbRowData.OCR_TEXT_X.split(",")[0]) + Number(dbRowData.OCR_TEXT_X.split(",")[1]);
@@ -872,7 +893,7 @@ function predictionColumn(docCategory, targetData, dbRowData, type) {
             leftXLoc -= mapJson['default']['RD'][type].left;
     }
     var isRDCheck = (leftXLoc <= tgXLoc && tgXLoc <= rightXLoc) && (upYLoc <= tgYLoc && tgYLoc <= downYLoc);
-
+    if (targetData["text"] == "22분도") console.log(isRDCheck);
     return (isLUCheck || isRDCheck) ? true : false;
 }
 
