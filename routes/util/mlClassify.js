@@ -250,6 +250,9 @@ function findEntry(req, docTypeVal, docTopTypeVal, done) {
                             minDis = tragetDis;
                             req.data[j]["entryLbl"] = entryItem.CLASS;
                             req.data[j]["amount"] = entryItem.AMOUNT;
+                            if (entryItem.AMOUNT == "multi") {
+                                req.data[j]["first"] = "Y";
+                            }
                             delete req.data[j]["colLbl"];
                         }
                     }
@@ -260,7 +263,7 @@ function findEntry(req, docTypeVal, docTopTypeVal, done) {
             var diffHeight = 200;
             for (var j in req.data) {
                 var amount = req.data[j]["amount"];
-                if(typeof amount != "undefined" && amount == "multi") {
+                if(typeof amount != "undefined" && amount == "multi" && typeof req.data[j]["first"] != "undefined" && req.data[j]["first"] == "Y") {
                     //console.log(req.data[j]);
                     var firstEntry = req.data[j];
                     var preEntryHeight = req.data[j];
