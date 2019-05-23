@@ -873,7 +873,7 @@ function predictionColumn(docCategory, targetData, dbRowData, type) {
             leftXLoc -= mapJson['default']['LU'][type].left;
     }
     var isLUCheck = (leftXLoc <= tgXLoc && tgXLoc <= rightXLoc) && (upYLoc <= tgYLoc && tgYLoc <= downYLoc);
-    if (targetData["text"] == "22분도") console.log(isLUCheck);
+
     // 우하단 좌표를 기준으로 영역 계산
     var tgXLoc = Number(loc[0]) + Number(loc[2]), tgYLoc = Number(loc[1]) + Number(loc[3]);
     var dbXLoc = (type == 'L') ? Number(dbRowData.LOCATION_X.split(",")[0]) + Number(dbRowData.LOCATION_X.split(",")[1]) : Number(dbRowData.OCR_TEXT_X.split(",")[0]) + Number(dbRowData.OCR_TEXT_X.split(",")[1]);
@@ -893,7 +893,7 @@ function predictionColumn(docCategory, targetData, dbRowData, type) {
             leftXLoc -= mapJson['default']['RD'][type].left;
     }
     var isRDCheck = (leftXLoc <= tgXLoc && tgXLoc <= rightXLoc) && (upYLoc <= tgYLoc && tgYLoc <= downYLoc);
-    if (targetData["text"] == "22분도") console.log(isRDCheck);
+
     return (isLUCheck || isRDCheck) ? true : false;
 }
 
