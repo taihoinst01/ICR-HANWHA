@@ -732,7 +732,6 @@ function addEntryTextOfSingleLabel(data, done) {
                             // 붙여진 text 정보를 확인하기 위한 용도 (텍스트가 붙여지면 entryLbls로는 확인이 어려움)
                             if (data[i]["addItem"]) {
                                 data[i]["addItem"].push(JSON.parse(JSON.stringify(data[j])));
-                                delete data[j]["entryLbls"];
                             } else {
                                 data[i]["addItem"] = [JSON.parse(JSON.stringify(data[i])), JSON.parse(JSON.stringify(data[j]))];
                                 delete data[i]["entryLbls"];
@@ -752,7 +751,6 @@ function addEntryTextOfSingleLabel(data, done) {
 
                             if (data[i]["addItem"]) {
                                 data[i]["addItem"].push(JSON.parse(JSON.stringify(data[j])));
-                                delete data[j]["entryLbls"];
                             } else {
                                 data[i]["addItem"] = [JSON.parse(JSON.stringify(data[i])), JSON.parse(JSON.stringify(data[j]))];
                                 delete data[i]["entryLbls"];
