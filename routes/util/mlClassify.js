@@ -801,8 +801,14 @@ function multiEntryCheck(firstEntry, entry) {
     var firstLoc = firstEntry['location'].split(',');
     var entryLoc = entry['location'].split(',');
 
-    if (verticalCheck(firstLoc, entryLoc, 100, -100) && locationCheck(firstLoc[1], entryLoc[1], 0, -2000)) {
-        check = true;
+    if (firstEntry['entryLbl'] == "504") {
+        if (verticalCheck(firstLoc, entryLoc, 200, -300) && locationCheck(firstLoc[1], entryLoc[1], 0, -2000)) {
+            check = true;
+        }
+    } else {
+        if (verticalCheck(firstLoc, entryLoc, 100, -100) && locationCheck(firstLoc[1], entryLoc[1], 0, -2000)) {
+            check = true;
+        }
     }
 
     return check;
