@@ -728,7 +728,7 @@ function addEntryTextOfSingleLabel(data, done) {
                         var targetLoc = data[i]["location"].split(',');
                         var compareLoc = data[j]["location"].split(',');
                         if ((data[i]["entryLbl"] == "769" || data[i]["entryLbl"] == "773") &&
-                            (Number(targetLoc[1]) + Number(targetLoc[3])) < Number(compareLoc[1])) { // 콘크리트종류 or 시멘트 종류
+                            (Number(compareLoc[1]) - Number(targetLoc[1])) > 30) { // 콘크리트종류 or 시멘트 종류
                             // 붙여진 text 정보를 확인하기 위한 용도 (텍스트가 붙여지면 entryLbls로는 확인이 어려움)
                             if (data[i]["addItem"]) {
                                 data[i]["addItem"].push(JSON.parse(JSON.stringify(data[j])));
@@ -738,7 +738,7 @@ function addEntryTextOfSingleLabel(data, done) {
                             }
 
                             // 텍스트와 위치 데이터 가공
-                            data[i]["text"] = data[j]["text"] + data[i]["text"];
+                            data[i]["text"] = data[i]["text"] + data[j]["text"];
                             data[i]["location"] = targetLoc[0] + ',' + targetLoc[1]
                                 + ',' + (compareLoc[2])
                                 + ',' + (Number(targetLoc[3]) + Number(compareLoc[3]) + (Number(compareLoc[1]) - (Number(targetLoc[1]) + Number(targetLoc[3]))))                            
