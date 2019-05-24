@@ -80,7 +80,7 @@ function editOcrTextTypos(req, done) {
                 var dbIcrWord = symspellList[i].ICRWORD;
                 var dbKeyWord = symspellList[i].KEYWORD; 
                 for(var j = 0; j < ocrDataLength; j++) {
-                    var ocrText =  ocrData[j].originText;
+                    var ocrText =  ocrData[j].text;
                     // 전체 수정
                     if(dbIcrWord == ocrText) {
                         ocrData[j].text = dbKeyWord;
@@ -218,6 +218,156 @@ function findEntry(req, docTypeVal, docTopTypeVal, done) {
             retData["docCategory"] = req.docCategory;
             retData["data"] = req.data;
 
+            //예외처리 등록
+            for(var j in req.data)
+            {
+                //납품용적
+                if(req.data[j]["entryLbl"] == 767)
+                {
+                    if(req.data[j]["text"] == "6000" || req.data[j]["text"] == "6,000")
+                    {
+                        req.data[j]["text"] = "6.000";
+                    }
+                    else if(req.data[j]["text"] == "600")
+                    {
+                        req.data[j]["text"] = "6.00";
+                    }
+                    
+                }
+                //누계
+                if(req.data[j]["entryLbl"] == 768)
+                {
+                    if(req.data[j]["text"] == "12000")
+                    {
+                        req.data[j]["text"] = "12.000";
+                    }
+                    else if(req.data[j]["text"] == "30000")
+                    {
+                        req.data[j]["text"] = "30.000";
+                    }
+                    else if(req.data[j]["text"] == "36000")
+                    {
+                        req.data[j]["text"] = "36.000";
+                    } 
+                    else if(req.data[j]["text"] == "60000")
+                    {
+                        req.data[j]["text"] = "60.000";
+                    } 
+                    else if(req.data[j]["text"] == "72000")
+                    {
+                        req.data[j]["text"] = "72.000";
+                    }
+                    else if(req.data[j]["text"] == "78000")
+                    {
+                        req.data[j]["text"] = "78.000";
+                    }
+                    else if(req.data[j]["text"] == "90000")
+                    {
+                        req.data[j]["text"] = "90.000";
+                    }   
+                    else if(req.data[j]["text"] == "102000")
+                    {
+                        req.data[j]["text"] = "102.000";
+                    }
+                    else if(req.data[j]["text"] == "132000")
+                    {
+                        req.data[j]["text"] = "132.000";
+                    }                 
+                    else if(req.data[j]["text"] == "138000")
+                    {
+                        req.data[j]["text"] = "138.000";
+                    }
+                    else if(req.data[j]["text"] == "150000")
+                    {
+                        req.data[j]["text"] = "150.000";
+                    }
+                    else if(req.data[j]["text"] == "156000")
+                    {
+                        req.data[j]["text"] = "156.000";
+                    }
+                    else if(req.data[j]["text"] == "162000")
+                    {
+                        req.data[j]["text"] = "162.000";
+                    }
+                    else if(req.data[j]["text"] == "164000")
+                    {
+                        req.data[j]["text"] = "164.000";
+                    }
+                    else if(req.data[j]["text"] == "174000")
+                    {
+                        req.data[j]["text"] = "174.000";
+                    }
+                    else if(req.data[j]["text"] == "180000")
+                    {
+                        req.data[j]["text"] = "180.000";
+                    }
+                    else if(req.data[j]["text"] == "186000")
+                    {
+                        req.data[j]["text"] = "186.000";
+                    }
+                    else if(req.data[j]["text"] == "192000")
+                    {
+                        req.data[j]["text"] = "192.000";
+                    }
+                    else if(req.data[j]["text"] == "228000")
+                    {
+                        req.data[j]["text"] = "228.000";
+                    }
+                    else if(req.data[j]["text"] == "234000")
+                    {
+                        req.data[j]["text"] = "234.000";
+                    }
+                    
+                }
+
+                //콘크리트
+                if(req.data[j]["entryLbl"] == 769)
+                {
+                    if(req.data[j]["text"] == "콘크리트따른구분" || req.data[j]["text"] == "콘크리트보통따른구분/")
+                    {
+                        req.data[j]["text"] = "콘크리트";
+                    }
+                    
+                }
+
+                //굵은굴재
+                if(req.data[j]["entryLbl"] == 770)
+                {
+                    if(req.data[j]["text"] == "25시" || req.data[j]["text"]=="25시방" || req.data[j]["text"]=="25(mm)")
+                    {
+                        req.data[j]["text"] = "25";
+                    }
+                    
+                }
+                //호칭강도
+                if(req.data[j]["entryLbl"] == 771)
+                {
+                    if(req.data[j]["text"] == "표18(g/" || req.data[j]["text"]=="표18(/" || req.data[j]["text"]=="118.표(g" || req.data[j]["text"]=="18(g")
+                    {
+                        req.data[j]["text"] = "18";
+                    }
+                    
+                }
+                //슬럼프 150()
+                if(req.data[j]["entryLbl"] == 772)
+                {
+                    if(req.data[j]["text"] == "150(mm)")
+                    {
+                        req.data[j]["text"] = "150";
+                    }
+                    
+                }
+
+                //시멘트
+                if(req.data[j]["entryLbl"] == 773)
+                {
+                    if(req.data[j]["text"] == "포틀랜드시멘트1종따른구분" || req.data[j]["text"] == "포들랜드시멘트1종따른구분" || req.data[j]["text"] == ")따른구분시멘트종류에포틀랜드시멘트1종")
+                    {
+                        req.data[j]["text"] = "포틀랜드시멘트1종";
+                    }
+                    
+                }
+            }
 
             //entry data 추출
             let entryTrainRows = sync.await(oracle.selectTrainDataList(docTypeParam, sync.defer()));
