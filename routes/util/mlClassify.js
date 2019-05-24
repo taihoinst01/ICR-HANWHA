@@ -216,7 +216,68 @@ function findEntry(req, docTypeVal, docTopTypeVal, done) {
                 }
             }
             retData["docCategory"] = req.docCategory;
-            retData["data"] = req.data;
+            retData["data"] = req.data;            
+
+            //entry data 추출
+            let entryTrainRows = sync.await(oracle.selectTrainDataList(docTypeParam, sync.defer()));
+            
+            for(var j in req.data) {
+                for (var k in entryTrainRows) {
+                    if (entryTrainRows[k].CLASS != "760" && entryTrainRows[k].CLASS != "761" && entryTrainRows[k].CLASS != "502") {
+						if (predictionColumn(req.docCategory, req.data[j], entryTrainRows[k], 'E') && isValid(labelRows, entryTrainRows[k].CLASS, req.data[j]["text"])) {
+							if (!req.data[j]["entryLbls"]) {
+								req.data[j]["entryLbls"] = [entryTrainRows[k]];
+							} else {
+								req.data[j]["entryLbls"].push(entryTrainRows[k]);
+							}
+							//req.data[j]["entryLbl"] = entryTrainRows[k].CLASS;
+
+							//break;
+						}
+					}
+                }
+                var minDis = 10000;
+                if (req.data[j]["entryLbls"]) {
+                    for (var k in req.data[j]["entryLbls"]) {
+                        var entryItem = req.data[j]["entryLbls"][k];
+                        var targetLoc = req.data[j].location.split(',');
+                        var entryLoc = [entryItem.OCR_TEXT_X.split(',')[0], entryItem.OCR_TEXT_Y.split(',')[0], entryItem.OCR_TEXT_X.split(',')[1], entryItem.OCR_TEXT_Y.split(',')[1]];
+                        var dx = Math.abs((targetLoc[0]) - (entryLoc[0]));
+                        var dy = Math.abs((targetLoc[1]) - (entryLoc[1]));
+                        var tragetDis = Math.sqrt((dx * dx) + (dy * dy));
+                        if (tragetDis < minDis) {
+                            minDis = tragetDis;
+                            req.data[j]["entryLbl"] = entryItem.CLASS;
+                            req.data[j]["amount"] = entryItem.AMOUNT;
+                            if (entryItem.AMOUNT == "multi") {
+                                req.data[j]["first"] = "Y";
+                            }
+                            delete req.data[j]["colLbl"];
+                        }
+                    }
+                }
+            }         
+            
+            //Multy entry search
+            var diffHeight = 200;
+            for (var j in req.data) {
+                var amount = req.data[j]["amount"];
+                if(typeof amount != "undefined" && amount == "multi" && typeof req.data[j]["first"] != "undefined" && req.data[j]["first"] == "Y") {
+                    //console.log(req.data[j]);
+                    var firstEntry = req.data[j];
+                    var preEntryHeight = req.data[j];
+                    for (var k in req.data) {
+                        if (multiEntryCheck(firstEntry, req.data[k]) && entryHeightCheck(preEntryHeight, req.data[k], diffHeight)) {
+                            req.data[k]['entryLbl'] = firstEntry['entryLbl'];
+                            req.data[k]["amount"] = firstEntry['amount'];
+                            preEntryHeight = req.data[k];
+                        }
+                    }
+                }
+            }
+            
+            // Add single entry text
+            req.data = sync.await(addEntryTextOfLabel(req.data, sync.defer()));        
 
             //예외처리 등록
             for(var j in req.data)
@@ -323,9 +384,9 @@ function findEntry(req, docTypeVal, docTopTypeVal, done) {
                 //콘크리트
                 if(req.data[j]["entryLbl"] == 769)
                 {
-                    if(req.data[j]["text"] == "콘크리트따른구분" || req.data[j]["text"] == "콘크리트보통따른구분/")
+                    if(req.data[j]["text"] == "콘크리트따른구분" || req.data[j]["text"] == "콘크리트보통따른구분/" || req.data[j]["text"] == "따른구분/보통콘크리트" || req.data[j]["text"] == "따른구분콘크리트" || req.data[j]["text"] == "따른구분보통콘크리트" )
                     {
-                        req.data[j]["text"] = "콘크리트";
+                        req.data[j]["text"] = "보통콘크리트";
                     }
                     
                 }
@@ -361,7 +422,7 @@ function findEntry(req, docTypeVal, docTopTypeVal, done) {
                 //시멘트
                 if(req.data[j]["entryLbl"] == 773)
                 {
-                    if(req.data[j]["text"] == "포틀랜드시멘트1종따른구분" || req.data[j]["text"] == "포들랜드시멘트1종따른구분" || req.data[j]["text"] == ")따른구분시멘트종류에포틀랜드시멘트1종")
+                    if(req.data[j]["text"] == "포틀랜드시멘트1종따른구분" || req.data[j]["text"] == "포들랜드시멘트1종따른구분" || req.data[j]["text"] == ")따른구분시멘트종류에포틀랜드시멘트1종" || req.data[j]["text"] == "시멘트종류에따른구분)포틀랜드시멘트1종" || req.data[j]["text"] == "따른구분포틀랜드시멘트종" )
                     {
                         req.data[j]["text"] = "포틀랜드시멘트1종";
                     }
@@ -369,67 +430,6 @@ function findEntry(req, docTypeVal, docTopTypeVal, done) {
                 }
             }
 
-            //entry data 추출
-            let entryTrainRows = sync.await(oracle.selectTrainDataList(docTypeParam, sync.defer()));
-            
-            for(var j in req.data) {
-                for (var k in entryTrainRows) {
-                    if (entryTrainRows[k].CLASS != "760" && entryTrainRows[k].CLASS != "761" && entryTrainRows[k].CLASS != "502") {
-						if (predictionColumn(req.docCategory, req.data[j], entryTrainRows[k], 'E') && isValid(labelRows, entryTrainRows[k].CLASS, req.data[j]["text"])) {
-							if (!req.data[j]["entryLbls"]) {
-								req.data[j]["entryLbls"] = [entryTrainRows[k]];
-							} else {
-								req.data[j]["entryLbls"].push(entryTrainRows[k]);
-							}
-							//req.data[j]["entryLbl"] = entryTrainRows[k].CLASS;
-
-							//break;
-						}
-					}
-                }
-                var minDis = 10000;
-                if (req.data[j]["entryLbls"]) {
-                    for (var k in req.data[j]["entryLbls"]) {
-                        var entryItem = req.data[j]["entryLbls"][k];
-                        var targetLoc = req.data[j].location.split(',');
-                        var entryLoc = [entryItem.OCR_TEXT_X.split(',')[0], entryItem.OCR_TEXT_Y.split(',')[0], entryItem.OCR_TEXT_X.split(',')[1], entryItem.OCR_TEXT_Y.split(',')[1]];
-                        var dx = Math.abs((targetLoc[0]) - (entryLoc[0]));
-                        var dy = Math.abs((targetLoc[1]) - (entryLoc[1]));
-                        var tragetDis = Math.sqrt((dx * dx) + (dy * dy));
-                        if (tragetDis < minDis) {
-                            minDis = tragetDis;
-                            req.data[j]["entryLbl"] = entryItem.CLASS;
-                            req.data[j]["amount"] = entryItem.AMOUNT;
-                            if (entryItem.AMOUNT == "multi") {
-                                req.data[j]["first"] = "Y";
-                            }
-                            delete req.data[j]["colLbl"];
-                        }
-                    }
-                }
-            }         
-            
-            //Multy entry search
-            var diffHeight = 200;
-            for (var j in req.data) {
-                var amount = req.data[j]["amount"];
-                if(typeof amount != "undefined" && amount == "multi" && typeof req.data[j]["first"] != "undefined" && req.data[j]["first"] == "Y") {
-                    //console.log(req.data[j]);
-                    var firstEntry = req.data[j];
-                    var preEntryHeight = req.data[j];
-                    for (var k in req.data) {
-                        if (multiEntryCheck(firstEntry, req.data[k]) && entryHeightCheck(preEntryHeight, req.data[k], diffHeight)) {
-                            req.data[k]['entryLbl'] = firstEntry['entryLbl'];
-                            req.data[k]["amount"] = firstEntry['amount'];
-                            preEntryHeight = req.data[k];
-                        }
-                    }
-                }
-            }
-
-            // Add single entry text
-            req.data = sync.await(addEntryTextOfLabel(req.data, sync.defer()));          
-                
             retData["docCategory"] = req.docCategory;
             retData["data"] = req.data;
 
