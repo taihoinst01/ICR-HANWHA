@@ -991,9 +991,9 @@ function detailTable(fileName) {
                     tblTag += '<dl>';
                     tblTag += '<dt onclick="zoomImg(this,' + "'" + fileName + "'" + ')">';
                     if (data[i].originText) {
-                        tblTag += '<label for="langDiv' + i + '" class="" title="Accuracy : 95% &lt;/p&gt;&lt;p&gt; Ocr text : ' + data[i].originText + '" style="width:100%;">';
+                        tblTag += '<label style="width:100%;">';
                     } else {
-                        tblTag += '<label for="langDiv' + i + '" class="" title="Accuracy : 95% &nbsp;&nbsp;" style="width:100%;">';
+                        tblTag += '<label style="width:100%;">';
                     }
                     tblTag += '<input type="text" value="' + data[i].text + '" style="width:100% !important; border:0;" />';
                     tblTag += '<input type="hidden" value="' + data[i].location + '" />';
@@ -1014,9 +1014,9 @@ function detailTable(fileName) {
                     tblSortTag += '<dl>';
                     tblSortTag += '<dt onclick="zoomImg(this,' + "'" + fileName + "'" + ')">';
                     if (data[i].originText) {
-                        tblSortTag += '<label for="langDiv' + i + '" class="" title="Accuracy : 95% &lt;/p&gt;&lt;p&gt; Ocr text : ' + data[i].originText + '" style="width:100%;">';
+                        tblSortTag += '<label style="width:100%;">';
                     } else {
-                        tblSortTag += '<label for="langDiv' + i + '" class="" title="Accuracy : 95% &nbsp;&nbsp;" style="width:100%;">';
+                        tblSortTag += '<label style="width:100%;">';
                     }
                     tblSortTag += '<input type="text" value="' + data[i].text + '" style="100% !important; border:0;" />';
                     tblSortTag += '<input type="hidden" value="' + data[i].location + '" />';
@@ -1037,9 +1037,9 @@ function detailTable(fileName) {
                     tblTag += '<dl>';
                     tblTag += '<dt onclick="zoomImg(this,' + "'" + fileName + "'" + ')">';
                     if (data[i].originText) {
-                        tblTag += '<label for="langDiv' + i + '" class="" title="Accuracy : 95% &lt;/p&gt;&lt;p&gt; Ocr text : ' + data[i].originText + '" style="width:100%;">';
+                        tblTag += '<label style="width:100%;">';
                     } else {
-                        tblTag += '<label for="langDiv' + i + '" class="" title="Accuracy : 95% &nbsp;&nbsp;" style="width:100%;">';
+                        tblTag += '<label style="width:100%;">';
                     }
                     tblTag += '<input type="text" value="' + data[i].text + '" style="100% !important; border:0;" />';
                     tblTag += '<input type="hidden" value="' + data[i].location + '" />';
@@ -2360,7 +2360,7 @@ function uiLayerHtml(data) {
             if (mlData[i].entryLbl > 0) {
                 tblTag += '<dl>';
                 tblTag += '<dt onclick="zoomImg(this,' + "'" + filePath + "'" + ')">';
-                tblTag += '<label for="langDiv' + i + '" class="tip" title="Accuracy : 95%" style="width:100%;">';
+                tblTag += '<label style="width:100%;">';
                 tblTag += '<input type="text" value="' + mlData[i].text + '" style="width:100%; border:0;" />';
                 tblTag += '<input type="hidden" value="' + mlData[i].location + '" />';
                 tblTag += '<input type="hidden" value="' + filePath + '" />';
@@ -2381,7 +2381,7 @@ function uiLayerHtml(data) {
             } else if (mlData[i].colLbl > 0) {
                 tblSortTag += '<dl>';
                 tblSortTag += '<dt onclick="zoomImg(this,' + "'" + filePath + "'" + ')">';
-                tblSortTag += '<label for="langDiv' + i + '" class="tip" title="Accuracy : 95%" style="width:100%;">';
+                tblSortTag += '<label style="width:100%;">';
                 tblSortTag += '<input type="text" value="' + mlData[i].text + '" style="width:100%; border:0;" />';
                 tblSortTag += '<input type="hidden" value="' + mlData[i].location + '" />';
                 tblSortTag += '<input type="hidden" value="' + filePath + '" />';
@@ -2402,7 +2402,7 @@ function uiLayerHtml(data) {
             } else {
                 tblSortTag += '<dl>';
                 tblSortTag += '<dt onclick="zoomImg(this,' + "'" + filePath + "'" + ')">';
-                tblSortTag += '<label for="langDiv' + i + '" class="tip" title="Accuracy : 95%" style="width:100%;">';
+                tblSortTag += '<label style="width:100%;">';
                 tblSortTag += '<input type="text" value="' + mlData[i].text + '" style="width:100%; border:0;" />';
                 tblSortTag += '<input type="hidden" value="' + mlData[i].location + '" />';
                 tblSortTag += '<input type="hidden" value="' + filePath + '" />';
