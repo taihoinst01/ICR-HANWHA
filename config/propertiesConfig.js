@@ -57,7 +57,7 @@ var propertiesConfig = {
         port: 21,
         user: 'daerimicr',
         password: 'daerimicr123!@#',
-        keepalive: 10000
+        //keepalive: 10000
     }
 };
 
