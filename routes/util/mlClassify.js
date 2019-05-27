@@ -285,100 +285,77 @@ function findEntry(req, docTypeVal, docTopTypeVal, done) {
                 //납품용적
                 if(req.data[j]["entryLbl"] == 767)
                 {
-                    if(req.data[j]["text"] == "6000" || req.data[j]["text"] == "6,000")
+                    if(req.data[j]["text"].indexOf(",") !== -1)
                     {
-                        req.data[j]["text"] = "6.000";
+                        req.data[j]["text"] = req.data[j]["text"].replace(",","");
                     }
-                    else if(req.data[j]["text"] == "600")
+
+                    if(req.data[j]["text"].indexOf(".") == -1)
                     {
-                        req.data[j]["text"] = "6.00";
+                        if(req.data[j]["text"].substring(req.data[j]["text"].length-3) == "000")
+                        {
+                            req.data[j]["text"] = req.data[j]["text"].substring(0, req.data[j]["text"].length-3) + "."+req.data[j]["text"].substring(req.data[j]["text"].length, req.data[j]["text"].length-3);
+                        }
+                        else if(req.data[j]["text"].substring(req.data[j]["text"].length-2) == "00")
+                        {
+                            req.data[j]["text"] = req.data[j]["text"].substring(0, req.data[j]["text"].length-2) + "."+req.data[j]["text"].substring(req.data[j]["text"].length, req.data[j]["text"].length-2);
+                        }
+                    }
+                }
+
+                //납품출발시간
+                if(req.data[j]["entryLbl"] == 766)
+                {
+                    if(req.data[j]["text"].indexOf("도") !== -1)
+                    {
+                        req.data[j]["text"] = req.data[j]["text"].replace("도","");
+                    }
+
+                    if(req.data[j]["text"].replace( /[ㄱ-ㅎ|ㅏ-ㅣ|가-힣]/g,"").length == 4)
+                    {
+                        req.data[j]["text"] = req.data[j]["text"].replace( /[ㄱ-ㅎ|ㅏ-ㅣ|가-힣]/g,"");
+                        req.data[j]["text"] = req.data[j]["text"].substring(0,2) + "시" + req.data[j]["text"].substring(2) + "분";
+                    }
+                }
+
+                // 운반차순서
+                if(req.data[j]["entryLbl"] == 792)
+                {
+                    
+                    if(req.data[j]["text"].indexOf(".")!== -1)
+                    {
+                        req.data[j]["text"] = req.data[j]["text"].replace(".","");
+                    }
+                    if(req.data[j]["text"].indexOf("시")!== -1)
+                    {
+                        req.data[j]["text"] = req.data[j]["text"].replace("시","");
+                    }
+                    if(req.data[j]["text"].toLowerCase().indexOf("no") !== -1)
+                    {
+                        req.data[j]["text"] = req.data[j]["text"].toLowerCase().replace("no","");
                     }
                     
                 }
+
                 //누계
                 if(req.data[j]["entryLbl"] == 768)
                 {
-                    if(req.data[j]["text"] == "12000")
+                    if(req.data[j]["text"].indexOf(",") !== -1)
                     {
-                        req.data[j]["text"] = "12.000";
+                        req.data[j]["text"] = req.data[j]["text"].replace(",","");
                     }
-                    else if(req.data[j]["text"] == "30000")
+
+                    if(req.data[j]["text"].indexOf(".") == -1)
                     {
-                        req.data[j]["text"] = "30.000";
+                        if(req.data[j]["text"].substring(req.data[j]["text"].length-3) == "000")
+                        {
+                            req.data[j]["text"] = req.data[j]["text"].substring(0, req.data[j]["text"].length-3) + "."+req.data[j]["text"].substring(req.data[j]["text"].length, req.data[j]["text"].length-3);
+                        }
+                        else if(req.data[j]["text"].substring(req.data[j]["text"].length-2) == "00")
+                        {
+                            req.data[j]["text"] = req.data[j]["text"].substring(0, req.data[j]["text"].length-2) + "."+req.data[j]["text"].substring(req.data[j]["text"].length, req.data[j]["text"].length-2);
+                        }
                     }
-                    else if(req.data[j]["text"] == "36000")
-                    {
-                        req.data[j]["text"] = "36.000";
-                    } 
-                    else if(req.data[j]["text"] == "60000")
-                    {
-                        req.data[j]["text"] = "60.000";
-                    } 
-                    else if(req.data[j]["text"] == "72000")
-                    {
-                        req.data[j]["text"] = "72.000";
-                    }
-                    else if(req.data[j]["text"] == "78000")
-                    {
-                        req.data[j]["text"] = "78.000";
-                    }
-                    else if(req.data[j]["text"] == "90000")
-                    {
-                        req.data[j]["text"] = "90.000";
-                    }   
-                    else if(req.data[j]["text"] == "102000")
-                    {
-                        req.data[j]["text"] = "102.000";
-                    }
-                    else if(req.data[j]["text"] == "132000")
-                    {
-                        req.data[j]["text"] = "132.000";
-                    }                 
-                    else if(req.data[j]["text"] == "138000")
-                    {
-                        req.data[j]["text"] = "138.000";
-                    }
-                    else if(req.data[j]["text"] == "150000")
-                    {
-                        req.data[j]["text"] = "150.000";
-                    }
-                    else if(req.data[j]["text"] == "156000")
-                    {
-                        req.data[j]["text"] = "156.000";
-                    }
-                    else if(req.data[j]["text"] == "162000")
-                    {
-                        req.data[j]["text"] = "162.000";
-                    }
-                    else if(req.data[j]["text"] == "164000")
-                    {
-                        req.data[j]["text"] = "164.000";
-                    }
-                    else if(req.data[j]["text"] == "174000")
-                    {
-                        req.data[j]["text"] = "174.000";
-                    }
-                    else if(req.data[j]["text"] == "180000")
-                    {
-                        req.data[j]["text"] = "180.000";
-                    }
-                    else if(req.data[j]["text"] == "186000")
-                    {
-                        req.data[j]["text"] = "186.000";
-                    }
-                    else if(req.data[j]["text"] == "192000")
-                    {
-                        req.data[j]["text"] = "192.000";
-                    }
-                    else if(req.data[j]["text"] == "228000")
-                    {
-                        req.data[j]["text"] = "228.000";
-                    }
-                    else if(req.data[j]["text"] == "234000")
-                    {
-                        req.data[j]["text"] = "234.000";
-                    }
-                    
                 }
 
                 //콘크리트
@@ -394,9 +371,13 @@ function findEntry(req, docTypeVal, docTopTypeVal, done) {
                 //굵은굴재
                 if(req.data[j]["entryLbl"] == 770)
                 {
-                    if(req.data[j]["text"] == "25시" || req.data[j]["text"]=="25시방" || req.data[j]["text"]=="25(mm)")
+                    if((req.data[j]["text"].indexOf("시")!== -1) || (req.data[j]["text"].indexOf("시방")!== -1))
                     {
-                        req.data[j]["text"] = "25";
+                        req.data[j]["text"] = req.data[j]["text"].replace( /[ㄱ-ㅎ|ㅏ-ㅣ|가-힣]/g,"");
+                    }
+                    if(req.data[j]["text"].indexOf("mm") !== -1)
+                    {
+                        req.data[j]["text"] = req.data[j]["text"].replace("mm","");
                     }
                     
                 }
@@ -412,11 +393,10 @@ function findEntry(req, docTypeVal, docTopTypeVal, done) {
                 //슬럼프 150()
                 if(req.data[j]["entryLbl"] == 772)
                 {
-                    if(req.data[j]["text"] == "150(mm)")
+                    if(req.data[j]["text"].indexOf("mm") !== -1)
                     {
-                        req.data[j]["text"] = "150";
+                        req.data[j]["text"] = req.data[j]["text"].replace("mm","");
                     }
-                    
                 }
 
                 //시멘트
@@ -426,7 +406,6 @@ function findEntry(req, docTypeVal, docTopTypeVal, done) {
                     {
                         req.data[j]["text"] = "포틀랜드시멘트1종";
                     }
-                    
                 }
             }
 
