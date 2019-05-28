@@ -388,6 +388,11 @@ function findEntry(req, docTypeVal, docTopTypeVal, done) {
                     {
                         req.data[j]["text"] = "18";
                     }
+
+                    if(req.data[103]["text"].substring(req.data[103]["text"].length-1) == ".")
+                    {
+                        req.data[j]["text"] = req.data[j]["text"].substring(0,req.data[j]["text"].length-1 );
+                    }
                     
                 }
                 //슬럼프 150()
