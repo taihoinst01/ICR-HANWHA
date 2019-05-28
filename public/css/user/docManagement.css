@@ -170,3 +170,8 @@ input[name="searchStartDate"], input[name="searchEndDate"] {
     margin-right: 10px;
     color: #EA7169;
 }
+
+#paging {
+    text-align: center;
+    margin-top: 5px;
+}

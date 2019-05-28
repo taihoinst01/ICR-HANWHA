@@ -128,9 +128,13 @@ function selectBatchPoMlExport(params, isInit) {
             if (!isInit) progressId = showProgressBar();
         },
         success: function (data) {
-            console.log(data);
+            //console.log(data);
             appendDocTableHeader(data.docLabelList);
+            checkAllBoxClick();
             appendMLData(data.docDataList);
+            $('#paging').html(appendPaging((params.pagingCount) ? params.pagingCount : 1, data.totCount));
+            btnPagingClick();
+            checkBoxClick();
             endProgressBar(progressId);
         },
         error: function (err) {
@@ -217,7 +221,7 @@ function openImagePop(fileName) {
     return false;
 }
 
-//재학습 버튼 click 이벤트
+// 재학습 버튼 click 이벤트
 function btnRetrainClick() {
     $('#btn_retrain').click(function () {
         if ($('input[name="listCheck"]:checked').length == 1) {
@@ -230,9 +234,84 @@ function btnRetrainClick() {
     });
 }
 
+// All체크박스 선택시 row 배경색처리
+function checkAllBoxClick() {
+    $('#listCheckAll').click(function () {
+        if ($(this).is(":checked")) {
+            $('.originalTr').css('background-color', '#EA7169');
+        } else {
+            $('.originalTr').css('background-color', '');
+        }
+    });
+}
+
+// 체크박스 선택시 row 배경색처리
+function checkBoxClick() {
+    $('input[name="listCheck"]').click(function () {
+        if ($(this).is(":checked")) {
+            $(this).closest('tr').css('background-color', '#EA7169');
+        } else {
+            $(this).closest('tr').css('background-color', '');
+        }
+    });
+}
+
 // 전송 버튼 click 이벤트
 function btnSendClick() {
     $('#btn_send').click(function () {
 
     });
+}
+
+// 페이징 번호 click 이벤트
+function btnPagingClick() {
+    $('.li_paging > a').click(function () {
+        var docTopType = $('#docTopTypeSelect').val();
+        var startDate = $('#searchStartDate').val();
+        var endDate = $('#searchEndDate').val();
+        var processState = $('#processStateSelect').val();
+        var pagingCount = $(this).closest('.li_paging').val();
+
+        var params = {
+            'docTopType': docTopType,
+            'startDate': startDate,
+            'endDate': endDate,
+            'processState': processState,
+            'pagingCount': pagingCount
+        };
+        selectBatchPoMlExport(params, false);
+    });
+}
+
+// 페이징처리 html 렌더링
+function appendPaging(curPage, totalCount) {
+    var paging_result = '';
+    var maxPageInSet = 10, // 페이지 카운트 갯수
+        maxEntityInPage = 30, // 한 페이지당 컨텐츠 수
+        totalPage = Math.ceil(totalCount / maxEntityInPage), // 전체 페이지수
+        totalSet = Math.ceil(totalPage / maxPageInSet), // 전체 세트수
+        curSet = Math.ceil(curPage / maxPageInSet), // 현재 세트번호
+        startPage = ((curSet - 1) * maxPageInSet) + 1, // 현재 세트내 출력될 시작 페이지
+        endPage = (startPage + maxPageInSet) - 1; // 현재 세트내 출력될 마지막 페이지
+
+    paging_result += '<ul class="pagination pagination-sm no-margin ">';
+    //paging_result += '<li><a href="#"><i class="fa fa-angle-double-left"></i></a></li>';
+    //paging_result += '<li><a href="#"><i class="fa fa-angle-left"></i></a></li>';
+    /** 1개 세트내 Previous 페이지 출력여부 설정(PreviousPage=StartPage-1) **/
+    if (curSet > 1) {
+        paging_result += '<li class="li_paging" value="' + (startPage - 1) + '"><a href="#" onclick="return false;"><i class="fa fa-angle-left"></i></a></li>';
+    }
+    /** 1개 세트내 페이지 출력여부 설정(페이지 순환하면서 요청페이지와 같을 경우 해당 페이지 비활성화 처리) **/
+    for (var i = startPage; i <= endPage; i++) {
+        if (i > totalPage) break;
+        paging_result += '<li class=' + (i == curPage ? '"li_paging active"' : '"li_paging"') + ' value="' + i + '"><a href="#" onclick="return false;">' + i + '</a></li>';
+    }
+    /** 1개 세트내 Next 페이지 출력여부 설정(NextPage=EndPage+1) **/
+    if (curSet < totalSet) {
+        paging_result += '<li class="li_paging" value="' + (endPage + 1) + '"><a href="#" onclick="return false;"><i class="fa fa-angle-right"></i></a></li>';
+    }
+    //paging_result += '<li><a href="#"><i class="fa  fa-angle-right"></i></a></li>';
+    //paging_result += '<li><a href="#"><i class="fa  fa-angle-double-right"></i></a></li>';
+    paging_result += '</ul>';
+    return paging_result;
 }

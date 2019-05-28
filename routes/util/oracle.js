@@ -5196,13 +5196,13 @@ exports.getFtpFileList = function (fileNm,filePath,fileSeq, done) {
     });
 };
 
-exports.selectBatchPoMlExport = function (req, done) {
+exports.selectBatchPoMlExport = function (req, pagingCount, done) {
     return new Promise(async function (resolve, reject) {
         let conn;
         let result;
         try {
             conn = await oracledb.getConnection(dbConfig);
-            let query = "" +
+            let basicQuery = "" +
             "SELECT " +
                 "PME.FILENAME, TO_CHAR(FFL.AUTOSENDTIME,'YYYY-MM-DD HH24:MI:SS') AS AUTOSENDTIME, PME.EXPORTDATA, FFL.SEQ " +
             "FROM " +
@@ -5213,18 +5213,35 @@ exports.selectBatchPoMlExport = function (req, done) {
                     "MANUALTRAINFLAG, MANUALTRAINTIME, RETURNFLAG, RETURNTIME " +
                 "FROM " +
                     "TBL_FTP_FILE_LIST) FFL " +
-            "WHERE PME.FILENAME = FFL.FILENAME " +
-            "AND PME.DOCID = :docId " +
-            "AND CAST(FFL.AUTOSENDTIME as Date) >= TO_DATE(:startDate, 'YY/MM/DD HH24MISS') " +
-            "AND CAST(FFL.AUTOSENDTIME as Date) <= TO_DATE(:endDate, 'YY/MM/DD HH24MISS') " +
-            "AND RETURNFLAG = :retrinFlag " +
-            "ORDER BY FFL.SEQ DESC";
+                "WHERE PME.FILENAME = FFL.FILENAME " +
+                "AND PME.DOCID = :docId " +
+                "AND CAST(FFL.AUTOSENDTIME as Date) >= TO_DATE(:startDate, 'YY/MM/DD HH24MISS') " +
+                "AND CAST(FFL.AUTOSENDTIME as Date) <= TO_DATE(:endDate, 'YY/MM/DD HH24MISS') " +
+                "AND RETURNFLAG = :retrinFlag " +
+                "ORDER BY FFL.SEQ DESC";
 
+            let TotCntQuery = "" +
+                "SELECT " +
+                "COUNT(D.SEQ) AS CNT " +
+                "FROM " +
+                "( " + basicQuery + " ) D ";
+            let query = "" +
+            "SELECT " +
+                "R.* " +
+            "FROM " +
+                "(SELECT " + 
+                    "ROWNUM AS RNUM, D.* " +
+                "FROM " +
+                    "( " + basicQuery + " ) D " +
+                ") R " +
+            "WHERE R.RNUM BETWEEN " + (((pagingCount - 1) * 30) + 1) + " AND " + (pagingCount * 30);
+
+            cntResult = await conn.execute(TotCntQuery, req);
             result = await conn.execute(query, req);
-            if (result.rows.length != 0) {
-                return done(null, result.rows);
+            if (cntResult.rows[0].CNT != 0 && result.rows.length != 0) {
+                return done(null, [cntResult.rows[0].CNT, result.rows]);
             } else {
-                return done(null, []);
+                return done(null, [0, []]);
             }
         } catch (err) { // catches errors in getConnection and the query
             reject(err);

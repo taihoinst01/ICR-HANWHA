@@ -43,11 +43,11 @@ router.post('/selectBatchPoMlExport', function (req, res) {
             let startDate = (req.body.startDate) ? req.body.startDate.replace(/-/gi, '') + '000000' : null;
             let endDate = (req.body.endDate) ? req.body.endDate.replace(/-/gi, '') + '235959' : null;
             let processState = (req.body.processState) ? req.body.processState : null;
+            let pagingCount = (req.body.pagingCount) ? req.body.pagingCount : 1;
 
             let docLabelList = sync.await(oracle.selectDocLabelDefList([docTopType], sync.defer()));
-            let docDataList = sync.await(oracle.selectBatchPoMlExport([docTopType, startDate, endDate, processState], sync.defer()));
-
-            res.send({ 'docDataList': docDataList, 'docLabelList': docLabelList });
+            let result = sync.await(oracle.selectBatchPoMlExport([docTopType, startDate, endDate, processState], pagingCount, sync.defer()));
+            res.send({ 'docDataList': result[1], 'docLabelList': docLabelList, 'totCount': result[0] });
         } catch (e) {
             console.log(e);
             res.send({});
