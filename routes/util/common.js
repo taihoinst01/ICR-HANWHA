@@ -773,7 +773,7 @@ router.post('/modifyBatchUiTextData', function (req, res) {
                 for (var j in afterData.data) {
                     var item = null;
                     if (afterData.data[j].colType == 'E' && labels.rows[i].SEQNUM == afterData.data[j].colLbl) {
-                        item = ((entryData == "") ? "" : " | ") + afterData.data[j].text;
+                        item = ((entryData == "") ? "" : " | ") + afterData.data[j].location.split(',')[1] + "::" + afterData.data[j].text;
                         entryData += item;
                     }
                 }

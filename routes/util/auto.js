@@ -115,7 +115,7 @@ var autoTest = function () {
     sync.fiber(function () {
         try {
 
-            var execFileNames = ['test.pdf'];
+            var execFileNames = ['multi.pdf'];
             console.log('auto test processing start -------------> fileName : [' + execFileNames.toString() + ']');
 
             // ocr 및 ml 프로세스 실행
@@ -286,7 +286,7 @@ function processingExportData(mlData, labels, callback) {
                 for (var j in mlData) {
                     var item = null;
                     if (mlData[j].entryLbl && labels[i].SEQNUM == mlData[j].entryLbl) {
-                        item = ((entryData == "") ? "" : " | ") + mlData[j].text;
+                        item = ((entryData == "") ? "" : " | ") + mlData[j].location.split(',')[1] + "::" + mlData[j].text;
                         entryData += item;
                     }
                 }

@@ -128,10 +128,10 @@ function selectBatchPoMlExport(params, isInit) {
             if (!isInit) progressId = showProgressBar();
         },
         success: function (data) {
-            //console.log(data);
+            console.log(data);
             appendDocTableHeader(data.docLabelList);
             checkAllBoxClick();
-            appendMLData(data.docDataList);
+            appendMLData(data.docLabelList, data.docDataList);
             $('#paging').html(appendPaging((params.pagingCount) ? params.pagingCount : 1, data.totCount));
             btnPagingClick();
             checkBoxClick();
@@ -182,20 +182,31 @@ function appendDocTableHeader(docLabelList) {
 }
 
 // ML 데이터 table 렌더링
-function appendMLData(docDataList) {
+function appendMLData(docLabelList, docDataList) {
     $('#tbody_docList').empty();
+    var docTopType = $('#docTopTypeSelect').val();
 
     var totalHTML = '';
+    if (docTopType == 51) { // 일반송장
+        appendMultiHTML(docLabelList, docDataList);
+    } else {
+        totalHTML = appendSingleHTML(docDataList);
+        $('#tbody_docList').append(totalHTML);
+    }
+}
+
+// 싱글 entry HTML 렌더링
+function appendSingleHTML(docDataList) {
+    var returnHTML = '';
     for (var i in docDataList) {
-        if (i == 300) break; // jhy
         var mlDataListHTML = '' +
-        '<tr class="originalTr">' +
+            '<tr class="originalTr">' +
             '<td><div class="checkbox-options mauto"><input type="checkbox" class="sta00_all" value="" name="listCheck" /></div></td>' +
             '<td>' +
-		        '<a href="#" title="양식" onclick="openImagePop(\'' + docDataList[i].FILENAME + '\')">' +
+            '<a href="#" title="양식" onclick="openImagePop(\'' + docDataList[i].FILENAME + '\')">' +
             '<input type="text" value="' + docDataList[i].FILENAME.substring(docDataList[i].FILENAME.lastIndexOf('/') + 1) + '" class="inputst_box03_15radius" data-originalvalue="' + docDataList[i].FILENAME + '" disabled>' +
-		        '</a>' +
-            '</td>' + 
+            '</a>' +
+            '</td>' +
             '<td><input type="text" value="' + docDataList[i].AUTOSENDTIME + '" class="inputst_box03_15radius" data-originalvalue="' + docDataList[i].AUTOSENDTIME + '" disabled></td>';
         var items = docDataList[i].EXPORTDATA;
         items = items.replace(/\"/gi, '').slice(1, -1);
@@ -204,13 +215,108 @@ function appendMLData(docDataList) {
             if (items[j] == 'null') {
                 mlDataListHTML += '<td><input type="text" value="" class="inputst_box03_15radius" data-originalvalue=""></td>';
             } else {
-                mlDataListHTML += '<td><input type="text" value="' + items[j] + '" class="inputst_box03_15radius" data-originalvalue="' + items[j] + '"></td>';
+                var textVal = (items[j].split('::')[1]) ? items[j].split('::')[1] : items[j];
+                mlDataListHTML += '<td><input type="text" value="' + textVal + '" class="inputst_box03_15radius" data-originalvalue="' + items[j] + '"></td>';
             }
         }
         mlDataListHTML += '</tr>';
-        totalHTML += mlDataListHTML;
+        returnHTML += mlDataListHTML;
     }
-    $('#tbody_docList').append(totalHTML);
+
+    return returnHTML;
+}
+
+// 멀티 entry HTML 렌더링
+function appendMultiHTML(docLabelList, docDataList) {   
+    var multiLabelNumArr = [];
+    var multiLabelYLocArr = [];
+
+    for (var i in docLabelList) {
+        if (docLabelList[i].AMOUNT == "multi") multiLabelNumArr.push(i);
+    }
+
+    for (var i in docDataList) {
+        //if (docDataList[i].EXPORTDATA.replace(/\"/gi, '').slice(1, -1).indexOf('::') == -1) continue;
+        var returnHTML = '';
+        var maxEntryCount = 1;
+        var exportDataArr = docDataList[i].EXPORTDATA.replace(/\"/gi, '').slice(1, -1).split(',');
+        var maxColNum;
+
+        for (var j in exportDataArr) {
+            if (exportDataArr[j] != "null" && multiLabelNumArr.indexOf(j) != -1) {
+                var entryCount = exportDataArr[j].split(' | ').length;
+                if ( maxEntryCount < entryCount) {
+                    maxEntryCount = entryCount;
+                    maxColNum = j
+                }
+            }
+        }
+        var items = docDataList[i].EXPORTDATA;
+        items = items.replace(/\"/gi, '').slice(1, -1);
+        items = items.split(',');
+        for (var m in items[maxColNum].split(' | ')) {
+            multiLabelYLocArr.push({
+                'num': m,
+                'yLoc': items[maxColNum].split(' | ')[m].split('::')[0]
+            });
+        }
+
+        for (var k = 0; k < maxEntryCount; k++) {
+            var mlDataListHTML;
+
+            if (k == 0) {
+                mlDataListHTML = '' +
+                    '<tr class="originalTr">' +
+                    '<td><div class="checkbox-options mauto"><input type="checkbox" class="sta00_all" value="" name="listCheck" /></div></td>' +
+                    '<td>' +
+                    '<a href="#" title="양식" onclick="openImagePop(\'' + docDataList[i].FILENAME + '\')">' +
+                    '<input type="text" value="' + docDataList[i].FILENAME.substring(docDataList[i].FILENAME.lastIndexOf('/') + 1) + '" class="inputst_box03_15radius" data-originalvalue="' + docDataList[i].FILENAME + '" disabled>' +
+                    '</a>' +
+                    '</td>' +
+                    '<td><input type="text" value="' + docDataList[i].AUTOSENDTIME + '" class="inputst_box03_15radius" data-originalvalue="' + docDataList[i].AUTOSENDTIME + '" disabled></td>';
+            } else {
+                mlDataListHTML = '' +
+                    '<tr class="originalTr">' +
+                    '<td><div class="checkbox-options mauto"></div></td>' +
+                    '<td>' +
+                    '</td>' +
+                    '<td></td>';
+            }
+            var items = docDataList[i].EXPORTDATA;
+            items = items.replace(/\"/gi, '').slice(1, -1);
+            items = items.split(',');
+
+            for (var j in items) {               
+                if (items[j] == 'null') { // 값이 없으면
+                    mlDataListHTML += '<td><input type="text" value="" class="inputst_box03_15radius" data-originalvalue=""></td>';
+                } else if (multiLabelNumArr.indexOf(j) != -1 && items[j].split('::')[1]) { // 멀티엔트리 
+                    var yLoc = Number(multiLabelYLocArr[k].yLoc);
+                    if (items[j].split(' | ')[k] && Math.abs(Number(items[j].split(' | ')[k].split('::')[0]) - yLoc) < 20) {
+                        var textVal = items[j].split(' | ')[k].split('::')[1];
+                        mlDataListHTML += '<td><input type="text" value="' + textVal + '" class="inputst_box03_15radius" data-originalvalue="' + textVal + '"></td>';
+                    } else {                      
+                        if (items[j].split(' | ')[k]) {
+                            var textVal = items[j].split(' | ')[k].split('::')[1];
+                            mlDataListHTML += '<td><input type="text" value="' + textVal + '" class="inputst_box03_15radius" data-originalvalue="' + textVal + '"></td>';
+                        } else {
+                            mlDataListHTML += '<td><input type="text" value="" class="inputst_box03_15radius" data-originalvalue=""></td>';
+                        }
+                    }
+                } else { // 싱글엔트리
+                    var textVal = '';
+                    var itemArr = items[j].split(' | ');
+                    for (var m in itemArr) {
+                        textVal += (itemArr[m].split('::')[1]) ? itemArr[m].split('::')[1] : itemArr[m] + ((m == 0) ? '' : ' | ');
+                    }
+                    mlDataListHTML += '<td><input type="text" value="' + textVal + '" class="inputst_box03_15radius" data-originalvalue="' + items[j] + '"></td>';       
+                }
+            }
+            mlDataListHTML += '</tr>';
+            $('#tbody_docList').append(mlDataListHTML);
+        }
+    }    
+
+    return null;
 }
 
 //이미지 팝업 이벤트
