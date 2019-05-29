@@ -2789,11 +2789,20 @@ function zoomImg_new(obj) {
         //var xPosition = ((- (x * widthPercent)) + 400) + 'px ';
         //var yPosition = ((- (y * heightPercent)) + 260) + 'px';
         var xPosition = '0px ';
-        var yPosition = ((- (y * heightPercent)) + 120) + 'px';
+        var yPosition = ((- (y * heightPercent)) + 110) + 'px';
 
         $('#imageZoom').css('background-position', xPosition + yPosition);
+
+        // left, width 추가
+        var positionLeft = (x * widthPercent)-10;
+        var postionWidth = (textWidth * widthPercent) + 10;
+        
+        $('#redZoomNemo').css('left',  positionLeft + 'px');
+        $('#redZoomNemo').css('width', postionWidth + 'px');
+
     
-        $('#redZoomNemo').css('height', (textHeight + 5) + 'px');
+        // $('#redZoomNemo').css('height', (textHeight + 5) + 'px');
+        $('#redZoomNemo').css('height', (textHeight * heightPercent) + 10 + 'px');
         $('#redZoomNemo').show();
     }
     

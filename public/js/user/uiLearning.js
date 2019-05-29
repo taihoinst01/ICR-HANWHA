@@ -1332,7 +1332,13 @@ function zoomImg(e, fileName) {
         //var yPosition = ((- (y * heightPercent)) + (parseInt(axis[1]) * chgHeightPercent) + ((height - parseInt(axis[3])) * chgHeightPercent) + 191) + 'px';
 
         $('#imageZoom').css('background-position', xPosition + 'px ' + yPosition + 'px');
-    
+        
+        // left, width 추가
+        var positionLeft = (x * widthPercent) + 90;
+        var postionWidth = (textWidth * widthPercent) + 10;
+        
+        $('#redZoomNemo').css('left',  positionLeft + 'px');
+        $('#redZoomNemo').css('width', postionWidth + 'px');
 
         $('#redZoomNemo').css('height', ((textHeight * heightPercent) + 10) + 'px');
         $('#redZoomNemo').css('top', '168px')
