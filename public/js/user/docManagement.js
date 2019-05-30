@@ -231,6 +231,7 @@ function appendMultiHTML(docLabelList, docDataList) {
     var multiLabelNumArr = [];
     var multiLabelYLocArr = [];
 
+    // Multi Label 순서 구하기
     for (var i in docLabelList) {
         if (docLabelList[i].AMOUNT == "multi") multiLabelNumArr.push(i);
     }
@@ -240,8 +241,9 @@ function appendMultiHTML(docLabelList, docDataList) {
         var returnHTML = '';
         var maxEntryCount = 1;
         var exportDataArr = docDataList[i].EXPORTDATA.replace(/\"/gi, '').slice(1, -1).split(',');
-        var maxColNum;
+        var maxColNum = 0;
 
+        // 가장 많은 multi entry 개수 구하기
         for (var j in exportDataArr) {
             if (exportDataArr[j] != "null" && multiLabelNumArr.indexOf(j) != -1) {
                 var entryCount = exportDataArr[j].split(' | ').length;
@@ -251,6 +253,8 @@ function appendMultiHTML(docLabelList, docDataList) {
                 }
             }
         }
+
+        // 가장 많은 multi entry y좌표 구하기
         var items = docDataList[i].EXPORTDATA;
         items = items.replace(/\"/gi, '').slice(1, -1);
         items = items.split(',');
@@ -264,6 +268,7 @@ function appendMultiHTML(docLabelList, docDataList) {
         for (var k = 0; k < maxEntryCount; k++) {
             var mlDataListHTML;
 
+            // 첫 row만 파일명, 날짜 표시
             if (k == 0) {
                 mlDataListHTML = '' +
                     '<tr class="originalTr">' +
@@ -287,22 +292,25 @@ function appendMultiHTML(docLabelList, docDataList) {
             items = items.split(',');
 
             for (var j in items) {               
-                if (items[j] == 'null') { // 값이 없으면
+                if (items[j] == 'null') { // entry 값 없음
                     mlDataListHTML += '<td><input type="text" value="" class="inputst_box03_15radius" data-originalvalue=""></td>';
-                } else if (multiLabelNumArr.indexOf(j) != -1 && items[j].split('::')[1]) { // 멀티엔트리 
+
+                } else if (multiLabelNumArr.indexOf(j) != -1 && items[j].split('::')[1]) { // 멀티엔트리
+
                     var yLoc = Number(multiLabelYLocArr[k].yLoc);
-                    if (items[j].split(' | ')[k] && Math.abs(Number(items[j].split(' | ')[k].split('::')[0]) - yLoc) < 20) {
-                        var textVal = items[j].split(' | ')[k].split('::')[1];
-                        mlDataListHTML += '<td><input type="text" value="' + textVal + '" class="inputst_box03_15radius" data-originalvalue="' + textVal + '"></td>';
-                    } else {                      
-                        if (items[j].split(' | ')[k]) {
+                    if (items[j].split(' | ')[k]) {
+                        if (Math.abs(Number(items[j].split(' | ')[k].split('::')[0]) - yLoc) < 20) {
                             var textVal = items[j].split(' | ')[k].split('::')[1];
                             mlDataListHTML += '<td><input type="text" value="' + textVal + '" class="inputst_box03_15radius" data-originalvalue="' + textVal + '"></td>';
                         } else {
-                            mlDataListHTML += '<td><input type="text" value="" class="inputst_box03_15radius" data-originalvalue=""></td>';
+                            var textVal = items[j].split(' | ')[k].split('::')[1];
+                            mlDataListHTML += '<td><input type="text" value="' + textVal + '" class="inputst_box03_15radius" data-originalvalue="' + textVal + '"></td>';
                         }
+                    } else {                      
+                        mlDataListHTML += '<td><input type="text" value="" class="inputst_box03_15radius" data-originalvalue=""></td>';
                     }
                 } else { // 싱글엔트리
+
                     var textVal = '';
                     var itemArr = items[j].split(' | ');
                     for (var m in itemArr) {
