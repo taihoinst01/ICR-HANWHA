@@ -270,7 +270,10 @@ function uiLearnTraining_auto(filepath, isAuto, callback) {
             callback(null, retDataList);
 
         } catch (e) {
-            throw e;
+            //자동화 오류시 서버가 안죽게...
+            console.log(icrRestResult);
+            callback(null, null);
+            // throw e;
         }
 
     });
