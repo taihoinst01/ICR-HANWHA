@@ -96,7 +96,7 @@ function uiLearnTraining_new(filepath, isAuto, callback) {
             // var testStr = resPyStr[0].replace('b', '');
             // testStr = testStr.replace(/'/g, '');
             // var decode = Buffer.from(testStr, 'base64').toString('utf-8');
-            var resPyArr = JSON.parse(icrRestResult+"++");
+            var resPyArr = JSON.parse(icrRestResult);
             var retData = {};
             var retDataList = [];
             var docCategory = {};
