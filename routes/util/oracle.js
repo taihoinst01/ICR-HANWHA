@@ -5215,8 +5215,8 @@ exports.selectBatchPoMlExport = function (req, pagingCount, done) {
                     "TBL_FTP_FILE_LIST) FFL " +
                 "WHERE PME.FILENAME = FFL.FILENAME " +
                 "AND PME.DOCID = :docId " +
-                "AND CAST(FFL.AUTOSENDTIME as Date) >= TO_DATE(:startDate, 'YY/MM/DD HH24MISS') " +
-                "AND CAST(FFL.AUTOSENDTIME as Date) <= TO_DATE(:endDate, 'YY/MM/DD HH24MISS') " +
+                "AND CAST(FFL.AUTOSENDTIME as Date) >= TO_DATE(:startDate, 'YYMMDDHH24MISS') " +
+                "AND CAST(FFL.AUTOSENDTIME as Date) <= TO_DATE(:endDate, 'YYMMDDHH24MISS') " +
                 "AND RETURNFLAG = :retrinFlag " +
                 "ORDER BY FFL.SEQ DESC";
 

@@ -87,9 +87,12 @@ function datePickerEvent() {
     });
     $(".searchDate").schDate();
 
-    // 1개월전 날짜 구하기 (searchStartDate)
-    var startDate = getAddMonth(-1, "-");
-    $("#searchStartDate").val(startDate);
+    // 30일전 날짜 구하기 (searchStartDate)
+    var today = new Date();
+    var oldday = new Date(today - (3600000 * 24 * 30));
+    var oldMonth = ((oldday.getMonth() + 1) < 10 ? '0' : '') + (oldday.getMonth() + 1);
+    var oldDate = ((oldday.getDate()) < 10 ? '0' : '') + oldday.getDate();
+    $("#searchStartDate").val(oldday.getFullYear() + '-' + oldMonth + '-' + oldDate);
 
     // 오늘날짜 구하기 (searchEndDate)
     var endDate = getNowDate("-");
@@ -306,7 +309,7 @@ function appendMultiHTML(docLabelList, docDataList) {
                             var textVal = items[j].split(' | ')[k].split('::')[1];
                             mlDataListHTML += '<td><input type="text" value="' + textVal + '" class="inputst_box03_15radius" data-originalvalue="' + textVal + '"></td>';
                         }
-                    } else {                      
+                    } else {
                         mlDataListHTML += '<td><input type="text" value="" class="inputst_box03_15radius" data-originalvalue=""></td>';
                     }
                 } else { // 싱글엔트리
