@@ -402,7 +402,7 @@ function btnSendClick() {
         $('input[name="listCheck"]').each(function (i, e) {
             if ($(e).is(":checked")) {
                 var itemJson = {
-                    'sequence': $(e).prev().val(),
+                    'sequence': Number($(e).prev().val()),
                     'fileName': $(e).closest('tr').children().eq(1).find('input').val()
                 };
                 //var ocrDataArr = [];
