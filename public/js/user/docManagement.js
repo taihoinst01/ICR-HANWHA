@@ -413,10 +413,10 @@ function btnSendClick() {
                         for (var k = 0; k < $('.multiTr_' + $(e).prev().val()).length; k++) {
                             tempArr.push($('.multiTr_' + $(e).prev().val()).eq(k).children().eq(Number(j) + 3).find('input').val());
                         }
-                        ocrDataItem[labels[j].ENGNM] = tempArr;
+                        ocrDataItem[labels[j].KORNM] = tempArr;
 
                     } else { // single entry
-                        ocrDataItem[labels[j].ENGNM] = $(e).closest('tr').children().eq(Number(j) + 3).find('input').val();
+                        ocrDataItem[labels[j].KORNM] = $(e).closest('tr').children().eq(Number(j) + 3).find('input').val();
                     }
                 }
                 //ocrDataArr.push(ocrDataItem);
