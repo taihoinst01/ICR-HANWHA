@@ -521,7 +521,8 @@ function processImage(fileInfo, isAuto) {
         console.log(data);
         console.log("============================ ocr data ============================ ");
         ocrCount++;
-        if (!data.code) { // 에러가 아니면
+        
+        if (data.data != null) { // 에러가 아니면
             //console.log(data);
             //thumbImgs.push(fileInfo.convertFileName);
             $('#progressMsgTitle').html('OCR 처리 완료');
@@ -540,10 +541,11 @@ function processImage(fileInfo, isAuto) {
             //fn_alert('alert', data.error);
             //location.href = '/uiLearning';
         } else { // ocr 에러 이면
-            insertCommError(data.code, 'ocr');
+            // insertCommError(data.code, 'ocr');
             endProgressBar(progressId);
             //endProgressBar();
-            fn_alert('alert', data.message);
+            // fn_alert('alert', data.message);
+            fn_alert('alert', "JSON error");
         }
     }).fail(function (jqXHR, textStatus, errorThrown) {
     });

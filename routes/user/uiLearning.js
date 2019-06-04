@@ -143,7 +143,7 @@ function uiLearnTraining_new(filepath, isAuto, callback) {
                 retDataList.push(retData);
             }        
             console.log("for end");
-            //console.log(retDataList);
+            console.log(retDataList);
             // resPyArr = sync.await(transPantternVar.trans(resPyArr, sync.defer()));
 
             // retData = resPyArr;
