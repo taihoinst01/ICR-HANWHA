@@ -18,26 +18,41 @@ router.get('/favicon.ico', function (req, res) {
     res.status(204).end();
 });
 
-router.get('/', function (req, res) {                           // 문서등록 (GET)
+// 문서등록 (GET)
+router.get('/', function (req, res) {
     if (req.isAuthenticated()) res.render('user/docManagement', { currentUser: req.user });
     else res.redirect("/logout");
 });
 
-router.post('/', function (req, res) {                          // 문서등록 (POST)
+// 문서등록 (POST)
+router.post('/', function (req, res) {
     if (req.isAuthenticated()) res.render('user/invoiceManagement', { currentUser: req.user });
     else res.redirect("/logout");
 });
 
+// 문서 TopType 조회하기
 router.post('/selectDocTopType', function (req, res) {
     sync.fiber(function () {
-        let docToptypeList = sync.await(oracle.selectDocTopType([req.session.userId], sync.defer()));
+        var returnJson;
 
-        res.send({ 'docToptypeList': docToptypeList });
+        try {
+            let docToptypeList = sync.await(oracle.selectDocTopType([req.session.userId], sync.defer()));
+
+            returnJson = { 'docToptypeList': docToptypeList };
+        } catch (e) {
+            console.log(e);
+            returnJson = { 'error': e };
+        } finally {
+            res.send(returnJson);
+        }
     });
 });
 
+// 문서관리 ocr data 조회하기
 router.post('/selectBatchPoMlExport', function (req, res) {
     sync.fiber(function () {
+        var returnJson;
+
         try {
             let docTopType = req.body.docTopType;
             let startDate = (req.body.startDate) ? req.body.startDate.replace(/-/gi, '') + '000000' : null;
@@ -45,76 +60,33 @@ router.post('/selectBatchPoMlExport', function (req, res) {
             let processState = (req.body.processState) ? req.body.processState : null;
             let pagingCount = (req.body.pagingCount) ? req.body.pagingCount : 1;
             let docLabelList = sync.await(oracle.selectDocLabelDefList([docTopType], sync.defer()));
+
             let result = sync.await(oracle.selectBatchPoMlExport([docTopType, startDate, endDate, processState], pagingCount, sync.defer()));
-            res.send({ 'docDataList': result[1], 'docLabelList': docLabelList, 'totCount': result[0] });
+
+            returnJson = { 'docDataList': result[1], 'docLabelList': docLabelList, 'totCount': result[0] };
         } catch (e) {
             console.log(e);
-            res.send({});
+            returnJson = { 'error': e };
+        } finally {
+            res.send(returnJson);
         }
     });
 });
 
-
-
-
-
-
-
-
-/*
-router.post('/selectDocLabelDefList', function (req, res) {
+// ocr data 전송하기
+router.post('/sendOcrData', function (req, res) {
     sync.fiber(function () {
-        let returnObj = {};
-        let docToptype = req.body.docToptype;
-        let param = [docToptype];
+        var returnJson;
 
-        let docToptypeList = sync.await(oracle.selectDocLabelDefList(param, sync.defer()));
-
-        returnObj = { 'docToptypeList': docToptypeList };
-        res.send(returnObj);
+        try {
+            returnJson = { data: req.body.sendData };
+        } catch (e) {
+            console.log(e);
+            returnJson = { 'error': e };
+        } finally {
+            res.send(returnJson);
+        }
     });
 });
-
-router.post('/updateDocList', function (req, res) {
-    sync.fiber(function () {
-        let returnObj = {};
-        let docToptype = req.body.docToptype;
-        let docNameEng = req.body.docNameEng;
-        let docNameKor = req.body.docNameKor;
-        let insertList = req.body.insertList;
-        let changeList = req.body.changeList;
-        let deleteList = req.body.deleteList;
-        let userId = req.session.userId;
-
-        // doctoptype 추가
-        if (docToptype == 0) {
-            let param = [docNameEng, docNameKor, userId];
-            docToptype = sync.await(oracle.insertDocToptype(param, sync.defer()));
-            console.log(docToptype);
-        }
-
-        // 추가
-        if (insertList.length > 0) {
-            let param = { 'docToptype': docToptype, 'insertList': insertList };
-            sync.await(oracle.isnertDocList(param, sync.defer()));
-        }
-
-        //수정
-        if (docToptype != 0 && changeList.length > 0) {
-            let param = { 'changeList': changeList };
-            sync.await(oracle.updateDocList(param, sync.defer()));
-        }
-
-        //삭제
-        if (docToptype != 0 && deleteList.length > 0) {
-            let param = { 'deleteList': deleteList };
-            sync.await(oracle.deleteDocList(param, sync.defer()));
-        }
-
-        returnObj = { 'docToptype': docToptype };
-        res.send(returnObj);
-    });
-});
-*/
 
 module.exports = router;

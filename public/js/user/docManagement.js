@@ -1,5 +1,6 @@
 ﻿"use strict";
 var progressId; // 프로그레스바 변수
+var labels;
 
 $(function () {
     _init();
@@ -16,9 +17,9 @@ function _init() {
 
 // 버튼 이벤트 핸들러 함수 모음
 function clickEventHandlers() {
-    selectBtnClick();
-    btnRetrainClick();
-    btnSendClick();
+    selectBtnClick(); // 조회 버튼
+    btnRetrainClick(); // 재학습 버튼
+    btnSendClick(); // 전송 버튼
 }
 
 // 문서양식 조회 및 select box 렌더링
@@ -34,21 +35,26 @@ function selectDocTopType() {
             progressId = showProgressBar();
         },
         success: function (data) {
-            var optionHTML = '';
-            for (var i in data.docToptypeList) {
-                optionHTML += '<option value="' + data.docToptypeList[i].SEQNUM + '">' + data.docToptypeList[i].KORNM + '</option>';
-            }
-            $('#docTopTypeSelect').append(optionHTML);
-            if (data.docToptypeList.length > 0) {
-                $('#docTopTypeSelect').prev().text(data.docToptypeList[0].KORNM);
-                var params = {
-                    'docTopType': data.docToptypeList[0].SEQNUM,
-                    'startDate': $('#searchStartDate').val(),
-                    'endDate': $('#searchEndDate').val(),
-                    'processState': $('#processStateSelect').val()
-                };
+            if (!data.error) {
+                var optionHTML = '';
+                for (var i in data.docToptypeList) {
+                    optionHTML += '<option value="' + data.docToptypeList[i].SEQNUM + '">' + data.docToptypeList[i].KORNM + '</option>';
+                }
+                $('#docTopTypeSelect').append(optionHTML);
+                if (data.docToptypeList.length > 0) { // 문서 topType이 있으면 첫번째 인덱스 topType 문서 조회
+                    $('#docTopTypeSelect').prev().text(data.docToptypeList[0].KORNM);
+                    var params = {
+                        'docTopType': data.docToptypeList[0].SEQNUM,
+                        'startDate': $('#searchStartDate').val(),
+                        'endDate': $('#searchEndDate').val(),
+                        'processState': $('#processStateSelect').val()
+                    };
 
-                selectBatchPoMlExport(params, true);
+                    selectBatchPoMlExport(params, true);
+                }
+            } else {
+                fn_alert('alert', 'ERROR');
+                endProgressBar(progressId);
             }
         },
         error: function (err) {
@@ -99,7 +105,7 @@ function datePickerEvent() {
     $("#searchEndDate").val(endDate);
 };
 
-// 문서양식 조회 버튼 click 이벤트
+// 문서 조회 버튼 click 이벤트
 function selectBtnClick() {
     $('#btn_search').click(function () {
         var docTopType = $('#docTopTypeSelect').val();
@@ -132,13 +138,19 @@ function selectBatchPoMlExport(params, isInit) {
         },
         success: function (data) {
             console.log(data);
-            appendDocTableHeader(data.docLabelList);
-            checkAllBoxClick();
-            appendMLData(data.docLabelList, data.docDataList);
-            $('#paging').html(appendPaging((params.pagingCount) ? params.pagingCount : 1, data.totCount));
-            btnPagingClick();
-            checkBoxClick();
-            endProgressBar(progressId);
+            if (!data.error) {
+                labels = data.docLabelList;
+                appendDocTableHeader(data.docLabelList); // 문서조회 table html 렌더링
+                checkAllBoxClick(); // all 체크박스 background css 적용
+                appendMLData(data.docLabelList, data.docDataList);
+                $('#paging').html(appendPaging((params.pagingCount) ? params.pagingCount : 1, data.totCount)); // 페이징 html 렌더링
+                btnPagingClick(); // 페이징 버튼 이벤트 적용
+                checkBoxClick(); // 체크박스 background css 적용
+                endProgressBar(progressId);
+            } else {
+                fn_alert('alert', 'ERROR');
+                endProgressBar(progressId);
+            }
         },
         error: function (err) {
             console.log(err);
@@ -171,8 +183,8 @@ function appendDocTableHeader(docLabelList) {
     headerTheadHTML += '</tr>';
     headerTheadHTML += '</thead>';
 
-    $('#docTableColumn').append(headerColGroupHTML + headerTheadHTML);
-    $('#docMlDataColGroup').append(headerColGroupHTML.replace('<colgroup>', '').replace('</colgroup>', ''));
+    $('#docTableColumn').append(headerColGroupHTML + headerTheadHTML); // 문서관리 조회 table header html
+    $('#docMlDataColGroup').append(headerColGroupHTML.replace('<colgroup>', '').replace('</colgroup>', '')); // 문서관리 조회 table body html
 
     // 헤더 체크박스 클릭 이벤트
     $('#listCheckAll').click(function () {
@@ -204,7 +216,7 @@ function appendSingleHTML(docDataList) {
     for (var i in docDataList) {
         var mlDataListHTML = '' +
             '<tr class="originalTr">' +
-            '<td><div class="checkbox-options mauto"><input type="checkbox" class="sta00_all" value="" name="listCheck" /></div></td>' +
+            '<td><div class="checkbox-options mauto"><input type="hidden" value="' + docDataList[i].SEQ + '" name="seq" /><input type="checkbox" class="sta00_all" value="" name="listCheck" /></div></td>' +
             '<td>' +
             '<a href="#" title="양식" onclick="openImagePop(\'' + docDataList[i].FILENAME + '\')">' +
             '<input type="text" value="' + docDataList[i].FILENAME.substring(docDataList[i].FILENAME.lastIndexOf('/') + 1) + '" class="inputst_box03_15radius" data-originalvalue="' + docDataList[i].FILENAME + '" disabled>' +
@@ -240,42 +252,18 @@ function appendMultiHTML(docLabelList, docDataList) {
     }
 
     for (var i in docDataList) {
-        //if (docDataList[i].EXPORTDATA.replace(/\"/gi, '').slice(1, -1).indexOf('::') == -1) continue;
-        var returnHTML = '';
-        var maxEntryCount = 1;
-        var exportDataArr = docDataList[i].EXPORTDATA.replace(/\"/gi, '').slice(1, -1).split(',');
-        var maxColNum = 0;
+        // 가장 많은 multi entry의 y축 좌표값 구하기
+        var multiEntryInfo = getMultiLabelYLoc(docDataList[i].EXPORTDATA, multiLabelNumArr);
+        multiLabelYLocArr = multiEntryInfo.dataArr;
 
-        // 가장 많은 multi entry 개수 구하기
-        for (var j in exportDataArr) {
-            if (exportDataArr[j] != "null" && multiLabelNumArr.indexOf(j) != -1) {
-                var entryCount = exportDataArr[j].split(' | ').length;
-                if ( maxEntryCount < entryCount) {
-                    maxEntryCount = entryCount;
-                    maxColNum = j
-                }
-            }
-        }
-
-        // 가장 많은 multi entry y좌표 구하기
-        var items = docDataList[i].EXPORTDATA;
-        items = items.replace(/\"/gi, '').slice(1, -1);
-        items = items.split(',');
-        for (var m in items[maxColNum].split(' | ')) {
-            multiLabelYLocArr.push({
-                'num': m,
-                'yLoc': items[maxColNum].split(' | ')[m].split('::')[0]
-            });
-        }
-
-        for (var k = 0; k < maxEntryCount; k++) {
+        for (var k = 0; k < multiEntryInfo.dataCount; k++) {
             var mlDataListHTML;
 
             // 첫 row만 파일명, 날짜 표시
             if (k == 0) {
                 mlDataListHTML = '' +
                     '<tr class="originalTr">' +
-                    '<td><div class="checkbox-options mauto"><input type="checkbox" class="sta00_all" value="" name="listCheck" /></div></td>' +
+                    '<td><div class="checkbox-options mauto"><input type="hidden" value="' + docDataList[i].SEQ + '" name="seq" /><input type="checkbox" class="sta00_all" value="" name="listCheck" /></div></td>' +
                     '<td>' +
                     '<a href="#" title="양식" onclick="openImagePop(\'' + docDataList[i].FILENAME + '\')">' +
                     '<input type="text" value="' + docDataList[i].FILENAME.substring(docDataList[i].FILENAME.lastIndexOf('/') + 1) + '" class="inputst_box03_15radius" data-originalvalue="' + docDataList[i].FILENAME + '" disabled>' +
@@ -284,8 +272,8 @@ function appendMultiHTML(docLabelList, docDataList) {
                     '<td><input type="text" value="' + docDataList[i].AUTOSENDTIME + '" class="inputst_box03_15radius" data-originalvalue="' + docDataList[i].AUTOSENDTIME + '" disabled></td>';
             } else {
                 mlDataListHTML = '' +
-                    '<tr class="originalTr">' +
-                    '<td><div class="checkbox-options mauto"></div></td>' +
+                    '<tr class="multiTr_' + docDataList[i].SEQ + '">' +
+                    '<td></td>' +
                     '<td>' +
                     '</td>' +
                     '<td></td>';
@@ -328,6 +316,38 @@ function appendMultiHTML(docLabelList, docDataList) {
     }    
 
     return null;
+}
+
+// 가장 많은 multi entry의 y축 좌표값 구하기
+function getMultiLabelYLoc(exportData, multiLabelNumArr) {
+    var returnArr = [];
+    var maxEntryCount = 1;
+    var exportDataArr = exportData.replace(/\"/gi, '').slice(1, -1).split(',');
+    var maxColNum = 0;
+
+    // 가장 많은 multi entry 개수 구하기
+    for (var j in exportDataArr) {
+        if (exportDataArr[j] != "null" && multiLabelNumArr.indexOf(j) != -1) {
+            var entryCount = exportDataArr[j].split(' | ').length;
+            if (maxEntryCount < entryCount) {
+                maxEntryCount = entryCount;
+                maxColNum = j
+            }
+        }
+    }
+
+    // 가장 많은 multi entry y좌표 구하기
+    var items = exportData;
+    items = items.replace(/\"/gi, '').slice(1, -1);
+    items = items.split(',');
+    for (var m in items[maxColNum].split(' | ')) {
+        returnArr.push({
+            'num': m,
+            'yLoc': items[maxColNum].split(' | ')[m].split('::')[0]
+        });
+    }
+
+    return { dataArr : returnArr, dataCount: maxEntryCount };
 }
 
 //이미지 팝업 이벤트
@@ -376,7 +396,62 @@ function checkBoxClick() {
 // 전송 버튼 click 이벤트
 function btnSendClick() {
     $('#btn_send').click(function () {
+        var sendJson = [];
 
+        // 체크한 row json 데이터 가공하기
+        $('input[name="listCheck"]').each(function (i, e) {
+            if ($(e).is(":checked")) {
+                var itemJson = {
+                    'sequence': $(e).prev().val(),
+                    'fileName': $(e).closest('tr').children().eq(1).find('input').val()
+                };
+                //var ocrDataArr = [];
+                var ocrDataItem = {}
+                for (var j in labels) {
+                    if (labels[j].AMOUNT == 'multi') { // multi entry
+                        var tempArr = [$(e).closest('tr').children().eq(Number(j) + 3).find('input').val()];
+                        for (var k = 0; k < $('.multiTr_' + $(e).prev().val()).length; k++) {
+                            tempArr.push($('.multiTr_' + $(e).prev().val()).eq(k).children().eq(Number(j) + 3).find('input').val());
+                        }
+                        ocrDataItem[labels[j].ENGNM] = tempArr;
+
+                    } else { // single entry
+                        ocrDataItem[labels[j].ENGNM] = $(e).closest('tr').children().eq(Number(j) + 3).find('input').val();
+                    }
+                }
+                //ocrDataArr.push(ocrDataItem);
+
+                itemJson.ocrData = ocrDataItem;
+                sendJson.push(itemJson);
+            }
+        });
+
+        // 데이터 전송하기
+        $.ajax({
+            url: '/docManagement/sendOcrData',
+            type: 'post',
+            datatype: 'json',
+            data: JSON.stringify({ 'sendData': sendJson }),
+            contentType: 'application/json; charset=UTF-8',
+            beforeSend: function () {
+                $('#progressMsgTitle').html("전송 중..");
+                progressId = showProgressBar();
+            },
+            success: function (data) {
+                console.log(data);
+                if (!data.error) {
+
+                } else {
+
+                }
+                endProgressBar(progressId);
+            },
+            error: function (err) {
+                console.log(err);
+                fn_alert('alert', 'ERROR');
+                endProgressBar(progressId);
+            }
+        });
     });
 }
 
