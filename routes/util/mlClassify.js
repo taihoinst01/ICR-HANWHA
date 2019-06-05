@@ -298,6 +298,13 @@ function findEntry(req, docTypeVal, docTopTypeVal, done) {
             //예외처리 등록
             for(var j in req.data)
             {
+                //761 사업자등록번호
+                if(req.data[j]["entryLbl"] == 761)
+                {
+                    if(req.data[j]["text"] == "615-81-45657산단5로100-235"){
+                        req.data[j]["text"] = "615-81-456575"
+                    }
+                }
                 //납품용적
                 if(req.data[j]["entryLbl"] == 767)
                 {
@@ -332,6 +339,10 @@ function findEntry(req, docTypeVal, docTopTypeVal, done) {
                         req.data[j]["text"] = req.data[j]["text"].replace( /[ㄱ-ㅎ|ㅏ-ㅣ|가-힣]/g,"");
                         req.data[j]["text"] = req.data[j]["text"].substring(0,2) + "시" + req.data[j]["text"].substring(2) + "분";
                     }
+
+                    req.data[j]["text"] =  req.data[j]["text"].replace("분분","분")
+                    req.data[j]["text"] =  req.data[j]["text"].replace("시각","")
+                    
                 }
 
                 // 운반차순서
@@ -377,7 +388,7 @@ function findEntry(req, docTypeVal, docTopTypeVal, done) {
                 //콘크리트
                 if(req.data[j]["entryLbl"] == 769)
                 {
-                    if(req.data[j]["text"] == "콘크리트따른구분" || req.data[j]["text"] == "콘크리트보통따른구분/" || req.data[j]["text"] == "따른구분/보통콘크리트" || req.data[j]["text"] == "따른구분콘크리트" || req.data[j]["text"] == "따른구분보통콘크리트" )
+                    if(req.data[j]["text"] == "콘크리트따른구분" || req.data[j]["text"] == "콘크리트보통따른구분/" || req.data[j]["text"] == "따른구분/보통콘크리트" || req.data[j]["text"] == "따른구분콘크리트" || req.data[j]["text"] == "따른구분보통콘크리트" || req.data[j]["text"] == "방보콘크리트" || req.data[j]["text"] == "통콘크리트" || req.data[j]["text"] == "보콘크리트")
                     {
                         req.data[j]["text"] = "보통콘크리트";
                     }
@@ -395,6 +406,11 @@ function findEntry(req, docTypeVal, docTopTypeVal, done) {
                     {
                         req.data[j]["text"] = req.data[j]["text"].replace("mm","");
                     }
+                    if(req.data[j]["text"] == "125" || req.data[j]["text"] == "25방배합" || req.data[j]["text"] == "25.방" || req.data[j]["text"] == "25방배합" || req.data[j]["text"] == "방25배합")
+                    {
+                        req.data[j]["text"] = "25";
+                    }
+
                     
                 }
                 //호칭강도
@@ -408,6 +424,10 @@ function findEntry(req, docTypeVal, docTopTypeVal, done) {
                     if(req.data[103]["text"].substring(req.data[103]["text"].length-1) == ".")
                     {
                         req.data[j]["text"] = req.data[j]["text"].substring(0,req.data[j]["text"].length-1 );
+                    }
+                    if(req.data[j]["text"] == "121" || req.data[j]["text"] == "21/")
+                    {
+                        req.data[j]["text"] = "21";
                     }
                     
                 }
@@ -427,6 +447,22 @@ function findEntry(req, docTypeVal, docTopTypeVal, done) {
                     {
                         req.data[j]["text"] = "포틀랜드시멘트1종";
                     }
+
+                    if(req.data[j]["text"] == "포틀랜드시멘트1종O로슬래그시메트2")
+                    {
+                        req.data[j]["text"] = "포틀랜드시멘트1종";
+                    }
+
+                    if(req.data[j]["text"] == "랜드시멘트1종(70")
+                    {
+                        req.data[j]["text"] = "포틀랜드시멘트1종70";
+                    }
+
+                    if(req.data[j]["text"] == "보통포틀멘E" || req.data[j]["text"] == "보통포틀랜드시멘E1" || req.data[j]["text"] == "보통포틀랜시1" || req.data[j]["text"] == "보통틀랜드시멘E1" || req.data[j]["text"] == "보통포틀드시멘")
+                    {
+                        req.data[j]["text"] = "보통포틀랜드시멘트1종";
+                    }
+                    
                 }
             }
 
