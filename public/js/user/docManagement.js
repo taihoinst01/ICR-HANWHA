@@ -403,7 +403,7 @@ function btnSendClick() {
             if ($(e).is(":checked")) {
                 var itemJson = {
                     'sequence': Number($(e).prev().val()),
-                    'fileName': $(e).closest('tr').children().eq(1).find('input').val()
+                    'fileName': ($(e).closest('tr').children().eq(1).find('input').attr('data-originalvalue').split('.pdf')[0] + '-0.jpg').replace(/\/uploads/, '/img')
                 };
                 //var ocrDataArr = [];
                 var ocrDataItem = {}
