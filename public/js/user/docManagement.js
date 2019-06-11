@@ -406,7 +406,7 @@ function btnSendClick() {
                     'fileName': ($(e).closest('tr').children().eq(1).find('input').attr('data-originalvalue').split('.pdf')[0] + '-0.jpg').replace(/\/uploads/, '/img')
                 };
                 //var ocrDataArr = [];
-                var ocrDataItem = {}
+                var ocrDataItem = {};
                 for (var j in labels) {
                     if (labels[j].AMOUNT == 'multi') { // multi entry
                         var tempArr = [$(e).closest('tr').children().eq(Number(j) + 3).find('input').val()];
