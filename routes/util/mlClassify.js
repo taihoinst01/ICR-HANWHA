@@ -238,7 +238,8 @@ function findEntry(req, docTypeVal, docTopTypeVal, done) {
                     }
                     else
                     {
-                        if (entryTrainRows[k].CLASS != "760" && entryTrainRows[k].CLASS != "761") {
+                        // if (entryTrainRows[k].CLASS != "760" && entryTrainRows[k].CLASS != "761" && entryTrainRows[k].CLASS != "502") {
+                            if (entryTrainRows[k].CLASS != "760" && entryTrainRows[k].CLASS != "761") {
                             if (predictionColumn(req.docCategory, req.data[j], entryTrainRows[k], 'E') && isValid(labelRows, entryTrainRows[k].CLASS, req.data[j]["text"])) {
                                 if (!req.data[j]["entryLbls"]) {
                                     req.data[j]["entryLbls"] = [entryTrainRows[k]];
@@ -570,7 +571,7 @@ function addEntryTextOfLabel(data, done) {
                                     data[i]["addItem"] = [JSON.parse(JSON.stringify(data[i])), JSON.parse(JSON.stringify(data[j]))];
                                     delete data[i]["entryLbls"];
                                 }
-
+                                
                                 data[i]["text"] += data[j]["text"];
                                 data[i]["location"] = targetLoc[0] + ',' + targetLoc[1]
                                     + ',' + (Number(compareLoc[0]) + Number(compareLoc[2]) - Number(targetLoc[0]))
