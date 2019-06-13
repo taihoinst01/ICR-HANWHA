@@ -96,7 +96,7 @@ app.post("/return", function(req , res){
         else
         {
             return res.status(400).send({
-                result: 'false',
+                result: 'F',
                 errMsg: 'No DATA'
             });
         }
