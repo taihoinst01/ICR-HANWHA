@@ -238,7 +238,7 @@ function findEntry(req, docTypeVal, docTopTypeVal, done) {
                     }
                     else
                     {
-                        if (entryTrainRows[k].CLASS != "760" && entryTrainRows[k].CLASS != "761" && entryTrainRows[k].CLASS != "502") {
+                        if (entryTrainRows[k].CLASS != "760" && entryTrainRows[k].CLASS != "761") {
                             if (predictionColumn(req.docCategory, req.data[j], entryTrainRows[k], 'E') && isValid(labelRows, entryTrainRows[k].CLASS, req.data[j]["text"])) {
                                 if (!req.data[j]["entryLbls"]) {
                                     req.data[j]["entryLbls"] = [entryTrainRows[k]];
@@ -633,14 +633,8 @@ function multiEntryCheck(firstEntry, entry) {
     var firstLoc = firstEntry['location'].split(',');
     var entryLoc = entry['location'].split(',');
 
-    if (firstEntry['entryLbl'] == "504") {
-        if (verticalCheck(firstLoc, entryLoc, 200, -300) && locationCheck(firstLoc[1], entryLoc[1], 0, -2000)) {
-            check = true;
-        }
-    } else {
-        if (verticalCheck(firstLoc, entryLoc, 100, -100) && locationCheck(firstLoc[1], entryLoc[1], 0, -2000)) {
-            check = true;
-        }
+    if (verticalCheck(firstLoc, entryLoc, 100, -100) && locationCheck(firstLoc[1], entryLoc[1], 0, -2000)) {
+        check = true;
     }
 
     return check;
