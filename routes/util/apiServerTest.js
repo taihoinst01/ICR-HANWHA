@@ -33,51 +33,99 @@ app.post("/return", function(req , res){
     sync.fiber(function () {
         console.log("API SERVER CALL RETURN");
         
-        if(!req.body.fileName){
-            console.log("fileName is required");
-            return res.status(400).send({
-                success: 'false',
-                message: 'fileName is required'
-              });
-        }else if (!req.body.filePath){
-            console.log("filePath is required");
-            return res.status(400).send({
-                success: 'false',
-                message: 'filePath is required'
-              });
-        }else if(!req.body.seq){
-            console.log("SEQ is required");
-            return res.status(400).send({
-                success: 'false',
-                message: 'SEQ is required'
-              });
+        // console.log(req.body.data);
+        // console.log(req.body.data.length);
+
+        if(req.body.data.length > 0)
+        {
+            for(var i = 0; i < req.body.data.length; i++)
+            {
+                console.log(req.body.data[i]);
+            
+
+                if(!req.body.data[i].fileName){
+                    console.log("fileName is required");
+                    return res.status(400).send({
+                        result: 'false',
+                        errMsg: 'fileName is required'
+                    });
+                }else if (!req.body.data[i].sequence){
+                    console.log("sequence is required");
+                    return res.status(400).send({
+                        result: 'false',
+                        errMsg: 'sequence is required'
+                    });
+                }
+                else
+                {   
+                    var fileNm = "";
+                    fileNm = req.body.data[i].fileName.split("/")[req.body.data[i].fileName.split("/").length-1];
+                    // console.log(req.body.data[i].fileName.split("/").length);
+                    console.log(fileNm);
+                    fileNm = fileNm.split(".")[0].substring(0, fileNm.split(".")[0].length-2)+".pdf";
+                    console.log(fileNm);
+                    var retData = sync.await(oracle.getFtpFileList(fileNm, req.body.data[i].sequence, sync.defer()));
+                    console.log(retData);
+                    if(retData.length < 1)
+                    {
+                        return res.status(400).send({
+                            result: 'false',
+                            errMsg: 'False DATA'
+                        });
+                    }
+                    else
+                    {
+                        var result = sync.await(oracle.updateFtpFileList(fileNm, req.body.data[i].sequence,req.body.data[i].bigo, sync.defer()));
+                        console.log(result);
+                        if(result = 1)
+                        {
+                            return res.status(200).send({
+                                result: 'true',
+                                errMsg: 'receive successfully'
+                            });
+                        }
+                        else{
+                            console.log(result);
+                        }
+                    }
+                }
+
+            }
         }
         else
         {
-            var retData = sync.await(oracle.getFtpFileList(req.body.fileName, req.body.filePath,req.body.seq, sync.defer()));
-            if(retData.length < 1)
-            {
-                return res.status(400).send({
-                    success: 'false',
-                    message: 'No DATA'
-                  });
-            }
-            else
-            {
-                var result = sync.await(oracle.updateFtpFileList(req.body.fileName, req.body.filePath,req.body.seq, sync.defer()));
-                console.log(result);
-                if(result = 1)
-                {
-                    return res.status(200).send({
-                        success: 'true',
-                        message: 'receive successfully'
-                      });
-                }
-                else{
-                    console.log(result);
-                }
-            }
+            return res.status(400).send({
+                result: 'false',
+                errMsg: 'No DATA'
+            });
         }
+        
+        // else
+        // {
+        //     var retData = sync.await(oracle.getFtpFileList(req.body.fileName, req.body.filePath,req.body.seq, sync.defer()));
+        //     if(retData.length < 1)
+        //     {
+        //         return res.status(400).send({
+        //             success: 'false',
+        //             message: 'No DATA'
+        //           });
+        //     }
+        //     else
+        //     {
+        //         var result = sync.await(oracle.updateFtpFileList(req.body.fileName, req.body.filePath,req.body.seq, sync.defer()));
+        //         console.log(result);
+        //         if(result = 1)
+        //         {
+        //             return res.status(200).send({
+        //                 success: 'true',
+        //                 message: 'receive successfully'
+        //               });
+        //         }
+        //         else{
+        //             console.log(result);
+        //         }
+        //     }
+        // }
     });
 });
 

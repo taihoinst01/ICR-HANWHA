@@ -5132,7 +5132,7 @@ exports.insertFtpFileList = function (path, req, done) {
     });
 };
 
-exports.updateFtpFileList = function (fileNm,filePath,fileSeq, done) {
+exports.updateFtpFileList = function (fileNm,fileSeq,bigo,  done) {
     return new Promise(async function (resolve, reject) {
         let conn;
 
@@ -5140,10 +5140,10 @@ exports.updateFtpFileList = function (fileNm,filePath,fileSeq, done) {
             conn = await oracledb.getConnection(dbConfig);
 
 
-            console.log(fileNm+" || "+filePath+" || "+fileSeq);
+             console.log(fileNm+" || "+fileSeq+" || "+bigo) ;
 
             // let query = "INSERT INTO TBL_FTP_FILE_LIST VALUES (SEQ_FTP_FILE_LIST.NEXTVAL, :filePath, :fileName, 'N')";
-            let query = "UPDATE TBL_FTP_FILE_LIST SET RETURNFLAG = 'Y', RETURNTIME = sysdate WHERE SEQ = '"+fileSeq+"' AND FILENAME = '"+fileNm+"' AND FILEPATH = '"+filePath+"'";
+            let query = "UPDATE TBL_FTP_FILE_LIST SET RETURNFLAG = 'Y', RETURNTIME = sysdate, ETC = '"+bigo+"' WHERE SEQ = '"+fileSeq+"' AND FILENAME = '"+fileNm+"' ";
             // for (var i in req) 
             let result = await conn.execute(query);
             console.log(result);
@@ -5165,7 +5165,7 @@ exports.updateFtpFileList = function (fileNm,filePath,fileSeq, done) {
 };
 
 
-exports.getFtpFileList = function (fileNm,filePath,fileSeq, done) {
+exports.getFtpFileList = function (fileNm,fileSeq, done) {
     return new Promise(async function (resolve, reject) {
         let conn;
 
@@ -5173,10 +5173,10 @@ exports.getFtpFileList = function (fileNm,filePath,fileSeq, done) {
             conn = await oracledb.getConnection(dbConfig);
 
 
-            console.log(fileNm+" || "+filePath+" || "+fileSeq);
+            console.log(fileNm+" || "+fileSeq);
 
             // let query = "INSERT INTO TBL_FTP_FILE_LIST VALUES (SEQ_FTP_FILE_LIST.NEXTVAL, :filePath, :fileName, 'N')";
-            let query = "SELECT SEQ,FILENAME, FILEPATH FROM TBL_FTP_FILE_LIST  WHERE SEQ = '"+fileSeq+"' AND FILENAME = '"+fileNm+"' AND FILEPATH = '"+filePath+"'";
+            let query = "SELECT SEQ,FILENAME, FILEPATH FROM TBL_FTP_FILE_LIST  WHERE SEQ = '"+fileSeq+"' AND FILENAME = '"+fileNm+"' ";
             // for (var i in req) 
             let result = await conn.execute(query);
             console.log(result);
