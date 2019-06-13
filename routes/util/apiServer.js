@@ -46,13 +46,13 @@ app.post("/return", function(req , res){
                 if(!req.body.data[i].fileName){
                     console.log("fileName is required");
                     return res.status(400).send({
-                        result: 'false',
+                        result: 'F',
                         errMsg: 'fileName is required'
                     });
                 }else if (!req.body.data[i].sequence){
                     console.log("sequence is required");
                     return res.status(400).send({
-                        result: 'false',
+                        result: 'F',
                         errMsg: 'sequence is required'
                     });
                 }
@@ -70,7 +70,7 @@ app.post("/return", function(req , res){
                     if(retData.length < 1)
                     {
                         return res.status(400).send({
-                            result: 'false',
+                            result: 'F',
                             errMsg: 'False DATA'
                         });
                     }
@@ -81,7 +81,7 @@ app.post("/return", function(req , res){
                         if(result = 1)
                         {
                             return res.status(200).send({
-                                result: 'true',
+                                result: 'S',
                                 errMsg: 'receive successfully'
                             });
                         }
