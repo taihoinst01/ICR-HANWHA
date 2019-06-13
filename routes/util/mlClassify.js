@@ -252,6 +252,7 @@ function findEntry(req, docTypeVal, docTopTypeVal, done) {
                         }
                     }
                 }
+
                 var minDis = 10000;
                 if (req.data[j]["entryLbls"]) {
                     for (var k in req.data[j]["entryLbls"]) {
@@ -271,6 +272,13 @@ function findEntry(req, docTypeVal, docTopTypeVal, done) {
                             delete req.data[j]["colLbl"];
                         }
                     }
+                }
+                
+                // 예측 mlEntryLbl을 entryLbl로 넣기                
+                if(typeof req.data[j]["mlEntryLbl"] != "undefined" && typeof req.data[j]["entryLbl"] == "undefined" ){
+                    // console.log("mlEntryLbl===>" + req.data[j]["mlEntryLbl"])
+                    req.data[j]["entryLbl"] = req.data[j]["mlEntryLbl"];
+                    delete req.data[j]["colLbl"];
                 }
             }         
             
@@ -406,7 +414,7 @@ function findEntry(req, docTypeVal, docTopTypeVal, done) {
                     {
                         req.data[j]["text"] = req.data[j]["text"].replace("mm","");
                     }
-                    if(req.data[j]["text"] == "125" || req.data[j]["text"] == "25방배합" || req.data[j]["text"] == "25.방" || req.data[j]["text"] == "25방배합" || req.data[j]["text"] == "방25배합")
+                    if(req.data[j]["text"] == "125" || req.data[j]["text"] == "25방배합" || req.data[j]["text"] == "25.방" || req.data[j]["text"] == "25방배합" || req.data[j]["text"] == "방25배합" || req.data[j]["text"] == "125.")
                     {
                         req.data[j]["text"] = "25";
                     }
@@ -438,12 +446,17 @@ function findEntry(req, docTypeVal, docTopTypeVal, done) {
                     {
                         req.data[j]["text"] = req.data[j]["text"].replace("mm","");
                     }
+
+                    if(req.data[j]["text"] == "1500")
+                    {
+                        req.data[j]["text"] = "150";
+                    }
                 }
 
                 //시멘트
                 if(req.data[j]["entryLbl"] == 773)
                 {
-                    if(req.data[j]["text"] == "포틀랜드시멘트1종따른구분" || req.data[j]["text"] == "포들랜드시멘트1종따른구분" || req.data[j]["text"] == ")따른구분시멘트종류에포틀랜드시멘트1종" || req.data[j]["text"] == "시멘트종류에따른구분)포틀랜드시멘트1종" || req.data[j]["text"] == "따른구분포틀랜드시멘트종" )
+                    if(req.data[j]["text"] == "포틀랜드시멘트1종따른구분" || req.data[j]["text"] == "포들랜드시멘트1종따른구분" || req.data[j]["text"] == ")따른구분시멘트종류에포틀랜드시멘트1종" || req.data[j]["text"] == "시멘트종류에따른구분)포틀랜드시멘트1종" || req.data[j]["text"] == "따른구분포틀랜드시멘트종" || req.data[j]["text"] == "틀랜드시멘트1종")
                     {
                         req.data[j]["text"] = "포틀랜드시멘트1종";
                     }
@@ -499,6 +512,11 @@ function addEntryTextOfLabel(data, done) {
                                     delete data[i]["entryLbls"];
                                 }
 
+                                //예측값 출력 안되게
+                                if(typeof data[i]["mlEntryLbl"] != "undefined" && typeof data[i]["entryLbl"] != "undefined" && typeof data[j]["entryLbl"] != "undefined"){
+                                    // console.log("no undefined" + data[i]["text"]);
+                                    break;
+                                }
                                 // 텍스트와 위치 데이터 가공
                                 data[i]["text"] = data[i]["text"] + data[j]["text"];
                                 data[i]["location"] = targetLoc[0] + ',' + targetLoc[1]
@@ -518,10 +536,18 @@ function addEntryTextOfLabel(data, done) {
                                 }
 
                                 if (Number(targetLoc[0]) < Number(compareLoc[0])) {
-                                    data[i]["text"] += data[j]["text"];
-                                    data[i]["location"] = targetLoc[0] + ',' + targetLoc[1]
-                                        + ',' + (Number(compareLoc[0]) + Number(compareLoc[2]) - Number(targetLoc[0]))
-                                        + ',' + ((Number(targetLoc[3]) > Number(compareLoc[3])) ? targetLoc[3] : compareLoc[3])
+                                    //예측값 출력 안되게 
+                                    if(typeof data[j]["mlEntryLbl"] != "undefined" && typeof data[j]["entryLbl"] != "undefined" && typeof data[i]["entryLbl"] != "undefined"){
+                                        // console.log("no undefined" + data[i]["text"]);
+                                        delete data[i]["entryLbls"];
+                                        break;
+                                    } else {
+                                        data[i]["text"] += data[j]["text"];
+                                        data[i]["location"] = targetLoc[0] + ',' + targetLoc[1]
+                                            + ',' + (Number(compareLoc[0]) + Number(compareLoc[2]) - Number(targetLoc[0]))
+                                            + ',' + ((Number(targetLoc[3]) > Number(compareLoc[3])) ? targetLoc[3] : compareLoc[3])
+                                    }
+                                    
                                 } else {
                                     data[i]["text"] = data[j]["text"] + data[i]["text"];
                                     data[i]["location"] = compareLoc[0] + ',' + compareLoc[1]
