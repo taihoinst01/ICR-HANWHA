@@ -5085,9 +5085,9 @@ exports.selectFtpFileList = function (req, done) {
 
         try {
             conn = await oracledb.getConnection(dbConfig);
-            let query = "SELECT FILENAME FROM TBL_FTP_FILE_LIST WHERE FILENAME IN (";
+            let query = "SELECT FILENAME FROM TBL_FTP_FILE_LIST WHERE (0,FILENAME) IN ( ";
             for (var i in req) {
-                query += '\'' + req[i] + '\', ';
+                query += '(0,\'' + req[i] + '\'), ';
             }
             query = query.slice(0, -2);
             query += ' )';
@@ -5107,6 +5107,7 @@ exports.selectFtpFileList = function (req, done) {
         }
     });
 };
+
 
 exports.insertFtpFileList = function (path, req, done) {
     return new Promise(async function (resolve, reject) {

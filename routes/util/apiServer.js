@@ -64,6 +64,7 @@ app.post("/return", function(req , res){
                     console.log(fileNm);
                     fileNm = fileNm.split(".")[0].substring(0, fileNm.split(".")[0].length-2)+".pdf";
                     console.log(fileNm);
+
                     var retData = sync.await(oracle.getFtpFileList(fileNm, req.body.data[i].sequence, sync.defer()));
                     console.log(retData);
                     if(retData.length < 1)
