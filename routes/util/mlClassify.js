@@ -694,8 +694,14 @@ function multiEntryCheck(firstEntry, entry, doctype) {
     // console.log("multiEntryCheck doctype===>" + doctype);
     // console.log("multiEntryCheck firstEntry===>" + firstEntry['entryLbl']);
     
-    // 348 일반송장_광일볼트상사
-    if(doctype == 348){
+    if(doctype == 340) {
+        // 504 품목명
+        if(firstEntry['entryLbl'] == 504 && verticalCheck(firstLoc, entryLoc, 100, -50) && locationCheck(firstLoc[1], entryLoc[1], 0, -2000)){
+            check = true;
+        } else if (verticalCheck(firstLoc, entryLoc, 100, -100) && locationCheck(firstLoc[1], entryLoc[1], 0, -2000)) {
+            check = true;
+        }
+    }else if(doctype == 348){
         // 504 품목명
         if(firstEntry['entryLbl'] == 504 && verticalCheck(firstLoc, entryLoc, 100, -300) && locationCheck(firstLoc[1], entryLoc[1], 0, -2000)){
             check = true;
@@ -729,6 +735,21 @@ function multiEntryCheck(firstEntry, entry, doctype) {
 
 function verticalCheck(data1, data2, plus, minus) {
     var check = false;
+
+    var dataWidthLoc2 = (parseInt(data2[0]) + parseInt(data2[0]) + parseInt(data2[2])) / 2;
+    var leftRange = parseInt(data1[0]) + minus;
+    var rigthRange = parseInt(data1[0]) + parseInt(data1[0]) + parseInt(data1[2]) + plus;
+
+    if (leftRange < dataWidthLoc2 && dataWidthLoc2 < rigthRange) {
+        check = true;
+    }
+
+    return check;
+}
+
+/*
+function verticalCheck(data1, data2, plus, minus) {
+    var check = false;
     var dataWidthLoc1 = (parseInt(data1[0]) + parseInt(data1[0]) + parseInt(data1[2])) / 2;
     var dataWidthLoc2 = (parseInt(data2[0]) + parseInt(data2[0]) + parseInt(data2[2])) / 2;
 
@@ -740,6 +761,7 @@ function verticalCheck(data1, data2, plus, minus) {
 
     return check;
 }
+*/
 
 function locationCheck(data1, data2, plus, minus) {
     var res = parseInt(data1) - parseInt(data2);
