@@ -481,7 +481,7 @@ function findEntry(req, docTypeVal, docTopTypeVal, done) {
                         
                     }
                 } else if (req.docCategory.DOCTOPTYPE == 51) {
-                    // 540 공급자
+                    // 540 공급자 받는자
                     if(req.data[j]["entryLbl"] == 540)
                     {
                         if(req.data[j]["text"] == "호(주)통광")
@@ -497,7 +497,7 @@ function findEntry(req, docTypeVal, docTopTypeVal, done) {
                         if(req.data[j]["text"] == "호(주)대유스틸")
                         {
                             req.data[j]["text"] = "(주)대유스틸";
-                        }
+                        }                        
                     }
                     // 541 현장명
                     if(req.data[j]["entryLbl"] == 541)
@@ -507,7 +507,7 @@ function findEntry(req, docTypeVal, docTopTypeVal, done) {
                             req.data[j]["text"] = "녹번역e편한세상";
                         }
                     }
-                    // 502 공급자 받는자
+                    // 502 공급자
                     if(req.data[j]["entryLbl"] == 502)
                     {
                         if(req.data[j]["text"] == "호광일볼트")
@@ -528,6 +528,11 @@ function findEntry(req, docTypeVal, docTopTypeVal, done) {
                         if(req.data[j]["text"] == "명독번역e편한세상-")
                         {
                             req.data[j]["text"] = "녹번역e편한세상";
+                        }
+
+                        if(req.data[j]["text"] == "대치가설산업경기도여주시")
+                        {
+                            req.data[j]["text"] = "대치가설산업";
                         }
 
                     }
@@ -717,6 +722,14 @@ function multiEntryCheck(firstEntry, entry, doctype) {
             check = true;
         }
 
+    // 367 대치가설산업
+    }else if(doctype == 367){        
+        if(firstEntry['entryLbl'] == 504 && verticalCheck(firstLoc, entryLoc, 10, -100) && locationCheck(firstLoc[1], entryLoc[1], 0, -2000)){
+            check = true;
+        }else if (verticalCheck(firstLoc, entryLoc, 100, -100) && locationCheck(firstLoc[1], entryLoc[1], 0, -2000)) {
+            check = true;
+        }
+
     }
 
 
@@ -777,18 +790,31 @@ function predictionColumn(docCategory, targetData, dbRowData, type) {
     var dbYLoc = (type == 'L') ? Number(dbRowData.LOCATION_Y.split(",")[0]) : Number(dbRowData.OCR_TEXT_Y.split(",")[0]);
     var upYLoc = dbYLoc, rightXLoc = dbXLoc, downYLoc = dbYLoc, leftXLoc = dbXLoc;
 
-    if (mapJson[docCategory.DOCTYPE] && mapJson[docCategory.DOCTYPE][dbRowData.CLASS] && mapJson[docCategory.DOCTYPE][dbRowData.CLASS]['LU']
-        && mapJson[docCategory.DOCTYPE][dbRowData.CLASS]['LU'][type]) {
-        upYLoc -= mapJson[docCategory.DOCTYPE][dbRowData.CLASS]['LU'][type].up,
-            rightXLoc += mapJson[docCategory.DOCTYPE][dbRowData.CLASS]['LU'][type].right,
-            downYLoc += mapJson[docCategory.DOCTYPE][dbRowData.CLASS]['LU'][type].down,
-            leftXLoc -= mapJson[docCategory.DOCTYPE][dbRowData.CLASS]['LU'][type].left;
+    // if (mapJson[docCategory.DOCTYPE] && mapJson[docCategory.DOCTYPE][dbRowData.CLASS] && mapJson[docCategory.DOCTYPE][dbRowData.CLASS]['LU']
+    //     && mapJson[docCategory.DOCTYPE][dbRowData.CLASS]['LU'][type]) {
+    //     upYLoc -= mapJson[docCategory.DOCTYPE][dbRowData.CLASS]['LU'][type].up,
+    //         rightXLoc += mapJson[docCategory.DOCTYPE][dbRowData.CLASS]['LU'][type].right,
+    //         downYLoc += mapJson[docCategory.DOCTYPE][dbRowData.CLASS]['LU'][type].down,
+    //         leftXLoc -= mapJson[docCategory.DOCTYPE][dbRowData.CLASS]['LU'][type].left;
+    // } else {
+    //     upYLoc -= mapJson['default']['LU'][type].up,
+    //         rightXLoc += mapJson['default']['LU'][type].right,
+    //         downYLoc += mapJson['default']['LU'][type].down,
+    //         leftXLoc -= mapJson['default']['LU'][type].left;
+    // }
+    // DOCTOPTYP별로 config 호출
+    if (mapJson[docCategory.DOCTOPTYPE] != "") {        
+        upYLoc -= mapJson[docCategory.DOCTOPTYPE]['LU'][type].up,
+            rightXLoc += mapJson[docCategory.DOCTOPTYPE]['LU'][type].right,
+            downYLoc += mapJson[docCategory.DOCTOPTYPE]['LU'][type].down,
+            leftXLoc -= mapJson[docCategory.DOCTOPTYPE]['LU'][type].left;
     } else {
         upYLoc -= mapJson['default']['LU'][type].up,
             rightXLoc += mapJson['default']['LU'][type].right,
             downYLoc += mapJson['default']['LU'][type].down,
             leftXLoc -= mapJson['default']['LU'][type].left;
     }
+
     var isLUCheck = (leftXLoc <= tgXLoc && tgXLoc <= rightXLoc) && (upYLoc <= tgYLoc && tgYLoc <= downYLoc);
 
     // 우하단 좌표를 기준으로 영역 계산
