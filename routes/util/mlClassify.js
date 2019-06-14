@@ -291,8 +291,9 @@ function findEntry(req, docTypeVal, docTopTypeVal, done) {
                     //console.log(req.data[j]);
                     var firstEntry = req.data[j];
                     var preEntryHeight = req.data[j];
+                    // console.log("req.docCategory.DOCTYPE ==> " + req.docCategory.DOCTYPE);
                     for (var k in req.data) {
-                        if (multiEntryCheck(firstEntry, req.data[k]) && entryHeightCheck(preEntryHeight, req.data[k], diffHeight)) {
+                        if (multiEntryCheck(firstEntry, req.data[k] , req.docCategory.DOCTYPE) && entryHeightCheck(preEntryHeight, req.data[k], diffHeight)) {
                             req.data[k]['entryLbl'] = firstEntry['entryLbl'];
                             req.data[k]["amount"] = firstEntry['amount'];
                             preEntryHeight = req.data[k];
@@ -307,177 +308,233 @@ function findEntry(req, docTypeVal, docTopTypeVal, done) {
             //예외처리 등록
             for(var j in req.data)
             {
-                //761 사업자등록번호
-                if(req.data[j]["entryLbl"] == 761)
-                {
-                    if(req.data[j]["text"] == "615-81-45657산단5로100-235"){
-                        req.data[j]["text"] = "615-81-456575"
-                    }
-                }
-                //납품용적
-                if(req.data[j]["entryLbl"] == 767)
-                {
-                    if(req.data[j]["text"].indexOf(",") !== -1)
+                if(req.docCategory.DOCTOPTYPE == 58) {
+                    //761 사업자등록번호
+                    if(req.data[j]["entryLbl"] == 761)
                     {
-                        req.data[j]["text"] = req.data[j]["text"].replace(",","");
-                    }
-
-                    if(req.data[j]["text"].indexOf(".") == -1)
-                    {
-                        if(req.data[j]["text"].substring(req.data[j]["text"].length-3) == "000")
-                        {
-                            req.data[j]["text"] = req.data[j]["text"].substring(0, req.data[j]["text"].length-3) + "."+req.data[j]["text"].substring(req.data[j]["text"].length, req.data[j]["text"].length-3);
-                        }
-                        else if(req.data[j]["text"].substring(req.data[j]["text"].length-2) == "00")
-                        {
-                            req.data[j]["text"] = req.data[j]["text"].substring(0, req.data[j]["text"].length-2) + "."+req.data[j]["text"].substring(req.data[j]["text"].length, req.data[j]["text"].length-2);
+                        if(req.data[j]["text"] == "615-81-45657산단5로100-235"){
+                            req.data[j]["text"] = "615-81-456575"
                         }
                     }
-                }
-
-                //납품출발시간
-                if(req.data[j]["entryLbl"] == 766)
-                {
-                    if(req.data[j]["text"].indexOf("도") !== -1)
+                    //납품용적
+                    if(req.data[j]["entryLbl"] == 767)
                     {
-                        req.data[j]["text"] = req.data[j]["text"].replace("도","");
-                    }
-
-                    if(req.data[j]["text"].replace( /[ㄱ-ㅎ|ㅏ-ㅣ|가-힣]/g,"").length == 4)
-                    {
-                        req.data[j]["text"] = req.data[j]["text"].replace( /[ㄱ-ㅎ|ㅏ-ㅣ|가-힣]/g,"");
-                        req.data[j]["text"] = req.data[j]["text"].substring(0,2) + "시" + req.data[j]["text"].substring(2) + "분";
-                    }
-
-                    req.data[j]["text"] =  req.data[j]["text"].replace("분분","분")
-                    req.data[j]["text"] =  req.data[j]["text"].replace("시각","")
-                    
-                }
-
-                // 운반차순서
-                if(req.data[j]["entryLbl"] == 792)
-                {
-                    
-                    if(req.data[j]["text"].indexOf(".")!== -1)
-                    {
-                        req.data[j]["text"] = req.data[j]["text"].replace(".","");
-                    }
-                    if(req.data[j]["text"].indexOf("시")!== -1)
-                    {
-                        req.data[j]["text"] = req.data[j]["text"].replace("시","");
-                    }
-                    if(req.data[j]["text"].toLowerCase().indexOf("no") !== -1)
-                    {
-                        req.data[j]["text"] = req.data[j]["text"].toLowerCase().replace("no","");
-                    }
-                    
-                }
-
-                //누계
-                if(req.data[j]["entryLbl"] == 768)
-                {
-                    if(req.data[j]["text"].indexOf(",") !== -1)
-                    {
-                        req.data[j]["text"] = req.data[j]["text"].replace(",","");
-                    }
-
-                    if(req.data[j]["text"].indexOf(".") == -1)
-                    {
-                        if(req.data[j]["text"].substring(req.data[j]["text"].length-3) == "000")
+                        if(req.data[j]["text"].indexOf(",") !== -1)
                         {
-                            req.data[j]["text"] = req.data[j]["text"].substring(0, req.data[j]["text"].length-3) + "."+req.data[j]["text"].substring(req.data[j]["text"].length, req.data[j]["text"].length-3);
+                            req.data[j]["text"] = req.data[j]["text"].replace(",","");
                         }
-                        else if(req.data[j]["text"].substring(req.data[j]["text"].length-2) == "00")
+
+                        if(req.data[j]["text"].indexOf(".") == -1)
                         {
-                            req.data[j]["text"] = req.data[j]["text"].substring(0, req.data[j]["text"].length-2) + "."+req.data[j]["text"].substring(req.data[j]["text"].length, req.data[j]["text"].length-2);
+                            if(req.data[j]["text"].substring(req.data[j]["text"].length-3) == "000")
+                            {
+                                req.data[j]["text"] = req.data[j]["text"].substring(0, req.data[j]["text"].length-3) + "."+req.data[j]["text"].substring(req.data[j]["text"].length, req.data[j]["text"].length-3);
+                            }
+                            else if(req.data[j]["text"].substring(req.data[j]["text"].length-2) == "00")
+                            {
+                                req.data[j]["text"] = req.data[j]["text"].substring(0, req.data[j]["text"].length-2) + "."+req.data[j]["text"].substring(req.data[j]["text"].length, req.data[j]["text"].length-2);
+                            }
                         }
                     }
-                }
 
-                //콘크리트
-                if(req.data[j]["entryLbl"] == 769)
-                {
-                    if(req.data[j]["text"] == "콘크리트따른구분" || req.data[j]["text"] == "콘크리트보통따른구분/" || req.data[j]["text"] == "따른구분/보통콘크리트" || req.data[j]["text"] == "따른구분콘크리트" || req.data[j]["text"] == "따른구분보통콘크리트" || req.data[j]["text"] == "방보콘크리트" || req.data[j]["text"] == "통콘크리트" || req.data[j]["text"] == "보콘크리트")
+                    //납품출발시간
+                    if(req.data[j]["entryLbl"] == 766)
                     {
-                        req.data[j]["text"] = "보통콘크리트";
+                        if(req.data[j]["text"].indexOf("도") !== -1)
+                        {
+                            req.data[j]["text"] = req.data[j]["text"].replace("도","");
+                        }
+
+                        if(req.data[j]["text"].replace( /[ㄱ-ㅎ|ㅏ-ㅣ|가-힣]/g,"").length == 4)
+                        {
+                            req.data[j]["text"] = req.data[j]["text"].replace( /[ㄱ-ㅎ|ㅏ-ㅣ|가-힣]/g,"");
+                            req.data[j]["text"] = req.data[j]["text"].substring(0,2) + "시" + req.data[j]["text"].substring(2) + "분";
+                        }
+
+                        req.data[j]["text"] =  req.data[j]["text"].replace("분분","분")
+                        req.data[j]["text"] =  req.data[j]["text"].replace("시각","")
+                        
                     }
+
+                    // 운반차순서
+                    if(req.data[j]["entryLbl"] == 792)
+                    {
+                        
+                        if(req.data[j]["text"].indexOf(".")!== -1)
+                        {
+                            req.data[j]["text"] = req.data[j]["text"].replace(".","");
+                        }
+                        if(req.data[j]["text"].indexOf("시")!== -1)
+                        {
+                            req.data[j]["text"] = req.data[j]["text"].replace("시","");
+                        }
+                        if(req.data[j]["text"].toLowerCase().indexOf("no") !== -1)
+                        {
+                            req.data[j]["text"] = req.data[j]["text"].toLowerCase().replace("no","");
+                        }
+                        
+                    }
+
+                    //누계
+                    if(req.data[j]["entryLbl"] == 768)
+                    {
+                        if(req.data[j]["text"].indexOf(",") !== -1)
+                        {
+                            req.data[j]["text"] = req.data[j]["text"].replace(",","");
+                        }
+
+                        if(req.data[j]["text"].indexOf(".") == -1)
+                        {
+                            if(req.data[j]["text"].substring(req.data[j]["text"].length-3) == "000")
+                            {
+                                req.data[j]["text"] = req.data[j]["text"].substring(0, req.data[j]["text"].length-3) + "."+req.data[j]["text"].substring(req.data[j]["text"].length, req.data[j]["text"].length-3);
+                            }
+                            else if(req.data[j]["text"].substring(req.data[j]["text"].length-2) == "00")
+                            {
+                                req.data[j]["text"] = req.data[j]["text"].substring(0, req.data[j]["text"].length-2) + "."+req.data[j]["text"].substring(req.data[j]["text"].length, req.data[j]["text"].length-2);
+                            }
+                        }
+                    }
+
+                    //콘크리트
+                    if(req.data[j]["entryLbl"] == 769)
+                    {
+                        if(req.data[j]["text"] == "콘크리트따른구분" || req.data[j]["text"] == "콘크리트보통따른구분/" || req.data[j]["text"] == "따른구분/보통콘크리트" || req.data[j]["text"] == "따른구분콘크리트" || req.data[j]["text"] == "따른구분보통콘크리트" || req.data[j]["text"] == "방보콘크리트" || req.data[j]["text"] == "통콘크리트" || req.data[j]["text"] == "보콘크리트")
+                        {
+                            req.data[j]["text"] = "보통콘크리트";
+                        }
+                        
+                    }
+
+                    //굵은굴재
+                    if(req.data[j]["entryLbl"] == 770)
+                    {
+                        if((req.data[j]["text"].indexOf("시")!== -1) || (req.data[j]["text"].indexOf("시방")!== -1))
+                        {
+                            req.data[j]["text"] = req.data[j]["text"].replace( /[ㄱ-ㅎ|ㅏ-ㅣ|가-힣]/g,"");
+                        }
+                        if(req.data[j]["text"].indexOf("mm") !== -1)
+                        {
+                            req.data[j]["text"] = req.data[j]["text"].replace("mm","");
+                        }
+                        if(req.data[j]["text"] == "125" || req.data[j]["text"] == "25방배합" || req.data[j]["text"] == "25.방" || req.data[j]["text"] == "25방배합" || req.data[j]["text"] == "방25배합" || req.data[j]["text"] == "125.")
+                        {
+                            req.data[j]["text"] = "25";
+                        }
+
+                        
+                    }
+                    //호칭강도
+                    if(req.data[j]["entryLbl"] == 771)
+                    {
+                        if(req.data[j]["text"] == "표18(g/" || req.data[j]["text"]=="표18(/" || req.data[j]["text"]=="118.표(g" || req.data[j]["text"]=="18(g")
+                        {
+                            req.data[j]["text"] = "18";
+                        }
+
+                        if(req.data[103]["text"].substring(req.data[103]["text"].length-1) == ".")
+                        {
+                            req.data[j]["text"] = req.data[j]["text"].substring(0,req.data[j]["text"].length-1 );
+                        }
+                        if(req.data[j]["text"] == "121" || req.data[j]["text"] == "21/")
+                        {
+                            req.data[j]["text"] = "21";
+                        }
+                        
+                    }
+                    //슬럼프 150()
+                    if(req.data[j]["entryLbl"] == 772)
+                    {
+                        if(req.data[j]["text"].indexOf("mm") !== -1)
+                        {
+                            req.data[j]["text"] = req.data[j]["text"].replace("mm","");
+                        }
+
+                        if(req.data[j]["text"] == "1500")
+                        {
+                            req.data[j]["text"] = "150";
+                        }
+                    }
+
+                    //시멘트
+                    if(req.data[j]["entryLbl"] == 773)
+                    {
+                        if(req.data[j]["text"] == "포틀랜드시멘트1종따른구분" || req.data[j]["text"] == "포들랜드시멘트1종따른구분" || req.data[j]["text"] == ")따른구분시멘트종류에포틀랜드시멘트1종" || req.data[j]["text"] == "시멘트종류에따른구분)포틀랜드시멘트1종" || req.data[j]["text"] == "따른구분포틀랜드시멘트종" || req.data[j]["text"] == "틀랜드시멘트1종")
+                        {
+                            req.data[j]["text"] = "포틀랜드시멘트1종";
+                        }
+
+                        if(req.data[j]["text"] == "포틀랜드시멘트1종O로슬래그시메트2")
+                        {
+                            req.data[j]["text"] = "포틀랜드시멘트1종";
+                        }
+
+                        if(req.data[j]["text"] == "랜드시멘트1종(70")
+                        {
+                            req.data[j]["text"] = "포틀랜드시멘트1종70";
+                        }
+
+                        if(req.data[j]["text"] == "보통포틀멘E" || req.data[j]["text"] == "보통포틀랜드시멘E1" || req.data[j]["text"] == "보통포틀랜시1" || req.data[j]["text"] == "보통틀랜드시멘E1" || req.data[j]["text"] == "보통포틀드시멘")
+                        {
+                            req.data[j]["text"] = "보통포틀랜드시멘트1종";
+                        }
+                        
+                    }
+                } else if (req.docCategory.DOCTOPTYPE == 51) {
+                    // 540 공급자
+                    if(req.data[j]["entryLbl"] == 540)
+                    {
+                        if(req.data[j]["text"] == "호(주)통광")
+                        {
+                            req.data[j]["text"] = "(주)통광";
+                        }
+
+                        if(req.data[j]["text"] == "대림에스엠(주)성")
+                        {
+                            req.data[j]["text"] = "대림에스엠(주)";
+                        }
+
+                        if(req.data[j]["text"] == "호(주)대유스틸")
+                        {
+                            req.data[j]["text"] = "(주)대유스틸";
+                        }
+                    }
+                    // 541 현장명
+                    if(req.data[j]["entryLbl"] == 541)
+                    {
+                        if(req.data[j]["text"] == "명녹번역e편한세상")
+                        {
+                            req.data[j]["text"] = "녹번역e편한세상";
+                        }
+                    }
+                    // 502 공급자 받는자
+                    if(req.data[j]["entryLbl"] == 502)
+                    {
+                        if(req.data[j]["text"] == "호광일볼트")
+                        {
+                            req.data[j]["text"] = "광일볼트상사";
+                        }
+
+                        if(req.data[j]["text"] == "대림산업(주)녹번역편한세상캐슬" || req.data[j]["text"] == "Tot대림산업(주)" || req.data[j]["text"] == "호대림산업(주)")
+                        {
+                            req.data[j]["text"] = "대림산업(주)";
+                        }
+
+                        if(req.data[j]["text"] == ")백광도시개발군")
+                        {
+                            req.data[j]["text"] = "백광도시개발";
+                        }
+
+                        if(req.data[j]["text"] == "명독번역e편한세상-")
+                        {
+                            req.data[j]["text"] = "녹번역e편한세상";
+                        }
+
+                    }
+
                     
                 }
-
-                //굵은굴재
-                if(req.data[j]["entryLbl"] == 770)
-                {
-                    if((req.data[j]["text"].indexOf("시")!== -1) || (req.data[j]["text"].indexOf("시방")!== -1))
-                    {
-                        req.data[j]["text"] = req.data[j]["text"].replace( /[ㄱ-ㅎ|ㅏ-ㅣ|가-힣]/g,"");
-                    }
-                    if(req.data[j]["text"].indexOf("mm") !== -1)
-                    {
-                        req.data[j]["text"] = req.data[j]["text"].replace("mm","");
-                    }
-                    if(req.data[j]["text"] == "125" || req.data[j]["text"] == "25방배합" || req.data[j]["text"] == "25.방" || req.data[j]["text"] == "25방배합" || req.data[j]["text"] == "방25배합" || req.data[j]["text"] == "125.")
-                    {
-                        req.data[j]["text"] = "25";
-                    }
-
-                    
-                }
-                //호칭강도
-                if(req.data[j]["entryLbl"] == 771)
-                {
-                    if(req.data[j]["text"] == "표18(g/" || req.data[j]["text"]=="표18(/" || req.data[j]["text"]=="118.표(g" || req.data[j]["text"]=="18(g")
-                    {
-                        req.data[j]["text"] = "18";
-                    }
-
-                    if(req.data[103]["text"].substring(req.data[103]["text"].length-1) == ".")
-                    {
-                        req.data[j]["text"] = req.data[j]["text"].substring(0,req.data[j]["text"].length-1 );
-                    }
-                    if(req.data[j]["text"] == "121" || req.data[j]["text"] == "21/")
-                    {
-                        req.data[j]["text"] = "21";
-                    }
-                    
-                }
-                //슬럼프 150()
-                if(req.data[j]["entryLbl"] == 772)
-                {
-                    if(req.data[j]["text"].indexOf("mm") !== -1)
-                    {
-                        req.data[j]["text"] = req.data[j]["text"].replace("mm","");
-                    }
-
-                    if(req.data[j]["text"] == "1500")
-                    {
-                        req.data[j]["text"] = "150";
-                    }
-                }
-
-                //시멘트
-                if(req.data[j]["entryLbl"] == 773)
-                {
-                    if(req.data[j]["text"] == "포틀랜드시멘트1종따른구분" || req.data[j]["text"] == "포들랜드시멘트1종따른구분" || req.data[j]["text"] == ")따른구분시멘트종류에포틀랜드시멘트1종" || req.data[j]["text"] == "시멘트종류에따른구분)포틀랜드시멘트1종" || req.data[j]["text"] == "따른구분포틀랜드시멘트종" || req.data[j]["text"] == "틀랜드시멘트1종")
-                    {
-                        req.data[j]["text"] = "포틀랜드시멘트1종";
-                    }
-
-                    if(req.data[j]["text"] == "포틀랜드시멘트1종O로슬래그시메트2")
-                    {
-                        req.data[j]["text"] = "포틀랜드시멘트1종";
-                    }
-
-                    if(req.data[j]["text"] == "랜드시멘트1종(70")
-                    {
-                        req.data[j]["text"] = "포틀랜드시멘트1종70";
-                    }
-
-                    if(req.data[j]["text"] == "보통포틀멘E" || req.data[j]["text"] == "보통포틀랜드시멘E1" || req.data[j]["text"] == "보통포틀랜시1" || req.data[j]["text"] == "보통틀랜드시멘E1" || req.data[j]["text"] == "보통포틀드시멘")
-                    {
-                        req.data[j]["text"] = "보통포틀랜드시멘트1종";
-                    }
-                    
-                }
+                
             }
 
             retData["docCategory"] = req.docCategory;
@@ -629,12 +686,41 @@ function entryHeightCheck(data1, data2, diffHeight) {
     return check;
 }
 
-function multiEntryCheck(firstEntry, entry) {
+function multiEntryCheck(firstEntry, entry, doctype) {
     var check = false;
     var firstLoc = firstEntry['location'].split(',');
     var entryLoc = entry['location'].split(',');
 
-    if (verticalCheck(firstLoc, entryLoc, 100, -100) && locationCheck(firstLoc[1], entryLoc[1], 0, -2000)) {
+    // console.log("multiEntryCheck doctype===>" + doctype);
+    // console.log("multiEntryCheck firstEntry===>" + firstEntry['entryLbl']);
+    
+    // 348 일반송장_광일볼트상사
+    if(doctype == 348){
+        // 504 품목명
+        if(firstEntry['entryLbl'] == 504 && verticalCheck(firstLoc, entryLoc, 100, -300) && locationCheck(firstLoc[1], entryLoc[1], 0, -2000)){
+            check = true;
+        }
+    // 355 일반송장_남양씨피엠
+    }else if(doctype == 355){
+        // 504 품목명
+        if(firstEntry['entryLbl'] == 504 && verticalCheck(firstLoc, entryLoc, 150, -300) && locationCheck(firstLoc[1], entryLoc[1], 0, -2000)){
+            check = true;
+        }
+    // 358 대림에스엠
+    }else if(doctype == 358){        
+        if(firstEntry['entryLbl'] == 504 && verticalCheck(firstLoc, entryLoc, 300, -300) && locationCheck(firstLoc[1], entryLoc[1], 0, -2000)){
+            check = true;
+        }
+    // 364 대유스틸
+    }else if(doctype == 364){        
+        if(firstEntry['entryLbl'] == 504 && verticalCheck(firstLoc, entryLoc, 100, -100) && locationCheck(firstLoc[1], entryLoc[1], 0, -2000)){
+            check = true;
+        }
+
+    }
+
+
+    else if (verticalCheck(firstLoc, entryLoc, 100, -100) && locationCheck(firstLoc[1], entryLoc[1], 0, -2000)) {
         check = true;
     }
 
