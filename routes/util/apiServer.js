@@ -89,7 +89,7 @@ app.post("/reviewRequest", function(req , res){
                         }
                         else
                         {
-                            var result = sync.await(oracle.updateFtpFileList(fileNm, req.body.data[i].sequence,req.body.bigo, sync.defer()));
+                            var result = sync.await(oracle.updateFtpFileList(fileNm, req.body.data[i].sequence,req.body.data[i].bigo, sync.defer()));
                             console.log(result);
                             if(result = 1)
                             {
