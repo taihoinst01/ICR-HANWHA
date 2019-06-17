@@ -535,7 +535,11 @@ function findEntry(req, docTypeVal, docTopTypeVal, done) {
                         
                         if(req.data[j]["text"] == "독번") {
                             req.data[j]["text"] = "녹번";
-                        } 
+                        }
+
+                        if(req.data[j]["text"] == "독번역e-편한세상") {
+                            req.data[j]["text"] = "녹번역e-편한세상";
+                        }  
                     }
                     // 502 공급자
                     if(req.data[j]["entryLbl"] == 502)
@@ -756,7 +760,7 @@ function multiEntryCheck(firstEntry, entry, doctype) {
             check = true;
         } else if (firstEntry['entryLbl'] == 543 && verticalCheck(firstLoc, entryLoc, 80, -100) && locationCheck(firstLoc[1], entryLoc[1], 0, -2000)) {
             check = true;
-        } else if (verticalCheck(firstLoc, entryLoc, 100, -100) && locationCheck(firstLoc[1], entryLoc[1], 0, -2000)) {
+        } else if (firstEntry['entryLbl'] == 506 && verticalCheck(firstLoc, entryLoc, 50, -50) && locationCheck(firstLoc[1], entryLoc[1], 0, -2000)) {
             check = true;
         }else if (verticalCheck(firstLoc, entryLoc, 100, -100) && locationCheck(firstLoc[1], entryLoc[1], 0, -2000)) {
             check = true;
