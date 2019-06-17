@@ -5,6 +5,7 @@ var express = require('express');
 var app = express();
 var oracle = require('./oracle.js');
 var sync = require('./sync.js');
+var date = require('date-utils');
 
 app.use(bodyParser.json());
 
@@ -29,77 +30,121 @@ app.use(bodyParser.urlencoded({extended:true}));
 app.use(bodyParser.json());
 
 //POST API
-app.post("/return", function(req , res){
+app.post("/reviewRequest", function(req , res){
     sync.fiber(function () {
+        var dt = new Date();
+        console.log(dt.toFormat('YYYY-MM-DD HH24:MI:SS'));
         console.log("API SERVER CALL RETURN");
-        
+        var errmsg = "";
+        var retCnt = 0;
+        var retSequence = "";
         // console.log(req.body.data);
         // console.log(req.body.data.length);
-
-        if(req.body.data.length > 0)
-        {
-            for(var i = 0; i < req.body.data.length; i++)
+        // if(req.body.dataCnt == req.body.data.length)
+        // {
+            if(req.body.data.length > 0)
             {
-                console.log(req.body.data[i]);
-            
+                for(var i = 0; i < req.body.data.length; i++)
+                {
+                    console.log("[ "+i+" ]"+req.body.data[i]);
+                
 
-                if(!req.body.data[i].fileName){
-                    console.log("fileName is required");
-                    return res.status(400).send({
-                        result: 'F',
-                        errMsg: 'fileName is required'
-                    });
-                }else if (!req.body.data[i].sequence){
-                    console.log("sequence is required");
-                    return res.status(400).send({
-                        result: 'F',
-                        errMsg: 'sequence is required'
+                    if(!req.body.data[i].fileName){
+                        console.log("fileName is required");
+                        // return res.status(400).send({
+                        //     result: 'F',
+                        //     sequence:req.body.data[i].sequence,
+                        //     errMsg: '파일명이 잘못되었습니다!!'
+                        // });
+                        errmsg = "파일명이 잘못되었습니다!!";
+
+                    }else if (!req.body.data[i].sequence){
+                        console.log("sequence is required");
+                        // return res.status(400).send({
+                        //     result: 'F',
+                        //     sequence:req.body.data[i].sequence,
+                        //     errMsg: '시퀀스 번호가 없습니다!!'
+                        // });
+                        errmsg = "시퀀스 번호가 없습니다!!";
+                    }
+                    else
+                    {   
+                        var fileNm = "";
+                        fileNm = req.body.data[i].fileName.split("/")[req.body.data[i].fileName.split("/").length-1];
+                        // console.log(req.body.data[i].fileName.split("/").length);
+                        fileNm = fileNm.split(".")[0].substring(0, fileNm.split(".")[0].length-2)+".pdf";
+                        console.log(fileNm);
+                        console.log(req.body.data[i].sequence);
+                        var retData = sync.await(oracle.getFtpFileList(fileNm, req.body.data[i].sequence, sync.defer()));
+                        console.log(retData);
+                        if(retData.length < 1)
+                        {
+                            // return res.status(400).send({
+                            //     result: 'F',
+                            //     sequence:req.body.data[i].sequence,
+                            //     errMsg: '존재하지 않는 데이터입니다!!'
+                            // });
+                            errmsg = "존재하지 않는 데이터입니다!!";
+                            retSequence +=  req.body.data[i].sequence +",";
+                        }
+                        else
+                        {
+                            var result = sync.await(oracle.updateFtpFileList(fileNm, req.body.data[i].sequence,req.body.bigo, sync.defer()));
+                            console.log(result);
+                            if(result = 1)
+                            {
+                                
+                                retCnt++;
+                                retSequence +=  req.body.data[i].sequence +",";
+                                // return res.status(200).send({
+                                //     result: 'S',
+                                //     sequence:req.body.data[i].sequence,
+                                //     errMsg: errmsg
+                                // });
+                            }
+                            else{
+                                console.log(result);
+                            }
+                        }
+                    }
+                }
+                // retSequence = retSequence.substring(retSequence.length-1)
+                console.log(retSequence.substring(0,retSequence.length-1));
+                if(retCnt == req.body.data.length)
+                {
+                    return res.status(200).send({
+                        result: 'S',
+                        // sequence:req.body.data[i].sequence,
+                        errMsg: errmsg
                     });
                 }
                 else
-                {   
-                    var fileNm = "";
-                    fileNm = req.body.data[i].fileName.split("/")[req.body.data[i].fileName.split("/").length-1];
-                    // console.log(req.body.data[i].fileName.split("/").length);
-                    console.log(fileNm);
-                    fileNm = fileNm.split(".")[0].substring(0, fileNm.split(".")[0].length-2)+".pdf";
-                    console.log(fileNm);
-
-                    var retData = sync.await(oracle.getFtpFileList(fileNm, req.body.data[i].sequence, sync.defer()));
-                    console.log(retData);
-                    if(retData.length < 1)
-                    {
-                        return res.status(400).send({
-                            result: 'F',
-                            errMsg: 'False DATA'
-                        });
-                    }
-                    else
-                    {
-                        var result = sync.await(oracle.updateFtpFileList(fileNm, req.body.data[i].sequence,req.body.data[i].bigo, sync.defer()));
-                        console.log(result);
-                        if(result = 1)
-                        {
-                            return res.status(200).send({
-                                result: 'S',
-                                errMsg: 'receive successfully'
-                            });
-                        }
-                        else{
-                            console.log(result);
-                        }
-                    }
+                {
+                    return res.status(200).send({
+                        result: 'F',
+                        // sequence:req.body.data[i].sequence,
+                        errMsg: errmsg
+                    });
                 }
-
+                
             }
-        }
-        else
-        {
-            return res.status(400).send({
-                result: 'F',
-                errMsg: 'No DATA'
-            });
-        }
+            else
+            {
+                return res.status(200).send({
+                    result: 'F',
+                    // sequence:req.body.data[i].sequence,
+                    errMsg: '데이터가 없습니다!!'
+                });
+            }
+        // }
+        // else
+        // {
+        //     return res.status(400).send({
+        //         result: 'F',
+        //         errMsg: 'Data Count Error!!'
+        //     });
+        // }
+        
         
         // else
         // {

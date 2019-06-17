@@ -532,15 +532,17 @@ function findEntry(req, docTypeVal, docTopTypeVal, done) {
                             req.data[j]["text"] = "백광도시개발";
                         }
 
-                        if(req.data[j]["text"] == "명독번역e편한세상-")
-                        {
-                            req.data[j]["text"] = "녹번역e편한세상";
-                        }
-
-                        if(req.data[j]["text"] == "대치가설산업경기도여주시")
+                        if(req.data[j]["text"] == "대치가설산업경기도여주시" || req.data[j]["text"] == "대치가설산업여주시경기도")
                         {
                             req.data[j]["text"] = "대치가설산업";
                         }
+
+                        if(req.data[j]["text"] == "대림에스엠(주)성")
+                        {
+                            req.data[j]["text"] = ">대림에스엠(주)";
+                        }
+
+                        req.data[j]["text"].replace("명독","녹");
 
                     }
 
@@ -726,7 +728,7 @@ function multiEntryCheck(firstEntry, entry, doctype) {
         }
     // 358 대림에스엠
     }else if(doctype == 358){        
-        if(firstEntry['entryLbl'] == 504 && verticalCheck(firstLoc, entryLoc, 300, -300) && locationCheck(firstLoc[1], entryLoc[1], 0, -2000)){
+        if(firstEntry['entryLbl'] == 504 && verticalCheck(firstLoc, entryLoc, 10, -10) && locationCheck(firstLoc[1], entryLoc[1], 0, -2000)){
             check = true;
         }
     // 364 대유스틸
@@ -737,12 +739,11 @@ function multiEntryCheck(firstEntry, entry, doctype) {
 
     // 367 대치가설산업
     }else if(doctype == 367){        
-        if(firstEntry['entryLbl'] == 504 && verticalCheck(firstLoc, entryLoc, 10, -100) && locationCheck(firstLoc[1], entryLoc[1], 0, -2000)){
+        if(firstEntry['entryLbl'] == 504 && verticalCheck(firstLoc, entryLoc, 10, -10) && locationCheck(firstLoc[1], entryLoc[1], 0, -2000)){
             check = true;
-        }else if (verticalCheck(firstLoc, entryLoc, 100, -100) && locationCheck(firstLoc[1], entryLoc[1], 0, -2000)) {
+        }else if (verticalCheck(firstLoc, entryLoc, 10, -10) && locationCheck(firstLoc[1], entryLoc[1], 0, -2000)) {
             check = true;
         }
-
     }
 
 
@@ -752,21 +753,21 @@ function multiEntryCheck(firstEntry, entry, doctype) {
 
     return check;
 }
-/*
-function verticalCheck(data1, data2, plus, minus) {
-    var check = false;
 
-    var dataWidthLoc2 = (parseInt(data2[0]) + parseInt(data2[0]) + parseInt(data2[2])) / 2;
-    var leftRange = parseInt(data1[0]) + minus;
-    var rigthRange = parseInt(data1[0]) + parseInt(data1[0]) + parseInt(data1[2]) + plus;
+// function verticalCheck(data1, data2, plus, minus) {
+//     var check = false;
 
-    if (leftRange < dataWidthLoc2 && dataWidthLoc2 < rigthRange) {
-        check = true;
-    }
+//     var dataWidthLoc2 = (parseInt(data2[0]) + parseInt(data2[0]) + parseInt(data2[2])) / 2;
+//     var leftRange = parseInt(data1[0]) + minus;
+//     var rigthRange = parseInt(data1[0]) + parseInt(data1[0]) + parseInt(data1[2]) + plus;
 
-    return check;
-}
-*/
+//     if (leftRange < dataWidthLoc2 && dataWidthLoc2 < rigthRange) {
+//         check = true;
+//     }
+
+//     return check;
+// }
+
 
 function verticalCheck(data1, data2, plus, minus) {
     var check = false;
