@@ -712,28 +712,42 @@ function multiEntryCheck(firstEntry, entry, doctype) {
         // 504 품목명
         if(firstEntry['entryLbl'] == 504 && verticalCheck(firstLoc, entryLoc, 50, -100) && locationCheck(firstLoc[1], entryLoc[1], 0, -2000)){
             check = true;
-        } else if (verticalCheck(firstLoc, entryLoc, 100, -100) && locationCheck(firstLoc[1], entryLoc[1], 0, -2000)) {
+        }else if(firstEntry['entryLbl'] == 506 && verticalCheck(firstLoc, entryLoc, 100, -100) && locationCheck(firstLoc[1], entryLoc[1], 0, -2000)){
+            check = true;
+        }else if (verticalCheck(firstLoc, entryLoc, 100, -100) && locationCheck(firstLoc[1], entryLoc[1], 0, -2000)) {
             check = true;
         }
+    // 일반송자_광일볼트상사
     }else if(doctype == 348){
         // 504 품목명
         if(firstEntry['entryLbl'] == 504 && verticalCheck(firstLoc, entryLoc, 100, -300) && locationCheck(firstLoc[1], entryLoc[1], 0, -2000)){
             check = true;
+        }else if(firstEntry['entryLbl'] == 506 && verticalCheck(firstLoc, entryLoc, 100, -50) && locationCheck(firstLoc[1], entryLoc[1], 0, -2000)){
+            check = true;
+        }else if (verticalCheck(firstLoc, entryLoc, 100, -100) && locationCheck(firstLoc[1], entryLoc[1], 0, -2000)) {
+            check = true;
         }
+        
     // 355 일반송장_남양씨피엠
     }else if(doctype == 355){
         // 504 품목명
         if(firstEntry['entryLbl'] == 504 && verticalCheck(firstLoc, entryLoc, 150, -300) && locationCheck(firstLoc[1], entryLoc[1], 0, -2000)){
+            check = true;
+        }else if (verticalCheck(firstLoc, entryLoc, 100, -100) && locationCheck(firstLoc[1], entryLoc[1], 0, -2000)) {
             check = true;
         }
     // 358 대림에스엠
     }else if(doctype == 358){        
         if(firstEntry['entryLbl'] == 504 && verticalCheck(firstLoc, entryLoc, 10, -10) && locationCheck(firstLoc[1], entryLoc[1], 0, -2000)){
             check = true;
+        }else if (verticalCheck(firstLoc, entryLoc, 100, -100) && locationCheck(firstLoc[1], entryLoc[1], 0, -2000)) {
+            check = true;
         }
     // 364 대유스틸
     }else if(doctype == 364){        
         if(firstEntry['entryLbl'] == 504 && verticalCheck(firstLoc, entryLoc, 100, -100) && locationCheck(firstLoc[1], entryLoc[1], 0, -2000)){
+            check = true;
+        }else if (verticalCheck(firstLoc, entryLoc, 100, -100) && locationCheck(firstLoc[1], entryLoc[1], 0, -2000)) {
             check = true;
         }
 
@@ -741,13 +755,29 @@ function multiEntryCheck(firstEntry, entry, doctype) {
     }else if(doctype == 367){        
         if(firstEntry['entryLbl'] == 504 && verticalCheck(firstLoc, entryLoc, 10, -10) && locationCheck(firstLoc[1], entryLoc[1], 0, -2000)){
             check = true;
-        }else if (verticalCheck(firstLoc, entryLoc, 10, -10) && locationCheck(firstLoc[1], entryLoc[1], 0, -2000)) {
+        }else if (verticalCheck(firstLoc, entryLoc, 100, -100) && locationCheck(firstLoc[1], entryLoc[1], 0, -2000)) {
+            check = true;
+        }    
+    // 355 삼성에스앤에이치
+    }else if(doctype == 355){        
+        if(firstEntry['entryLbl'] == 504 && verticalCheck(firstLoc, entryLoc, 10, -100) && locationCheck(firstLoc[1], entryLoc[1], 0, -2000)){
+            check = true;
+        }else if (verticalCheck(firstLoc, entryLoc, 100, -100) && locationCheck(firstLoc[1], entryLoc[1], 0, -2000)) {
+            check = true;
+        }
+    // 380 광지세이프티02
+    }else if(doctype == 380){        
+        if(firstEntry['entryLbl'] == 504 && verticalCheck(firstLoc, entryLoc, 10, -50) && locationCheck(firstLoc[1], entryLoc[1], 0, -2000)){
+            check = true;
+        }else if(firstEntry['entryLbl'] == 505 && verticalCheck(firstLoc, entryLoc, 100, -50) && locationCheck(firstLoc[1], entryLoc[1], 0, -2000)){
+            check = true;
+        }
+        else if (verticalCheck(firstLoc, entryLoc, 100, -100) && locationCheck(firstLoc[1], entryLoc[1], 0, -2000)) {
             check = true;
         }
     }
 
-
-    else if (verticalCheck(firstLoc, entryLoc, 50, -50) && locationCheck(firstLoc[1], entryLoc[1], 0, -2000)) {
+    else if (verticalCheck(firstLoc, entryLoc, 100, -100) && locationCheck(firstLoc[1], entryLoc[1], 0, -2000)) {
         check = true;
     }
 
