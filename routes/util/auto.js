@@ -9,6 +9,7 @@ var oracle = require('./oracle.js');
 var ocrUtil = require('../util/ocr.js');
 var mlclassify = require('../util/mlClassify.js');
 var propertiesConfig = require('../../config/propertiesConfig.js');
+var date = require('date-utils');
 
 //FTP 서버 정보
 var ftpConfig = propertiesConfig.ftp;
@@ -48,7 +49,8 @@ var remoteFTP_v2 = function () {
     cron.schedule('*/30 * * * * *', function () {
         sync.fiber(function () {
             try {
-
+                var dt = new Date();                
+                
                 var execFileNames = [];
                 // TBL_FTP_FILE_LIST 데이터 조회
                 var fileNames = sync.await(getftpFileList(sync.defer()));
@@ -71,7 +73,7 @@ var remoteFTP_v2 = function () {
                         execFileNames = fileNames;
                     }
                 }
-                console.log('auto processing start -------------> fileName : [' + execFileNames.toString() + ']');
+                console.log('auto processing start ['+dt.toFormat('YYYY-MM-DD HH24:MI:SS')+'] -------------> fileName : [' + execFileNames.toString() + '] ');
 
                 // ocr 및 ml 프로세스 실행
                 if (execFileNames.lengh != 0) {
@@ -101,7 +103,7 @@ var remoteFTP_v2 = function () {
                         }                       
                     }
                 }
-                console.log('auto processing end ---------------> fileName : [' + execFileNames.toString() + ']');
+                console.log('auto processing end ['+dt.toFormat('YYYY-MM-DD HH24:MI:SS')+'] ---------------> fileName : [' + execFileNames.toString() + ']');
             } catch (e) {
                 console.log(e);
             } finally {
