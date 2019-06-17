@@ -91,6 +91,16 @@ var config = {
             'E': { up: 40, right: 70, down: 40, left: 70 }
         }
     },
+    '59': {
+        'LU': {
+            'L': { up: 0, right: 0, down: 0, left: 0 },
+            'E': { up: 40, right: 70, down: 40, left: 70 }
+        },
+        'RD': {
+            'L': { up: 0, right: 0, down: 0, left: 0 },
+            'E': { up: 40, right: 70, down: 40, left: 70 }
+        }
+    },
     'default': {
         'LU': {
             'L': { up: 0, right: 0, down: 0, left: 0 },
