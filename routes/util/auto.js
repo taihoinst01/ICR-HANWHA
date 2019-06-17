@@ -246,18 +246,20 @@ function uiLearnTraining_auto(filepath, isAuto, callback) {
                 retData.labelData = labelData.rows;
 
                 // 정규식 적용
-                for (var ii = 0; ii < resPyArr[i].data.length; ii++) {
-                    if (retData.data[ii]["colLbl"] != -1) {
-                        for (var jj = 0; jj < labelData.rows.length; jj++) {
-                            if (retData.data[ii]["entryLbl"] == labelData.rows[jj].SEQNUM) {
-                                var re = new RegExp(labelData.rows[jj].VALID, 'gi');
-                                var keyParts = retData.data[ii]["text"].match(re);
-                                if (keyParts != null) {
-                                    retData.data[ii]["text"] = keyParts.toString().replace(/,/gi, '');
-                                }
-                            }
+                for(var ii= 0; ii < resPyArr[i].data.length; ii++){
+                    // if(retData.data[ii]["colLbl"] != -1){
+                    if(retData.data[ii]["entryLbl"]){
+                        for(var jj = 0; jj < labelData.rows.length; jj++) {
+                            if(retData.data[ii]["entryLbl"] == labelData.rows[jj].SEQNUM) {
+                                var re = new RegExp(labelData.rows[jj].VALID,'gi');   
+                                var keyParts = retData.data[ii]["text"].match(re); 
+                                // if(keyParts != null)
+                                // {
+                                //     retData.data[ii]["text"] = keyParts.toString().replace(/,/gi,'');
+                                // }
+                            }                                
                         }
-                    }
+                    }                        
                 }
 
                 retData.fileinfo = {
