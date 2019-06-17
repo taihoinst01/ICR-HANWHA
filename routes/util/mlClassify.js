@@ -293,7 +293,14 @@ function findEntry(req, docTypeVal, docTopTypeVal, done) {
                     var preEntryHeight = req.data[j];
                     // console.log("req.docCategory.DOCTYPE ==> " + req.docCategory.DOCTYPE);
                     for (var k in req.data) {
-                        if (multiEntryCheck(firstEntry, req.data[k] , req.docCategory.DOCTYPE) && entryHeightCheck(preEntryHeight, req.data[k], diffHeight)) {
+                        if (req.docCategory.DOCTYPE == "345"){
+                            var entryHeight = req.data[k]["location"].split(",");
+                            if (multiEntryCheck(firstEntry, req.data[k] , req.docCategory.DOCTYPE) && parseInt(entryHeight[1]) < 1800) {
+                                req.data[k]['entryLbl'] = firstEntry['entryLbl'];
+                                req.data[k]["amount"] = firstEntry['amount'];
+                                preEntryHeight = req.data[k];
+                            }
+                        } else if (multiEntryCheck(firstEntry, req.data[k] , req.docCategory.DOCTYPE) && entryHeightCheck(preEntryHeight, req.data[k], diffHeight)) {
                             req.data[k]['entryLbl'] = firstEntry['entryLbl'];
                             req.data[k]["amount"] = firstEntry['amount'];
                             preEntryHeight = req.data[k];
@@ -701,7 +708,7 @@ function multiEntryCheck(firstEntry, entry, doctype) {
     
     if(doctype == 340) {
         // 504 품목명
-        if(firstEntry['entryLbl'] == 504 && verticalCheck(firstLoc, entryLoc, 100, -50) && locationCheck(firstLoc[1], entryLoc[1], 0, -2000)){
+        if(firstEntry['entryLbl'] == 504 && verticalCheck(firstLoc, entryLoc, 50, -100) && locationCheck(firstLoc[1], entryLoc[1], 0, -2000)){
             check = true;
         } else if (verticalCheck(firstLoc, entryLoc, 100, -100) && locationCheck(firstLoc[1], entryLoc[1], 0, -2000)) {
             check = true;
@@ -739,13 +746,13 @@ function multiEntryCheck(firstEntry, entry, doctype) {
     }
 
 
-    else if (verticalCheck(firstLoc, entryLoc, 100, -100) && locationCheck(firstLoc[1], entryLoc[1], 0, -2000)) {
+    else if (verticalCheck(firstLoc, entryLoc, 50, -50) && locationCheck(firstLoc[1], entryLoc[1], 0, -2000)) {
         check = true;
     }
 
     return check;
 }
-
+/*
 function verticalCheck(data1, data2, plus, minus) {
     var check = false;
 
@@ -759,8 +766,8 @@ function verticalCheck(data1, data2, plus, minus) {
 
     return check;
 }
+*/
 
-/*
 function verticalCheck(data1, data2, plus, minus) {
     var check = false;
     var dataWidthLoc1 = (parseInt(data1[0]) + parseInt(data1[0]) + parseInt(data1[2])) / 2;
@@ -774,7 +781,7 @@ function verticalCheck(data1, data2, plus, minus) {
 
     return check;
 }
-*/
+
 
 function locationCheck(data1, data2, plus, minus) {
     var res = parseInt(data1) - parseInt(data2);
