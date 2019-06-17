@@ -513,6 +513,10 @@ function findEntry(req, docTypeVal, docTopTypeVal, done) {
                         {
                             req.data[j]["text"] = "녹번역e편한세상";
                         }
+                        
+                        if(req.data[j]["text"] == "독번") {
+                            req.data[j]["text"] = "녹번";
+                        } 
                     }
                     // 502 공급자
                     if(req.data[j]["entryLbl"] == 502)
@@ -540,6 +544,16 @@ function findEntry(req, docTypeVal, docTopTypeVal, done) {
                         if(req.data[j]["text"] == "대림에스엠(주)성")
                         {
                             req.data[j]["text"] = ">대림에스엠(주)";
+                        }
+
+                        if(req.data[j]["text"] == ")웍스코퍼레이성(" || req.data[j]["text"] == ")웍스코퍼레이성" || req.data[j]["text"] == ")웍스코퍼레이션퍼레이션성")
+                        {
+                            req.data[j]["text"] = "웍스코퍼레이션";
+                        }
+
+                        if(req.data[j]["text"] == "우신케이판미")
+                        {
+                            req.data[j]["text"] = "우신케이블판매";
                         }
 
                         req.data[j]["text"].replace("명독","녹");
@@ -712,7 +726,18 @@ function multiEntryCheck(firstEntry, entry, doctype) {
         // 504 품목명
         if(firstEntry['entryLbl'] == 504 && verticalCheck(firstLoc, entryLoc, 50, -100) && locationCheck(firstLoc[1], entryLoc[1], 0, -2000)){
             check = true;
-        }else if(firstEntry['entryLbl'] == 506 && verticalCheck(firstLoc, entryLoc, 100, -100) && locationCheck(firstLoc[1], entryLoc[1], 0, -2000)){
+        } else if (verticalCheck(firstLoc, entryLoc, 100, -100) && locationCheck(firstLoc[1], entryLoc[1], 0, -2000)) {
+            check = true;
+        }
+    } else if(doctype == 341) {
+        // 504 품목명
+        if(firstEntry['entryLbl'] == 504 && verticalCheck(firstLoc, entryLoc, 80, -100) && locationCheck(firstLoc[1], entryLoc[1], 0, -2000)){
+            check = true;
+        } else if (firstEntry['entryLbl'] == 505 && verticalCheck(firstLoc, entryLoc, 10, -10) && locationCheck(firstLoc[1], entryLoc[1], 0, -2000)) {
+            check = true;
+        } else if (firstEntry['entryLbl'] == 543 && verticalCheck(firstLoc, entryLoc, 80, -100) && locationCheck(firstLoc[1], entryLoc[1], 0, -2000)) {
+            check = true;
+        } else if (verticalCheck(firstLoc, entryLoc, 100, -100) && locationCheck(firstLoc[1], entryLoc[1], 0, -2000)) {
             check = true;
         }else if (verticalCheck(firstLoc, entryLoc, 100, -100) && locationCheck(firstLoc[1], entryLoc[1], 0, -2000)) {
             check = true;
@@ -741,6 +766,11 @@ function multiEntryCheck(firstEntry, entry, doctype) {
         if(firstEntry['entryLbl'] == 504 && verticalCheck(firstLoc, entryLoc, 10, -10) && locationCheck(firstLoc[1], entryLoc[1], 0, -2000)){
             check = true;
         }else if (verticalCheck(firstLoc, entryLoc, 100, -100) && locationCheck(firstLoc[1], entryLoc[1], 0, -2000)) {
+            check = true;
+        }
+    }else if(doctype == 363) {
+        // 504 품목명
+        if(firstEntry['entryLbl'] == 505 && verticalCheck(firstLoc, entryLoc, 20, -20) && locationCheck(firstLoc[1], entryLoc[1], 0, -2000)){
             check = true;
         }
     // 364 대유스틸
@@ -776,6 +806,7 @@ function multiEntryCheck(firstEntry, entry, doctype) {
             check = true;
         }
     }
+
 
     else if (verticalCheck(firstLoc, entryLoc, 100, -100) && locationCheck(firstLoc[1], entryLoc[1], 0, -2000)) {
         check = true;
