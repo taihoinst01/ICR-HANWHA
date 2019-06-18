@@ -5108,7 +5108,6 @@ exports.selectFtpFileList = function (req, done) {
     });
 };
 
-
 exports.insertFtpFileList = function (path, req, done) {
     return new Promise(async function (resolve, reject) {
         let conn;
@@ -5133,7 +5132,7 @@ exports.insertFtpFileList = function (path, req, done) {
     });
 };
 
-exports.updateFtpFileList = function (fileNm,fileSeq,bigo,  done) {
+exports.updateFtpFileList = function (fileNm, fileSeq, bigo, done) {
     return new Promise(async function (resolve, reject) {
         let conn;
 
@@ -5205,13 +5204,13 @@ exports.selectBatchPoMlExport = function (req, pagingCount, done) {
             conn = await oracledb.getConnection(dbConfig);
             let basicQuery = "" +
             "SELECT " +
-                "PME.FILENAME, TO_CHAR(FFL.AUTOSENDTIME,'YYYY-MM-DD HH24:MI:SS') AS AUTOSENDTIME, PME.EXPORTDATA, FFL.SEQ " +
+                "PME.FILENAME, TO_CHAR(FFL.AUTOSENDTIME,'YYYY-MM-DD HH24:MI:SS') AS AUTOSENDTIME, PME.EXPORTDATA, FFL.SEQ, NVL(FFL.ETC, ' ') AS ETC " +
             "FROM " +
                 "TBL_BATCH_PO_ML_EXPORT PME, " +
                 "(SELECT " +
                     "SEQ, FILEPATH || FILENAME AS FILENAME, AUTOSENDFLAG, AUTOSENDTIME, " +
                     "AUTOTRAINFLAG, AUTOTRAINTIME, MANUALSENDFLAG, MANUALSENDTIME, " +
-                    "MANUALTRAINFLAG, MANUALTRAINTIME, RETURNFLAG, RETURNTIME " +
+                    "MANUALTRAINFLAG, MANUALTRAINTIME, RETURNFLAG, RETURNTIME, ETC " +
                 "FROM " +
                     "TBL_FTP_FILE_LIST) FFL " +
                 "WHERE PME.FILENAME = FFL.FILENAME " +
@@ -5244,6 +5243,91 @@ exports.selectBatchPoMlExport = function (req, pagingCount, done) {
             } else {
                 return done(null, [0, []]);
             }
+        } catch (err) { // catches errors in getConnection and the query
+            reject(err);
+        } finally {
+            if (conn) {   // the conn assignment worked, must release
+                try {
+                    await conn.release();
+                } catch (e) {
+                    console.error(e);
+                }
+            }
+        }
+    });
+};
+
+exports.selectSingleBatchPoMlExport = function (req, done) {
+    return new Promise(async function (resolve, reject) {
+        let conn;
+        let result;
+        try {
+            conn = await oracledb.getConnection(dbConfig);
+            var query = "" +
+                "SELECT " +
+                    "IDT.ENGNM, FFL.SEQ, PME.FILENAME, TO_CHAR(FFL.AUTOSENDTIME, 'YYYYMMDDHH24MISS') AS AUTOSENDTIME, PME.EXPORTDATA " +
+                "FROM " +
+                    "TBL_ICR_DOC_TOPTYPE IDT, " +
+                    "TBL_BATCH_PO_ML_EXPORT PME, " +
+                    "(SELECT  " +
+                        "SEQ, FILEPATH || FILENAME AS FILENAME, AUTOSENDFLAG, AUTOSENDTIME, " +
+                        "AUTOTRAINFLAG, AUTOTRAINTIME, MANUALSENDFLAG, MANUALSENDTIME, " +
+                        "MANUALTRAINFLAG, MANUALTRAINTIME, RETURNFLAG, RETURNTIME, ETC " +
+                    "FROM " +
+                    "TBL_FTP_FILE_LIST) FFL " +
+                "WHERE PME.FILENAME = FFL.FILENAME " +
+                "AND IDT.SEQNUM = PME.DOCID " +
+                "AND FFL.FILENAME =:filePath ";
+
+            result = await conn.execute(query, [req]);
+            return done(null, result.rows[0]);
+        } catch (err) { // catches errors in getConnection and the query
+            reject(err);
+        } finally {
+            if (conn) {   // the conn assignment worked, must release
+                try {
+                    await conn.release();
+                } catch (e) {
+                    console.error(e);
+                }
+            }
+        }
+    });
+};
+
+exports.selectSingleBatchPoMlExportFromFilePath = function (req, done) {
+    return new Promise(async function (resolve, reject) {
+        let conn;
+        let result;
+        try {
+            conn = await oracledb.getConnection(dbConfig);
+            var query = "SELECT EXPORTDATA FROM TBL_BATCH_PO_ML_EXPORT WHERE FILENAME =:filePath";
+
+            result = await conn.execute(query, [req]);
+            return done(null, result.rows[0].EXPORTDATA);
+        } catch (err) { // catches errors in getConnection and the query
+            reject(err);
+        } finally {
+            if (conn) {   // the conn assignment worked, must release
+                try {
+                    await conn.release();
+                } catch (e) {
+                    console.error(e);
+                }
+            }
+        }
+    });
+};
+exports.updateBatchPoMlExport = function (filePath, saveData, done) {
+    return new Promise(async function (resolve, reject) {
+        let conn;
+        let result;
+        try {
+            conn = await oracledb.getConnection(dbConfig);
+            var query = "UPDATE TBL_BATCH_PO_ML_EXPORT SET EXPORTDATA = :exportData WHERE FILENAME =:filePath";
+
+            await conn.execute(query, [saveData, filePath]);
+            return done(null, null);
         } catch (err) { // catches errors in getConnection and the query
             reject(err);
         } finally {
