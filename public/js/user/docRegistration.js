@@ -47,9 +47,9 @@ function fn_selectDocTopType(docToptype) {
 
 					for (var i = 0; i < docToptypeListLength; i++) {
 						if (docToptype) {
-							appendOptionHtml += '<option value="' + docToptypeList[i].SEQNUM + '"' + (docToptype == docToptypeList[i].SEQNUM ? 'selected' : '') + '>' + docToptypeList[i].ENGNM + '</option>';
+							appendOptionHtml += '<option value="' + docToptypeList[i].SEQNUM + '"' + (docToptype == docToptypeList[i].SEQNUM ? 'selected' : '') + '>' + docToptypeList[i].KORNM + '</option>';
 						} else {
-							appendOptionHtml += '<option value="' + docToptypeList[i].SEQNUM + '"' + (i == 0 ? 'selected' : '') + '>' + docToptypeList[i].ENGNM + '</option>';
+							appendOptionHtml += '<option value="' + docToptypeList[i].SEQNUM + '"' + (i == 0 ? 'selected' : '') + '>' + docToptypeList[i].KORNM + '</option>';
 						}
 					}
 				}
