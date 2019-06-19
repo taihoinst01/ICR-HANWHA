@@ -145,7 +145,7 @@ function selectBatchPoMlExport(params, isInit) {
             console.log(data);
             if (!data.error) {
                 labels = data.docLabelList;
-                appendDocTableHeader(data.docLabelList); // 문서조회 table html 렌더링
+                appendDocTableHeader(data.docLabelList, data.docDataList); // 문서조회 table html 렌더링
                 checkAllBoxClick(); // all 체크박스 background css 적용
                 appendMLData(data.docLabelList, data.docDataList);
                 $('#paging').html(appendPaging((params.pagingCount) ? params.pagingCount : 1, data.totCount)); // 페이징 html 렌더링
@@ -165,7 +165,7 @@ function selectBatchPoMlExport(params, isInit) {
 }
 
 // 문서양식에 따른 table 헤더 렌더링
-function appendDocTableHeader(docLabelList) {
+function appendDocTableHeader(docLabelList, docDataList) {
     $('#docTableColumn').empty();
     $('#docMlDataColGroup').empty();
 
@@ -180,10 +180,17 @@ function appendDocTableHeader(docLabelList) {
     headerTheadHTML += '<th scope="row">파일명</th>';
     headerTheadHTML += '<th scope="row">날짜</th>';
     headerTheadHTML += '<th scope="row">비고</th>';
-
-    for (var i in docLabelList) {
-        headerColGroupHTML += '<col style="width:180px;">';
-        headerTheadHTML += '<th scope="row">' + docLabelList[i].KORNM + '</th>';
+    console.log(docLabelList);
+    if (docLabelList.length > 0) {
+        for (var i in docLabelList) {
+            headerColGroupHTML += '<col style="width:180px;">';
+            headerTheadHTML += '<th scope="row">' + docLabelList[i].KORNM + '</th>';
+        }
+    } else {
+        for (var i in docDataList.split(',')) {
+            headerColGroupHTML += '<col style="width:180px;">';
+            headerTheadHTML += '<th scope="row"></th>';
+        }
     }
     headerColGroupHTML += '</colgroup>';
     headerTheadHTML += '</tr>';
@@ -615,6 +622,7 @@ function btnSendClick() {
                     'inviceType': invoiceType,
                     'cdSite': 'DAE100083',
                     //'cdSite': $(e).closest('tr').children().eq(1).find('input').val().split('_')[0],
+                    'editFileName': '',
                     'scanDate': $(e).closest('tr').children().eq(2).find('input').val().replace(/[^(0-9)]/gi, '').replace(/(\s*)/,''),
                     'fileName': ($(e).closest('tr').children().eq(1).find('input').attr('data-originalvalue').split('.pdf')[0] + '-0.jpg').replace(/\/uploads/, '/img')
                 };

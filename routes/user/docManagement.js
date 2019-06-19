@@ -81,7 +81,7 @@ router.post('/sendOcrData', function (req, res) {
         var returnJson;
         var apiCallCount = 0;
         try {
-            /*
+
             var reqParams = {
                 data: req.body.sendData,
                 dataCnt: req.body.dataCnt
@@ -91,10 +91,9 @@ router.post('/sendOcrData', function (req, res) {
                 var apiResponse = request('POST', propertiesConfig.api.invoiceApi, { json: reqParams });
                 var apiRes = JSON.parse(apiResponse.getBody('utf8'));
                 apiCallCount++;
-            } while (apiRes.result == 'F' && apiCallCount < 2);
-            */
+            } while (apiRes.result == 'F' && apiCallCount < 2);          
             
-            returnJson = { data: req.body.sendData, dataCnt: req.body.dataCnt };
+            returnJson = apiRes;
         } catch (e) {
             console.log(e);
             returnJson = { 'error': e };
