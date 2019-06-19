@@ -104,13 +104,13 @@ var remoteFTP_v2 = function () {
                             sync.await(oracle.insertBatchPoMlExportFromUi([resultData[j].docCategory.DOCTOPTYPE, fileFullPath, exportData], sync.defer()));
 
                             //api JSON processing
-                            //var result = sync.await(oracle.selectSingleBatchPoMlExport(fileFullPath, sync.defer()));
-                            //apiData.push({ 'data': result, 'labels': labels });
+                            var result = sync.await(oracle.selectSingleBatchPoMlExport(fileFullPath, sync.defer()));
+                            apiData.push({ 'data': result, 'labels': labels });
                         }                       
                     }
-                    //if (apiData.length != 0) {
-                        //sync.await(apiCall(apiData, sync.defer()));
-                    //}
+                    if (apiData.length != 0) {
+                        sync.await(apiCall(apiData, sync.defer()));
+                    }
                 }
                 console.log('auto processing end ['+dt.toFormat('YYYY-MM-DD HH24:MI:SS')+'] ---------------> fileName : [' + execFileNames.toString() + ']');
             } catch (e) {
@@ -125,7 +125,7 @@ var autoTest = function () {
 
     sync.fiber(function () {
         try {
-            var execFileNames = ['E79223B9X111737_06102019_130309_001313.pdf','E79223B9X111737_06082019_153419_001278.pdf'];
+            var execFileNames = ['E79223B9X111737_06102019_113209_001302.pdf','E79223B9X111737_06082019_170054_001294.pdf'];
             var apiData = [];
             for (var i in execFileNames) {
 
@@ -323,7 +323,7 @@ function apiCall(apiData, done) {
     sync.fiber(function () {
         try {
             var reqParams = {
-                dataCnt: String(apiData.length + 1),
+                dataCnt: String(apiData.length),
                 data: []
             };
             for (var i = 0; i < apiData.length; i++) reqParams.data.push({});
@@ -331,8 +331,9 @@ function apiCall(apiData, done) {
                 var fileName = apiData[i].data.FILENAME.substring(apiData[i].data.FILENAME.lastIndexOf('/')+1, apiData[i].data.FILENAME.length);
                 reqParams.data[i]["inviceType"] = apiData[i].data.ENGNM;
                 reqParams.data[i]["sequence"] = apiData[i].data.SEQ;
-                reqParams.data[i]["fileName"] = apiData[i].data.FILENAME;
+                reqParams.data[i]["fileName"] = apiData[i].data.FILENAME.replace('.pdf', '-0.jpg').replace('/uploads/','/img/');
                 reqParams.data[i]["cdSite"] = 'DAE100083';
+                reqParams.data[i]["editFileName"] = '';
                 //reqParams.data[i]["cdSite"] = fileName.split('_')[0];
                 reqParams.data[i]["scanDate"] = apiData[i].data.AUTOSENDTIME;
                 reqParams.data[i]["ocrData"] = [];
@@ -352,12 +353,13 @@ function apiCall(apiData, done) {
                     }
                 }
             }
-            //fs.writeFileSync('C:\\Users\\Taiho\\Desktop\\test.json', JSON.stringify(reqParams), 'utf8');
+            fs.writeFileSync('C:\\Users\\Taiho\\Desktop\\test.json', JSON.stringify(reqParams), 'utf8');
             
             var apiCallCount = 0;
             do {
-                var apiResponse = request('POST', 'http://127.0.0.1:3000/api', { json: reqParams });
+                var apiResponse = request('POST', propertiesConfig.api.invoiceApi, { json: reqParams });
                 var apiRes = JSON.parse(apiResponse.getBody('utf8'));
+                //console.log(apiRes)
                 apiCallCount++;
             } while (apiRes.result == 'F' && apiCallCount < 2);
             

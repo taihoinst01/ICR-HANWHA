@@ -58,6 +58,9 @@ var propertiesConfig = {
         user: 'daerimicr',
         password: 'daerimicr123!@#',
         //keepalive: 10000
+    },
+    api: {
+        invoiceApi: 'http://13.209.21.134:8080/dcostb/api/invoiceverif/insertInvoiceverif'
     }
 };
 

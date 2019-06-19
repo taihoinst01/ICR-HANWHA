@@ -7,6 +7,7 @@ var dbConfig = require(appRoot + '/config/dbConfig');
 var queryConfig = require(appRoot + '/config/queryConfig.js');
 var commonDB = require(appRoot + '/public/js/common.db.js');
 var commonUtil = require(appRoot + '/public/js/common.util.js');
+var propertiesConfig = require(appRoot + '/config/propertiesConfig.js');
 var oracledb = require('oracledb');
 var oracle = require('../util/oracle.js');
 var sync = require('../util/sync.js');
@@ -87,7 +88,7 @@ router.post('/sendOcrData', function (req, res) {
             };
 
             do {
-                var apiResponse = request('POST', 'http://127.0.0.1:3000/api', { json: reqParams });
+                var apiResponse = request('POST', propertiesConfig.api.invoiceApi, { json: reqParams });
                 var apiRes = JSON.parse(apiResponse.getBody('utf8'));
                 apiCallCount++;
             } while (apiRes.result == 'F' && apiCallCount < 2);
