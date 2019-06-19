@@ -1,6 +1,7 @@
 ﻿"use strict";
 var progressId; // 프로그레스바 변수
 var labels;
+var datas;
 var numClicks = 0;
 var timeOut;
 
@@ -145,6 +146,7 @@ function selectBatchPoMlExport(params, isInit) {
             console.log(data);
             if (!data.error) {
                 labels = data.docLabelList;
+                datas = data.docDataList;
                 appendDocTableHeader(data.docLabelList, data.docDataList); // 문서조회 table html 렌더링
                 checkAllBoxClick(); // all 체크박스 background css 적용
                 appendMLData(data.docLabelList, data.docDataList);
@@ -437,10 +439,16 @@ function appendPopTable(fileName, seq) {
     var popTableHeaderColHTML = '<colgroup>';
     var popTableHeaderTheadHTML = '<thead><tr>';
     var popTableContentHTML = '<tbody>';
-
-    for (var i in labels) {
-        popTableHeaderColHTML += '<col style="width:180px">';
-        popTableHeaderTheadHTML += '<th scope="row">' + labels[i].KORNM + '</th>';
+    if (labels.length > 0) {
+        for (var i in labels) {
+            popTableHeaderColHTML += '<col style="width:180px">';
+            popTableHeaderTheadHTML += '<th scope="row">' + labels[i].KORNM + '</th>';
+        }
+    } else {
+        for (var i in datas[0].EXPORTDATA.split(',')) {
+            popTableHeaderColHTML += '<col style="width:180px">';
+            popTableHeaderTheadHTML += '<th scope="row"></th>';
+        }
     }
     popTableHeaderColHTML += '</colgroup>';
     popTableHeaderTheadHTML += '</tr></thead>';
@@ -453,9 +461,16 @@ function appendPopTable(fileName, seq) {
     });
 
     popTableContentHTML += '<tr>';
-    for (var i = 4; i < 4 + labels.length; i++) {
-        var valueText = $('#tbody_docList > .originalTr').eq(targetNum).find('td').eq(i).find('input').eq(0).val();
-        popTableContentHTML += '<td><input type="text" value="' + valueText + '" class="inputst_box03_15radius" data-originalvalue="' + valueText + '"></td>';
+    if (labels.length > 0) {
+        for (var i = 4; i < 4 + labels.length; i++) {
+            var valueText = $('#tbody_docList > .originalTr').eq(targetNum).find('td').eq(i).find('input').eq(0).val();
+            popTableContentHTML += '<td><input type="text" value="' + valueText + '" class="inputst_box03_15radius" data-originalvalue="' + valueText + '"></td>';
+        }
+    } else {
+        for (var i = 4; i < 4 + datas[0].EXPORTDATA.split(',').length; i++) {
+            var valueText = $('#tbody_docList > .originalTr').eq(targetNum).find('td').eq(i).find('input').eq(0).val();
+            popTableContentHTML += '<td><input type="text" value="' + valueText + '" class="inputst_box03_15radius" data-originalvalue="' + valueText + '"></td>';
+        }
     }
     popTableContentHTML += '</tr>';
 
@@ -517,90 +532,98 @@ function checkBoxClick() {
 // 추가 버튼 click 이벤트
 function btnInsertClick() {
     $('#btn_header_userPop_insert').click(function () {
-        var insertHTML = '<tr style="background-color: #EA7169;">';
-        for (var i in labels) {
-            if (labels[i].AMOUNT == 'single') {
-                var valueText = $('#popTableContent tr').eq(0).children().eq(i).find('input').val();
-                insertHTML += '<td><input type="text" value="' + valueText + '" class="inputst_box03_15radius" data-originalvalue="' + valueText + '"></td>';
-            } else {
-                insertHTML += '<td><input type="text" value="" class="inputst_box03_15radius" data-originalvalue=""></td>';
+        if ($('#docTopTypeSelect').val() != 0) {
+            var insertHTML = '<tr style="background-color: #EA7169;">';
+            for (var i in labels) {
+                if (labels[i].AMOUNT == 'single') {
+                    var valueText = $('#popTableContent tr').eq(0).children().eq(i).find('input').val();
+                    insertHTML += '<td><input type="text" value="' + valueText + '" class="inputst_box03_15radius" data-originalvalue="' + valueText + '"></td>';
+                } else {
+                    insertHTML += '<td><input type="text" value="" class="inputst_box03_15radius" data-originalvalue=""></td>';
+                }
             }
+            insertHTML += '</tr>';
+            $('#popTableContent').append(insertHTML);
+            $("#popTableContentDiv").scrollTop($("#popTableContentDiv")[0].scrollHeight);
+        } else {
+            fn_alert('alert', '미분류 문서는 추가할 수 없습니다.');
         }
-        insertHTML += '</tr>';
-        $('#popTableContent').append(insertHTML);
-        $("#popTableContentDiv").scrollTop($("#popTableContentDiv")[0].scrollHeight);
     });
 }
 
 // 저장 버튼 click 이벤트
 function btnSaveClick() {
     $('#btn_header_userPop_save').click(function () {
-        var saveDataArr = [];
-        var filePath = $('#PopupImg').attr('src').replace('-0.jpg', '.pdf').replace('img','uploads');
-        var TrNum;
-        $('.originalTr').each(function (i, e) {
-            if ($(e).children().eq(1).find('input').attr('data-originalvalue') == filePath) {
-                TrNum = i;
+        if ($('#docTopTypeSelect').val() != 0) {
+            var saveDataArr = [];
+            var filePath = $('#PopupImg').attr('src').replace('-0.jpg', '.pdf').replace('img','uploads');
+            var TrNum;
+            $('.originalTr').each(function (i, e) {
+                if ($(e).children().eq(1).find('input').attr('data-originalvalue') == filePath) {
+                    TrNum = i;
+                }
+            });
+            for (var i = 0; i < $('#popTableHeaer thead th').length; i++) {
+                //$('.originalTr').eq(TrNum).children().eq(i + 4).find('input').eq(0).val($('#popTableContent tr').eq(0).find('input').eq(i).val());
+                if (labels[i].AMOUNT == 'single') {
+                    saveDataArr.push({ 'type': labels[i].AMOUNT, 'value': $('#popTableContent tr').eq(0).find('input').eq(i).val() });
+                } else {
+                    saveDataArr.push({ 'type': labels[i].AMOUNT, 'value': [$('#popTableContent tr').eq(0).find('input').eq(i).val()] });
+                }
             }
-        });
-        for (var i = 0; i < $('#popTableHeaer thead th').length; i++) {
-            //$('.originalTr').eq(TrNum).children().eq(i + 4).find('input').eq(0).val($('#popTableContent tr').eq(0).find('input').eq(i).val());
-            if (labels[i].AMOUNT == 'single') {
-                saveDataArr.push({ 'type': labels[i].AMOUNT, 'value': $('#popTableContent tr').eq(0).find('input').eq(i).val() });
-            } else {
-                saveDataArr.push({ 'type': labels[i].AMOUNT, 'value': [$('#popTableContent tr').eq(0).find('input').eq(i).val()] });
-            }
-        }
 
-        for (var i = 0; i < $('#popTableContent tr').length-1; i++) {
-            for (var j in labels) {
-                if (labels[j].AMOUNT == 'multi') saveDataArr[j].value.push($('#popTableContent tr').eq(i + 1).find('input').eq(j).val());
-            }
-        }
-        /*
-        var seq = $('.originalTr').eq(TrNum).find('input[name="seq"]').val();
-        if ($('.multiTr_' + seq).length > 0) {
-            for (var i = 0; i < $('.multiTr_' + seq).length; i++) {
-                for (var j = 0; j < $('#popTableHeaer thead th').length; j++) {
-                    $('.multiTr_' + seq).eq(i).children().eq(j + 4).find('input').eq(0).val($('#popTableContent tr').eq(i + 1).find('input').eq(j).val());
+            for (var i = 0; i < $('#popTableContent tr').length-1; i++) {
+                for (var j in labels) {
                     if (labels[j].AMOUNT == 'multi') saveDataArr[j].value.push($('#popTableContent tr').eq(i + 1).find('input').eq(j).val());
                 }
             }
-
-        }
-        */
-
-        var saveJson = {
-            'filePath': filePath,
-            'data': saveDataArr
-        };
-
-        $.ajax({
-            url: '/docManagement/updateBatchPoMlExport',
-            type: 'post',
-            datatype: 'json',
-            data: JSON.stringify(saveJson),
-            contentType: 'application/json; charset=UTF-8',
-            beforeSend: function () {
-                $('#progressMsgTitle').html("저장 중..");
-                progressId = showProgressBar();
-            },
-            success: function (data) {
-                console.log(data)
-                if (!data.error) {
-                    fn_alert('alert', '저장 성공');
-                    $('.li_paging.active > a').click();
-                } else {
-                    fn_alert('alert', 'ERROR');
+            /*
+            var seq = $('.originalTr').eq(TrNum).find('input[name="seq"]').val();
+            if ($('.multiTr_' + seq).length > 0) {
+                for (var i = 0; i < $('.multiTr_' + seq).length; i++) {
+                    for (var j = 0; j < $('#popTableHeaer thead th').length; j++) {
+                        $('.multiTr_' + seq).eq(i).children().eq(j + 4).find('input').eq(0).val($('#popTableContent tr').eq(i + 1).find('input').eq(j).val());
+                        if (labels[j].AMOUNT == 'multi') saveDataArr[j].value.push($('#popTableContent tr').eq(i + 1).find('input').eq(j).val());
+                    }
                 }
-                endProgressBar(progressId);
-            },
-            error: function (err) {
-                console.log(err);
-                fn_alert('alert', 'ERROR');
-                endProgressBar(progressId);
+
             }
-        });
+            */
+
+            var saveJson = {
+                'filePath': filePath,
+                'data': saveDataArr
+            };
+
+            $.ajax({
+                url: '/docManagement/updateBatchPoMlExport',
+                type: 'post',
+                datatype: 'json',
+                data: JSON.stringify(saveJson),
+                contentType: 'application/json; charset=UTF-8',
+                beforeSend: function () {
+                    $('#progressMsgTitle').html("저장 중..");
+                    progressId = showProgressBar();
+                },
+                success: function (data) {
+                    console.log(data)
+                    if (!data.error) {
+                        fn_alert('alert', '저장 성공');
+                        $('.li_paging.active > a').click();
+                    } else {
+                        fn_alert('alert', 'ERROR');
+                    }
+                    endProgressBar(progressId);
+                },
+                error: function (err) {
+                    console.log(err);
+                    fn_alert('alert', 'ERROR');
+                    endProgressBar(progressId);
+                }
+            });
+        } else {
+            fn_alert('alert', '미분류 문서는 저장할 수 없습니다.');
+        }
     });
 }
 

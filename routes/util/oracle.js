@@ -4440,7 +4440,7 @@ exports.selectDocTopType = function (req, done) {
 
         try {
             conn = await oracledb.getConnection(dbConfig);
-            let query = "select seqnum, engnm, kornm from tbl_icr_doc_toptype where useyn='Y' and userid = :userid";
+            let query = "select seqnum, engnm, kornm from tbl_icr_doc_toptype where useyn='Y' and userid = :userid order by kornm";
             result = await conn.execute(query, req);
 
             return done(null, result.rows);

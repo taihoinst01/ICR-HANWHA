@@ -125,7 +125,7 @@ var autoTest = function () {
 
     sync.fiber(function () {
         try {
-            var execFileNames = ['E79223B9X111737_06102019_113209_001302.pdf','E79223B9X111737_06082019_170054_001294.pdf'];
+            var execFileNames = ['E79223B9X111737_06102019_130309_001313.pdf', 'E79223B9X111737_06182019_141952_001790.pdf'];
             var apiData = [];
             for (var i in execFileNames) {
 
@@ -340,20 +340,57 @@ function apiCall(apiData, done) {
                 for (var j = 0; j < apiData[i].labels.length; j++) reqParams.data[i]["ocrData"].push({});
 
                 var mlData = apiData[i].data.EXPORTDATA.replace(/[\[\]\"]/gi, '').split(',');
+                var maxEntryCnt = 0;
+                var maxCnt = 0;
+                var maxYLoc = [];
+                for (var j = 0; j < apiData[i].labels.length; j++) {
+                    if (apiData[i].labels[j].AMOUNT == 'multi') {
+                        for (var k in mlData[j].split(' | ')) {
+                            if (maxEntryCnt < mlData[j].split(' | ').length) {
+                                maxEntryCnt = mlData[j].split(' | ').length;
+                                maxCnt = j;
+                            }
+                        }
+                    }
+                }
+
+                for (var j = 0; j < mlData[maxCnt].split(' | ').length; j++) {
+                    maxYLoc.push({
+                        'yLoc': mlData[maxCnt].split(' | ')[j].split('::')[0]
+                    });
+                }
 
                 for (var j = 0; j < apiData[i].labels.length; j++) {
+                    var cnt = '1';
+                    if (apiData[i].labels[j].AMOUNT == 'multi') cnt = String(mlData[maxCnt].split(' | ').length);
                     reqParams.data[i]["ocrData"][j] = {
                         "engKey": apiData[i].labels[j].ENGNM,
                         "korKey": apiData[i].labels[j].KORNM,
-                        "cnt": String(mlData[j].split(' | ').length),
+                        "cnt": cnt,
                         "keyValue": []
                     };
-                    for (var k in mlData[j].split(' | ')) {
-                        reqParams.data[i]["ocrData"][j]["keyValue"].push({ "value": mlData[j].split(' | ')[k] });
-                    }
+                    if (apiData[i].labels[j].AMOUNT == 'single') {
+                        if (mlData[j] == "null") {
+                            reqParams.data[i]["ocrData"][j]["keyValue"].push({ "value": "" });
+                        } else {
+                            reqParams.data[i]["ocrData"][j]["keyValue"].push({ "value": mlData[j].split('::')[1] });
+                        }
+                    } else {
+                        for (var m in maxYLoc) {
+                            var isCorrect = false;
+                            for (var k in mlData[j].split(' | ')) {
+                                if (Math.abs(Number(mlData[j].split(' | ')[k].split('::')[0]) - Number(maxYLoc[m].yLoc)) < 20) {
+                                    reqParams.data[i]["ocrData"][j]["keyValue"].push({ "value": mlData[j].split(' | ')[k].split('::')[1] });
+                                    isCorrect = true;
+                                    break;
+                                }
+                            }
+                            if (!isCorrect) reqParams.data[i]["ocrData"][j]["keyValue"].push({ "value": "" });
+                        }
+                    }                  
                 }
             }
-            fs.writeFileSync('C:\\Users\\Taiho\\Desktop\\test.json', JSON.stringify(reqParams), 'utf8');
+            //fs.writeFileSync('C:\\Users\\Taiho\\Desktop\\test.json', JSON.stringify(reqParams), 'utf8');
             
             var apiCallCount = 0;
             do {
