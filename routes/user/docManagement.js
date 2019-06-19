@@ -85,16 +85,11 @@ router.post('/sendOcrData', function (req, res) {
                 data: req.body.sendData,
                 dataCnt: req.body.dataCnt
             };
+
             do {
-                var apiRes = request('POST', 'http://xxx.xx.xx.xxx:xxxx/xx/xx', { json: reqParams });
+                var apiResponse = request('POST', 'http://127.0.0.1:3000/api', { json: reqParams });
+                var apiRes = JSON.parse(apiResponse.getBody('utf8'));
                 apiCallCount++;
-                if (apiRes.result == 'F') {
-                    for (var i in reqParams.data) {
-                        if (reqParams.data[i].sequence == apiRes.sequence) {
-                            //delete reqParams.data[i];
-                        }
-                    }
-                }
             } while (apiRes.result == 'F' && apiCallCount < 2);
             */
             
