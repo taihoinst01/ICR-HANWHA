@@ -10,6 +10,7 @@ var ocrUtil = require('../util/ocr.js');
 var mlclassify = require('../util/mlClassify.js');
 var propertiesConfig = require('../../config/propertiesConfig.js');
 var date = require('date-utils');
+var request = require('sync-request');
 
 //FTP 서버 정보
 var ftpConfig = propertiesConfig.ftp;
@@ -103,13 +104,13 @@ var remoteFTP_v2 = function () {
                             sync.await(oracle.insertBatchPoMlExportFromUi([resultData[j].docCategory.DOCTOPTYPE, fileFullPath, exportData], sync.defer()));
 
                             //api JSON processing
-                            var result = sync.await(oracle.selectSingleBatchPoMlExport(fileFullPath, sync.defer()));
-                            apiData.push({ 'data': result, 'labels': labels });
+                            //var result = sync.await(oracle.selectSingleBatchPoMlExport(fileFullPath, sync.defer()));
+                            //apiData.push({ 'data': result, 'labels': labels });
                         }                       
                     }
-                    if (apiData.length != 0) {
-                        sync.await(apiCall(apiData, sync.defer()));
-                    }
+                    //if (apiData.length != 0) {
+                        //sync.await(apiCall(apiData, sync.defer()));
+                    //}
                 }
                 console.log('auto processing end ['+dt.toFormat('YYYY-MM-DD HH24:MI:SS')+'] ---------------> fileName : [' + execFileNames.toString() + ']');
             } catch (e) {
@@ -148,7 +149,7 @@ var autoTest = function () {
                     apiData.push({ 'data': result, 'labels': labels });
                 }
             }
-            fs.writeFileSync('C:\\Users\\Taiho\\Desktop\\11.json', JSON.stringify(apiData), 'utf8');
+            //fs.writeFileSync('C:\\Users\\Taiho\\Desktop\\11.json', JSON.stringify(apiData), 'utf8');
             if (apiData.length != 0) {
                 sync.await(apiCall(apiData, sync.defer()));
             }
@@ -352,19 +353,14 @@ function apiCall(apiData, done) {
                 }
             }
             //fs.writeFileSync('C:\\Users\\Taiho\\Desktop\\test.json', JSON.stringify(reqParams), 'utf8');
-            /*
+            
+            var apiCallCount = 0;
             do {
-                var apiRes = request('POST', 'http://xxx.xx.xx.xxx:xxxx/xx/xx', { json: reqParams });
+                var apiResponse = request('POST', 'http://127.0.0.1:3000/api', { json: reqParams });
+                var apiRes = JSON.parse(apiResponse.getBody('utf8'));
                 apiCallCount++;
-                if (apiRes.result == 'F') {
-                    for (var i in reqParams.data) {
-                        if (reqParams.data[i].sequence == apiRes.sequence) {
-                            //delete reqParams.data[i];
-                        }
-                    }
-                }
             } while (apiRes.result == 'F' && apiCallCount < 2);
-            */
+            
             return done(null, null);
 
         } catch (e) {

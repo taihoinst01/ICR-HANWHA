@@ -42,7 +42,7 @@
     <Compile Include="routes\user\docUpload.js" />
     <Compile Include="routes\user\setting.js" />
     <Compile Include="routes\user\templateRegistration.js" />
-    <Compile Include="routes\util\apiServerTest.js" />
+    <Compile Include="routes\util\apiServer.js" />
     <Compile Include="routes\util\auto.js" />
     <Compile Include="config\predRegionConfig.js" />
     <Compile Include="config\dbConfig.js" />
