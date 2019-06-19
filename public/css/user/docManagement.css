@@ -97,7 +97,7 @@ table .newTr .selected {color: #666 !important; }
   overflow-y:scroll;
   height:425px;
   background: white;
-  margin: 0px 0 50px 0px;
+  margin: 0px 0 10px 0px;
 }
 
 .content_title_icon_dm {
@@ -141,7 +141,7 @@ table .newTr .selected {color: #666 !important; }
 .tep_content_doc_management {
   position: relative;
   /* width: 100%; */
-  height: 675px;
+  /*height: 675px;*/
   background-color: #fff;
   border: 1px solid #ccc;
   -webkit-box-shadow: 0px 0px 8px 1px rgba(120,120,120,.1);
@@ -149,6 +149,7 @@ table .newTr .selected {color: #666 !important; }
   box-shadow: 0px 0px 8px 1px rgba(120,120,120,.1);
   z-index: 0;
   margin: 0px 20px;
+  height: auto; width: 1760px; overflow: hidden;
 }
 
 .pop_popup0 {
@@ -174,4 +175,26 @@ input[name="searchStartDate"], input[name="searchEndDate"] {
 #paging {
     text-align: center;
     margin-top: 5px;
+}
+
+#hideBtn {
+  display: none; width:20px; float: left; line-height:611px; text-align: center;
+  background:#EA7169
+}
+
+#imgPreviewWrap {
+  display: none;float: left;
+  width: 600px
+}
+
+#imgPreview {
+  width: 100%; height: 611px;
+}
+
+.content {
+  width: 2500px
+}
+
+#tableWrap {
+  width: 1760px
 }

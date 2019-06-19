@@ -2,10 +2,12 @@
 var express = require('express');
 var router = express.Router();
 var appRoot = require('app-root-path').path;
+var request = require('sync-request');
 var dbConfig = require(appRoot + '/config/dbConfig');
 var queryConfig = require(appRoot + '/config/queryConfig.js');
 var commonDB = require(appRoot + '/public/js/common.db.js');
 var commonUtil = require(appRoot + '/public/js/common.util.js');
+var propertiesConfig = require(appRoot + '/config/propertiesConfig.js');
 var oracledb = require('oracledb');
 var oracle = require('../util/oracle.js');
 var sync = require('../util/sync.js');
@@ -77,9 +79,72 @@ router.post('/selectBatchPoMlExport', function (req, res) {
 router.post('/sendOcrData', function (req, res) {
     sync.fiber(function () {
         var returnJson;
-
+        var apiCallCount = 0;
         try {
-            returnJson = { data: req.body.sendData };
+            /*
+            var reqParams = {
+                data: req.body.sendData,
+                dataCnt: req.body.dataCnt
+            };
+
+            do {
+                var apiResponse = request('POST', propertiesConfig.api.invoiceApi, { json: reqParams });
+                var apiRes = JSON.parse(apiResponse.getBody('utf8'));
+                apiCallCount++;
+            } while (apiRes.result == 'F' && apiCallCount < 2);
+            */
+            
+            returnJson = { data: req.body.sendData, dataCnt: req.body.dataCnt };
+        } catch (e) {
+            console.log(e);
+            returnJson = { 'error': e };
+        } finally {
+            res.send(returnJson);
+        }
+    });
+});
+
+// 문서 데이터 수정
+router.post('/updateBatchPoMlExport', function (req, res) {
+    sync.fiber(function () {
+        try {
+            var filePath = req.body.filePath;
+            var data = req.body.data;
+            var saveData = '[';
+            var returnJson;
+            //var exportData = sync.await(oracle.selectSingleBatchPoMlExportFromFilePath(filePath, sync.defer()));
+            //exportData = exportData.replace(/[\[\]\"]/gi, '');
+            //var exportDataArr = exportData.split(',');
+            for (var i = 0; i < data.length; i++) {
+                if (data[i].type == 'single') {
+                    if (data[i].value) {
+                        saveData += '"0::' + data[i].value + '",';
+                    } else {
+                        saveData += 'null,';
+                    }
+                } else {
+                    var emptyCnt = 0;
+                    for (var j = 0; j < data[i].value.length; j++) {
+                        var yLocTemp = (j + 1) * 50;
+                        if (data[i].value[j]) {
+                            if (j != 0) saveData += ' | ';
+                            saveData += '"' + yLocTemp + '::' + data[i].value[j] + '';
+                        } else {
+                            emptyCnt++;
+                        }                        
+                    }
+                    if (emptyCnt == data[i].value.length) {
+                        saveData += 'null,';
+                    } else {
+                        saveData += '",';
+                    }
+                }
+            }
+            saveData = saveData.slice(0, -1);
+            saveData += ']';
+            sync.await(oracle.updateBatchPoMlExport(filePath, saveData, sync.defer()));
+
+            returnJson = { 'data': saveData };
         } catch (e) {
             console.log(e);
             returnJson = { 'error': e };

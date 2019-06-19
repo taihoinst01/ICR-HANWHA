@@ -80,9 +80,8 @@
                         <input type="text" class="datepicker inpType" name="searchEndDate" id="searchEndDate" readonly />
                         <!--<a href="#none" class="btncalendar dateclick">달력</a>-->
                         <select id="processStateSelect">
-                            <option value="N">처리</option>
-                            <option value="N">미처리</option>
-                            <option value="N">반려</option>
+                            <option value="N">전체</option>
+                            <option value="Y">검토</option>
                         </select>
                     </div>
 
@@ -93,10 +92,10 @@
 				<!-- // 구분 목록 -->
 				
 				<!-- 문서관리목록 영역 -->
-                <div class="tep_content_doc_management tep_st01" style="height: auto;">
+                <div class="tep_content_doc_management tep_st01">
 					<div id="content-6" class="content horizontal-images">
 
-						<div class="table_style03">
+						<div id="tableWrap" class="table_style03 fl">
 							<!-- RIGHT HEADER(CROSSTAB) START -->
 							<div id="right_header" class="batch_tbl_right_header" style="overflow-x:hidden; overflow-y:hidden;">
 								<table cellspacing="0" cellpadding="0" class="docTableColumn" id="docTableColumn">
@@ -397,15 +396,20 @@
 							</div>
 						</div>
 
+						<div id="hideBtn" style="cursor: pointer;">
+							<b style="vertical-align: middle; font-size:20px;">▶</b>
+						</div>
+						<div id="imgPreviewWrap">
+							<img src="" id="imgPreview"/>
+						</div>
 					</div>
-
-				</div>
+					</div>
 				<!-- // 문서관리목록 영역 -->
                 <div id="paging"></div>
-				<div class="btn_rt">
-					<button type="button" id="btn_retrain" class="btn_w100_h35">재학습</button>
-					<button type="button" id="btn_send" class="btn_w100_h35">전송</button>
-				</div>
+                <div class="btn_rt">                   
+                    <button type="button" id="btn_retrain" class="btn_w100_h35">재학습</button>
+                    <button type="button" id="btn_send" class="btn_w100_h35">전송</button>
+                </div>
 				
 			</div>
 			<!-- // 본문영역 -->
@@ -419,14 +423,14 @@
 <div id="docPop" class="poplayer docPop">
 	<div class="bg"></div>
 	<div class="pop_layer">
-		<div class="pop_popup0 ">
+		<div class="pop_popup0" style="display:block;">
 			<div class="pop_header">
 				<h1>양식이미지</h1>
 			</div>
 			<div class="pop_content_dm">
 				<div class="pop_box_120 box_txt_st01">
 					<!-- 문서 이미지 (상단) -->
-					<div class="batch_tbl_right_divBodyScroll divBodyScroll pop_dm_01" style="height: 600px;">
+					<div class="batch_tbl_right_divBodyScroll divBodyScroll pop_dm_01" style="height: 470px;">
 						<img id="PopupImg" src="" style="width: 100%; height: auto;">
 					</div>
 					<!-- // 문서 이미지 (상단) -->
@@ -438,11 +442,11 @@
 					</div>
                     -->
 					<!-- 문서 정보 (하단) -->
-					<!--<div class="table_style03">-->
+					<div class="table_style03">
 						<!-- 테이블 HEADER(CROSSTAB) START -->
-						<!--<div id="right_header" class="batch_tbl_right_header" style="overflow-x:hidden; overflow-y:hidden;">
-							<table cellspacing="0" cellpadding="0" class="docTableColumn">
-								<colgroup>
+						<div id="right_header" class="batch_tbl_right_header" style="overflow-x:hidden; overflow-y:hidden;">
+							<table cellspacing="0" cellpadding="0" class="docTableColumn" id="popTableHeaer">
+								<!--<colgroup>
 									<col style="width:18%">
 									<col style="width:18%">
 									<col style="width:13%">
@@ -463,15 +467,15 @@
 										<th scope="row">Material</th>
 										<th scope="row">EAN</th>
 									</tr>
-								</thead>
+								</thead>-->
 							</table>
-						</div>-->
+						</div>
 						<!-- 테이블 HEADER(CROSSTAB) END -->
 
 						<!-- 테이블 CONTENTS(CROSSTAB) START -->
-						<!--<div style="overflow-y:scroll;height:85px;background: white;" class="batch_tbl_right_divBodyScroll divBodyScroll">
-							<table>
-								<caption>사용자관리 정보</caption>
+						<div id="popTableContentDiv" style="overflow-y:scroll;height:85px;background: white;" class="batch_tbl_right_divBodyScroll divBodyScroll">
+							<table id="popTableContent">
+								<!--<caption>사용자관리 정보</caption>
 								<colgroup>
 									<col style="width:18%">
 									<col style="width:18%">
@@ -524,17 +528,19 @@
 										<td><input type="text" value="" class="inputst_box03_15radius" data-originalvalue=""></td>
 									</tr>
 
-								</tbody>
-							</table>-->
+								</tbody>-->
+							</table>
 							<!-- 테이블 CONTENTS(CROSSTAB) END -->
-						<!--</div>
-					</div>-->
+						</div>
+					</div>
 					<!-- // 문서 정보 (하단) -->
 				</div>
 			</div>
-			<div class="pop_footer">
-				<button type="button" id="btn_header_userPop_cancel" class="button_st4 cbtn">닫기</button>
-			</div>
+            <div class="pop_footer">
+                <button type="button" id="btn_header_userPop_insert" class="button_st4" style="float:left;">추가</button>
+                <button type="button" id="btn_header_userPop_save" class="button_st4 cbtn">저장</button>
+                <button type="button" id="btn_header_userPop_cancel" class="button_st4 cbtn">닫기</button>
+            </div>
 		</div>
 	</div>
 </div>

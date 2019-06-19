@@ -10,6 +10,7 @@ var ocrUtil = require('../util/ocr.js');
 var mlclassify = require('../util/mlClassify.js');
 var propertiesConfig = require('../../config/propertiesConfig.js');
 var date = require('date-utils');
+var request = require('sync-request');
 
 //FTP 서버 정보
 var ftpConfig = propertiesConfig.ftp;
@@ -82,6 +83,7 @@ var remoteFTP_v2 = function () {
                         sync.await(oracle.insertFtpFileListFromUi([propertiesConfig.auto.ftpFileUrl, execFileNames[i]], sync.defer()));
                     }
 
+                    var apiData = [];
                     for (var i in execFileNames) {
                         // ftp file move ScanFiles -> uploads directory
                         sync.await(moveFtpFile(execFileNames[i], sync.defer()));
@@ -100,7 +102,14 @@ var remoteFTP_v2 = function () {
                             var exportData = sync.await(processingExportData(mlData, labels, sync.defer()));
                             // TBL_BATCH_PO_ML_EXPORT table insert
                             sync.await(oracle.insertBatchPoMlExportFromUi([resultData[j].docCategory.DOCTOPTYPE, fileFullPath, exportData], sync.defer()));
+
+                            //api JSON processing
+                            var result = sync.await(oracle.selectSingleBatchPoMlExport(fileFullPath, sync.defer()));
+                            apiData.push({ 'data': result, 'labels': labels });
                         }                       
+                    }
+                    if (apiData.length != 0) {
+                        sync.await(apiCall(apiData, sync.defer()));
                     }
                 }
                 console.log('auto processing end ['+dt.toFormat('YYYY-MM-DD HH24:MI:SS')+'] ---------------> fileName : [' + execFileNames.toString() + ']');
@@ -116,36 +125,34 @@ var autoTest = function () {
 
     sync.fiber(function () {
         try {
+            var execFileNames = ['E79223B9X111737_06102019_113209_001302.pdf','E79223B9X111737_06082019_170054_001294.pdf'];
+            var apiData = [];
+            for (var i in execFileNames) {
 
-            var execFileNames = ['multi.pdf'];
-            console.log('auto test processing start -------------> fileName : [' + execFileNames.toString() + ']');
+                // ocr processing and label & entry mapping  
+                var resultData = sync.await(uiLearnTraining_auto(execFileNames[i], true, sync.defer()));
+                for (var j in resultData) {
 
-            // ocr 및 ml 프로세스 실행
-            if (execFileNames.lengh != 0) {
+                    var fileFullPath = resultData[j].fileinfo.filepath;
+                    //var filePath = fileFullPath.substring(0, fileFullPath.lastIndexOf('/') + 1);
+                    //var fileName = fileFullPath.substring(fileFullPath.lastIndexOf('/') + 1);
 
-                for (var i in execFileNames) {
-                    // ftp file move ScanFiles -> uploads directory
-                    sync.await(moveFtpFile(execFileNames[i], sync.defer()));
+                    var mlData = resultData[j].data;
+                    var labels = resultData[j].labelData;
+                    // TBL_BATCH_PO_ML_EXPORT table에 exportData 가공
+                    //var exportData = sync.await(processingExportData(mlData, labels, sync.defer()));
+                    // TBL_BATCH_PO_ML_EXPORT table insert
+                    //sync.await(oracle.insertBatchPoMlExportFromUi([resultData[j].docCategory.DOCTOPTYPE, fileFullPath, exportData], sync.defer()));
 
-                    // ocr processing and label & entry mapping  
-                    var resultData = sync.await(uiLearnTraining_auto(execFileNames[i], true, sync.defer()));
-                    for (var j in resultData) {
-
-                        var fileFullPath = resultData[j].fileinfo.filepath;
-                        //var filePath = fileFullPath.substring(0, fileFullPath.lastIndexOf('/') + 1);
-                        //var fileName = fileFullPath.substring(fileFullPath.lastIndexOf('/') + 1);
-
-                        var mlData = resultData[j].data;
-                        var labels = resultData[j].labelData;
-                        // TBL_BATCH_PO_ML_EXPORT table에 exportData 가공
-                        var exportData = sync.await(processingExportData(mlData, labels, sync.defer()));
-                        console.log(exportData);
-                        // TBL_BATCH_PO_ML_EXPORT table insert
-                        //sync.await(oracle.insertBatchPoMlExportFromUi([resultData[j].docCategory.DOCTOPTYPE, fileFullPath, exportData], sync.defer()));
-                    }
+                    //api JSON processing
+                    var result = sync.await(oracle.selectSingleBatchPoMlExport(fileFullPath, sync.defer()));
+                    apiData.push({ 'data': result, 'labels': labels });
                 }
             }
-            console.log('auto test processing end ---------------> fileName : [' + execFileNames.toString() + ']');
+            //fs.writeFileSync('C:\\Users\\Taiho\\Desktop\\11.json', JSON.stringify(apiData), 'utf8');
+            if (apiData.length != 0) {
+                sync.await(apiCall(apiData, sync.defer()));
+            }
         } catch (e) {
             console.log(e);
         } finally {
@@ -284,7 +291,7 @@ function uiLearnTraining_auto(filepath, isAuto, callback) {
 }
 
 //TBL_BATCH_PO_ML_EXPORT's exportData column data processing
-function processingExportData(mlData, labels, callback) {
+function processingExportData(mlData, labels, done) {
     sync.fiber(function () {
         try {
             var exportData = "[";
@@ -302,7 +309,61 @@ function processingExportData(mlData, labels, callback) {
             }
             exportData = exportData.slice(0, -1);
             exportData += "]";
-            callback(null, exportData);
+            return done(null, exportData);
+
+        } catch (e) {
+            throw e;
+        }
+
+    });
+}
+
+//api JSON parameters and call
+function apiCall(apiData, done) {
+    sync.fiber(function () {
+        try {
+            var reqParams = {
+                dataCnt: String(apiData.length),
+                data: []
+            };
+            for (var i = 0; i < apiData.length; i++) reqParams.data.push({});
+            for (var i = 0; i < apiData.length; i++) {
+                var fileName = apiData[i].data.FILENAME.substring(apiData[i].data.FILENAME.lastIndexOf('/')+1, apiData[i].data.FILENAME.length);
+                reqParams.data[i]["inviceType"] = apiData[i].data.ENGNM;
+                reqParams.data[i]["sequence"] = apiData[i].data.SEQ;
+                reqParams.data[i]["fileName"] = apiData[i].data.FILENAME.replace('.pdf', '-0.jpg').replace('/uploads/','/img/');
+                reqParams.data[i]["cdSite"] = 'DAE100083';
+                reqParams.data[i]["editFileName"] = '';
+                //reqParams.data[i]["cdSite"] = fileName.split('_')[0];
+                reqParams.data[i]["scanDate"] = apiData[i].data.AUTOSENDTIME;
+                reqParams.data[i]["ocrData"] = [];
+                for (var j = 0; j < apiData[i].labels.length; j++) reqParams.data[i]["ocrData"].push({});
+
+                var mlData = apiData[i].data.EXPORTDATA.replace(/[\[\]\"]/gi, '').split(',');
+
+                for (var j = 0; j < apiData[i].labels.length; j++) {
+                    reqParams.data[i]["ocrData"][j] = {
+                        "engKey": apiData[i].labels[j].ENGNM,
+                        "korKey": apiData[i].labels[j].KORNM,
+                        "cnt": String(mlData[j].split(' | ').length),
+                        "keyValue": []
+                    };
+                    for (var k in mlData[j].split(' | ')) {
+                        reqParams.data[i]["ocrData"][j]["keyValue"].push({ "value": mlData[j].split(' | ')[k] });
+                    }
+                }
+            }
+            fs.writeFileSync('C:\\Users\\Taiho\\Desktop\\test.json', JSON.stringify(reqParams), 'utf8');
+            
+            var apiCallCount = 0;
+            do {
+                var apiResponse = request('POST', propertiesConfig.api.invoiceApi, { json: reqParams });
+                var apiRes = JSON.parse(apiResponse.getBody('utf8'));
+                //console.log(apiRes)
+                apiCallCount++;
+            } while (apiRes.result == 'F' && apiCallCount < 2);
+            
+            return done(null, null);
 
         } catch (e) {
             throw e;
