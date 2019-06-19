@@ -47,7 +47,7 @@ var propertiesConfig = {
     auto: {
         ftpScanDir: '/ScanFiles',
         ftpFilePath: 'ScanFiles/',
-        localFilePath: 'C:/ICR/uploads/',
+        localFilePath: 'C:/ICR/uploadFiles/',
         destFtpFilePath: 'uploads/',
         ftpFileUrl: 'http://104.41.171.244/uploads/'
 

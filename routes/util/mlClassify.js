@@ -492,13 +492,18 @@ function findEntry(req, docTypeVal, docTopTypeVal, done) {
                     }
                 } else if (req.docCategory.DOCTOPTYPE == 51) {
                     //품목명 예외처리
-                    if(req.data[j]["entryLbl"] == 504) {
-                        if(req.data[j]["text"].indexOf("품명및") !== -1 || req.data[j]["text"].indexOf("이하여백") !== -1 || req.data[j]["text"].indexOf("***") !== -1 || req.data[j]["text"].indexOf("이여") !== -1 || req.data[j]["text"].indexOf("*하백") !== -1)
+                    if(req.data[j]["entryLbl"] == 504 || req.data[j]["entryLbl"] == 505 || req.data[j]["entryLbl"] == 506 ||req.data[j]["entryLbl"] == 543) {
+                        if(req.data[j]["text"].indexOf("품명및") !== -1 || req.data[j]["text"].indexOf("이하여백") !== -1 || req.data[j]["text"].indexOf("***") !== -1 || req.data[j]["text"].indexOf("이여") !== -1 || req.data[j]["text"].indexOf("*하백") !== -1 || req.data[j]["text"].indexOf("**") !== -1)
                         {
                             delete req.data[j]["entryLbl"];
                         }
 
-                        if(req.data[j]["text"].indexOf("비고:") !== -1 || req.data[j]["text"].indexOf("계좌:") !== -1 || req.data[j]["text"].indexOf("TEL:") !== -1)
+                        if(req.data[j]["text"].indexOf("비고:") !== -1 || req.data[j]["text"].indexOf("계좌:") !== -1 || req.data[j]["text"].indexOf("TEL:") !== -1 || req.data[j]["text"].indexOf("여백**") !== -1 || req.data[j]["text"].indexOf("***이하") !== -1 || req.data[j]["text"].indexOf("품명") !== -1)
+                        {
+                            delete req.data[j]["entryLbl"];
+                        }
+
+                        if(req.data[j]["text"].indexOf("품 명 및 규 격") !== -1 || req.data[j]["text"].indexOf("하백") !== -1)
                         {
                             delete req.data[j]["entryLbl"];
                         }
@@ -520,7 +525,7 @@ function findEntry(req, docTypeVal, docTopTypeVal, done) {
                         {
                             req.data[j]["text"] = "(주)대유스틸";
                         }      
-                        if(req.data[j]["text"] == "호대림산업(주)" || req.data[j]["text"] == "상호대림산업(주)")
+                        if(req.data[j]["text"] == "호대림산업(주)" || req.data[j]["text"] == "상호대림산업(주)" || req.data[j]["text"] == "대림산업주)(" || req.data[j]["text"] == "독번역편한세상캐슬대림산업(주)" || req.data[j]["text"] == "호주)대림산업(")
                         {
                             req.data[j]["text"] = "대림산업(주)";
                         }                  
@@ -564,7 +569,7 @@ function findEntry(req, docTypeVal, docTopTypeVal, done) {
                             req.data[j]["text"] = "대치가설산업";
                         }
 
-                        if(req.data[j]["text"] == "대림에스엠(주)성" || req.data[j]["text"] == "대림에스엠()주" || req.data[j]["text"] == "대림에스엠()성주" || req.data[j]["text"] == "대림(주)성에스엠")
+                        if(req.data[j]["text"] == "대림에스엠(주)성" || req.data[j]["text"] == "대림에스엠()주" || req.data[j]["text"] == "대림에스엠()성주" || req.data[j]["text"] == "대림(주)성에스엠" || req.data[j]["text"] == "대림에스엠)(주" || req.data[j]["text"] == "대림에스엠)성(주")
                         {
                             req.data[j]["text"] = "대림에스엠(주)";
                         }
@@ -577,6 +582,11 @@ function findEntry(req, docTypeVal, docTopTypeVal, done) {
                         if(req.data[j]["text"] == "우신케이판미")
                         {
                             req.data[j]["text"] = "우신케이블판매";
+                        }
+
+                        if(req.data[j]["text"] == "(광지세이프티주)" || req.data[j]["text"] == "호)광지세이프티(주" || req.data[j]["text"] == "호(주)광지세이프티")
+                        {
+                            req.data[j]["text"] = "광지세이프티(주)";
                         }
 
                         req.data[j]["text"].replace("명독","녹");
@@ -820,7 +830,7 @@ function multiEntryCheck(firstEntry, entry, doctype) {
         }
     // 380 광지세이프티02
     }else if(doctype == 380){        
-        if(firstEntry['entryLbl'] == 504 && verticalCheck(firstLoc, entryLoc, 10, -50) && locationCheck(firstLoc[1], entryLoc[1], 0, -2000)){
+        if(firstEntry['entryLbl'] == 504 && verticalCheck(firstLoc, entryLoc, 10, -150) && locationCheck(firstLoc[1], entryLoc[1], 0, -2000)){
             check = true;
         }else if(firstEntry['entryLbl'] == 505 && verticalCheck(firstLoc, entryLoc, 100, -50) && locationCheck(firstLoc[1], entryLoc[1], 0, -2000)){
             check = true;
@@ -854,12 +864,22 @@ function multiEntryCheck(firstEntry, entry, doctype) {
         }else if(firstEntry['entryLbl'] == 541 && verticalCheck(firstLoc, entryLoc, 100, -150) && locationCheck(firstLoc[1], entryLoc[1], 0, -2000)){
             check = true;
         }
+    // 343 광지세이프티01
+    }else if(doctype == 344){        
+        if(firstEntry['entryLbl'] == 504 && verticalCheck(firstLoc, entryLoc, 100, -100) && locationCheck(firstLoc[1], entryLoc[1], 0, -2000)){
+            check = true;
+        }else if(firstEntry['entryLbl'] == 541 && verticalCheck(firstLoc, entryLoc, 100, -150) && locationCheck(firstLoc[1], entryLoc[1], 0, -2000)){
+            check = true;
+        }    
     
-    else if (verticalCheck(firstLoc, entryLoc, 100, -100) && locationCheck(firstLoc[1], entryLoc[1], 0, -2000)) {
-        check = true;
+    // 336 대림에스엠
+    }else if(doctype == 336){        
+        if(firstEntry['entryLbl'] == 504 && verticalCheck(firstLoc, entryLoc, 50, -100) && locationCheck(firstLoc[1], entryLoc[1], 0, -2000)){
+            check = true;
+        } else if(verticalCheck(firstLoc, entryLoc, 100, -100) && locationCheck(firstLoc[1], entryLoc[1], 0, -2000)) {
+            check = true;
+        } 
     }
-}
-
 
     else if (verticalCheck(firstLoc, entryLoc, 100, -100) && locationCheck(firstLoc[1], entryLoc[1], 0, -2000)) {
         check = true;

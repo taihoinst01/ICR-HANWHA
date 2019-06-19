@@ -95,7 +95,7 @@ app.post("/reviewRequest", function(req , res){
                             {
                                 
                                 retCnt++;
-                                retSequence +=  req.body.data[i].sequence +",";
+                                // retSequence +=  req.body.data[i].sequence +",";
                                 // return res.status(200).send({
                                 //     result: 'S',
                                 //     sequence:req.body.data[i].sequence,
@@ -114,7 +114,7 @@ app.post("/reviewRequest", function(req , res){
                 {
                     return res.status(200).send({
                         result: 'S',
-                        // sequence:req.body.data[i].sequence,
+                        sequence:retSequence.substring(0,retSequence.length-1),
                         errMsg: errmsg
                     });
                 }
@@ -122,7 +122,7 @@ app.post("/reviewRequest", function(req , res){
                 {
                     return res.status(200).send({
                         result: 'F',
-                        // sequence:req.body.data[i].sequence,
+                        sequence:retSequence.substring(0,retSequence.length-1),
                         errMsg: errmsg
                     });
                 }
