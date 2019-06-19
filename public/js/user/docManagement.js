@@ -180,14 +180,14 @@ function appendDocTableHeader(docLabelList, docDataList) {
     headerTheadHTML += '<th scope="row">파일명</th>';
     headerTheadHTML += '<th scope="row">날짜</th>';
     headerTheadHTML += '<th scope="row">비고</th>';
-    console.log(docLabelList);
+
     if (docLabelList.length > 0) {
         for (var i in docLabelList) {
             headerColGroupHTML += '<col style="width:180px;">';
             headerTheadHTML += '<th scope="row">' + docLabelList[i].KORNM + '</th>';
         }
     } else {
-        for (var i in docDataList.split(',')) {
+        for (var i in docDataList[0].EXPORTDATA.split(',')) {
             headerColGroupHTML += '<col style="width:180px;">';
             headerTheadHTML += '<th scope="row"></th>';
         }
