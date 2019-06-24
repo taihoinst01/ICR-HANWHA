@@ -332,9 +332,9 @@ function apiCall(apiData, done) {
                 reqParams.data[i]["inviceType"] = apiData[i].data.ENGNM;
                 reqParams.data[i]["sequence"] = apiData[i].data.SEQ;
                 reqParams.data[i]["fileName"] = apiData[i].data.FILENAME.replace('.pdf', '-0.jpg').replace('/uploads/','/img/');
-                reqParams.data[i]["cdSite"] = 'DAE100083';
+                //reqParams.data[i]["cdSite"] = 'DAE100083';
                 reqParams.data[i]["editFileName"] = '';
-                //reqParams.data[i]["cdSite"] = fileName.split('_')[0];
+                reqParams.data[i]["cdSite"] = fileName.split('_')[0];
                 reqParams.data[i]["scanDate"] = apiData[i].data.AUTOSENDTIME;
                 reqParams.data[i]["ocrData"] = [];
                 for (var j = 0; j < apiData[i].labels.length; j++) reqParams.data[i]["ocrData"].push({});

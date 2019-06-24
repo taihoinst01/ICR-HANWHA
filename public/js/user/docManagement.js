@@ -643,8 +643,8 @@ function btnSendClick() {
                 var itemJson = {
                     'sequence': $(e).prev().val(),
                     'inviceType': invoiceType,
-                    'cdSite': 'DAE100083',
-                    //'cdSite': $(e).closest('tr').children().eq(1).find('input').val().split('_')[0],
+                    //'cdSite': 'DAE100083',
+                    'cdSite': $(e).closest('tr').children().eq(1).find('input').val().split('_')[0],
                     'editFileName': '',
                     'scanDate': $(e).closest('tr').children().eq(2).find('input').val().replace(/[^(0-9)]/gi, '').replace(/(\s*)/,''),
                     'fileName': ($(e).closest('tr').children().eq(1).find('input').attr('data-originalvalue').split('.pdf')[0] + '-0.jpg').replace(/\/uploads/, '/img')
