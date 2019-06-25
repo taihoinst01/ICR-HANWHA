@@ -70,11 +70,14 @@ app.post("/reviewRequest", function(req , res){
                     else
                     {   
                         var fileNm = "";
-                        fileNm = req.body.data[i].fileName.split("/")[req.body.data[i].fileName.split("/").length-1];
-                        // console.log(req.body.data[i].fileName.split("/").length);
+                        console.log(req.body.data[i].fileName);
+                        // console.log(req.body.data[i].fileName.substring(req.body.data[i].fileName.lastIndexOf('/')+1, req.body.data[i].fileName.length));
+                        fileNm = req.body.data[i].fileName.substring(req.body.data[i].fileName.lastIndexOf('/')+1, req.body.data[i].fileName.length);
+                        // console.log(fileNm.replace("org_",""));
+                        fileNm = fileNm.replace("org_","");
                         fileNm = fileNm.split(".")[0].substring(0, fileNm.split(".")[0].length-2)+".pdf";
                         console.log(fileNm);
-                        console.log(req.body.data[i].sequence);
+                        // console.log(req.body.data[i].sequence);
                         var retData = sync.await(oracle.getFtpFileList(fileNm, req.body.data[i].sequence, sync.defer()));
                         console.log(retData);
                         if(retData.length < 1)
@@ -136,42 +139,6 @@ app.post("/reviewRequest", function(req , res){
                     errMsg: '데이터가 없습니다!!'
                 });
             }
-        // }
-        // else
-        // {
-        //     return res.status(400).send({
-        //         result: 'F',
-        //         errMsg: 'Data Count Error!!'
-        //     });
-        // }
-        
-        
-        // else
-        // {
-        //     var retData = sync.await(oracle.getFtpFileList(req.body.fileName, req.body.filePath,req.body.seq, sync.defer()));
-        //     if(retData.length < 1)
-        //     {
-        //         return res.status(400).send({
-        //             success: 'false',
-        //             message: 'No DATA'
-        //           });
-        //     }
-        //     else
-        //     {
-        //         var result = sync.await(oracle.updateFtpFileList(req.body.fileName, req.body.filePath,req.body.seq, sync.defer()));
-        //         console.log(result);
-        //         if(result = 1)
-        //         {
-        //             return res.status(200).send({
-        //                 success: 'true',
-        //                 message: 'receive successfully'
-        //               });
-        //         }
-        //         else{
-        //             console.log(result);
-        //         }
-        //     }
-        // }
     });
 });
 

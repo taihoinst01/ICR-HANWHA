@@ -101,7 +101,7 @@ function datePickerEvent() {
 
     // 30일전 날짜 구하기 (searchStartDate)
     var today = new Date();
-    var oldday = new Date(today - (3600000 * 24 * 30));
+    var oldday = new Date(today - (3600000 * 24 * 14));
     var oldMonth = ((oldday.getMonth() + 1) < 10 ? '0' : '') + (oldday.getMonth() + 1);
     var oldDate = ((oldday.getDate()) < 10 ? '0' : '') + oldday.getDate();
     $("#searchStartDate").val(oldday.getFullYear() + '-' + oldMonth + '-' + oldDate);
@@ -647,7 +647,8 @@ function btnSendClick() {
                     'cdSite': $(e).closest('tr').children().eq(1).find('input').val().split('_')[0],
                     'editFileName': '',
                     'scanDate': $(e).closest('tr').children().eq(2).find('input').val().replace(/[^(0-9)]/gi, '').replace(/(\s*)/,''),
-                    'fileName': ($(e).closest('tr').children().eq(1).find('input').attr('data-originalvalue').split('.pdf')[0] + '-0.jpg').replace(/\/uploads/, '/img')
+                    'fileName': (($(e).closest('tr').children().eq(1).find('input').attr('data-originalvalue').substring(0,$(e).closest('tr').children().eq(1).find('input').attr('data-originalvalue').lastIndexOf('/')+1)+'org_'+$(e).closest('tr').children().eq(1).find('input').attr('data-originalvalue').substring($(e).closest('tr').children().eq(1).find('input').attr('data-originalvalue').lastIndexOf('/')+1)).split('.pdf')[0] + '-0.jpg').replace(/\/uploads/, '/img')
+                    // 'fileName': ($(e).closest('tr').children().eq(1).find('input').attr('data-originalvalue').split('.pdf')[0] + '-0.jpg').replace(/\/uploads/, '/img')
                 };
                 var ocrDataArr = [];
                 var ocrDataItem = {};
@@ -664,7 +665,7 @@ function btnSendClick() {
                             'keyValue': tempArr
                         };
 
-                    } else { // single entry
+                    } else { //single entry
                         ocrDataItem = {
                             'engKey': labels[j].ENGNM,
                             'korKey': labels[j].KORNM,
@@ -674,7 +675,7 @@ function btnSendClick() {
                     }
                     ocrDataArr.push(ocrDataItem);
                 }
-
+                console.log(itemJson);
                 itemJson.ocrData = ocrDataArr;
                 sendJson.push(itemJson);
             }

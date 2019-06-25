@@ -86,10 +86,11 @@ router.post('/sendOcrData', function (req, res) {
                 data: req.body.sendData,
                 dataCnt: req.body.dataCnt
             };
-
+            console.log(reqParams)
             do {
                 var apiResponse = request('POST', propertiesConfig.api.invoiceApi, { json: reqParams });
                 var apiRes = JSON.parse(apiResponse.getBody('utf8'));
+                console.log(apiRes)
                 apiCallCount++;
             } while (apiRes.result == 'F' && apiCallCount < 2);          
             
