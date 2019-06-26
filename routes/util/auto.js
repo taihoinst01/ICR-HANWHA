@@ -400,7 +400,7 @@ function apiCall(apiData, done) {
                 var apiRes = JSON.parse(apiResponse.getBody('utf8'));
                 console.log(apiRes)
                 apiCallCount++;
-            } while (apiRes.result == 'F' && apiCallCount < 2);
+            } while (apiRes.success == 'false' && apiCallCount < 2);
             
             return done(null, null);
 
