@@ -1396,11 +1396,11 @@ router.post('/insertDoctypeMapping', function (req, res) {
             {
                 sentences = sentences + returnObj.docSentenceList[i].text.replace(regExp,"") + ",";
                 cnt ++;
-                if(cnt == 20) {break;}
+                if(cnt == 100) {break;}
             }
             sentences = sentences.substring(0, sentences.length -1);
             sentences = sentences+"||"+returnObj.docType+"||"+returnObj.docTopType;
-    
+            
             var retResult = sync.await(insertDocSentence(sentences,sync.defer()));
     
             // pythonConfig.columnMappingOptions.args = [];

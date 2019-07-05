@@ -133,9 +133,9 @@ function popUpRunEvent() {
 		// 	}
         // }
         
-        if (layer4Data.data.length > 20) {
+        if (layer4Data.data.length > 100) {
 
-			for (var i = 0; i < 20; i++) {
+			for (var i = 0; i < 100; i++) {
 
 				// console.log(layer4Data.data[i].originText);
 				docSentenceList.push({ "text": layer4Data.data[i].text })
@@ -1336,14 +1336,14 @@ function zoomImg(e, fileName) {
         $('#imageZoom').css('background-position', xPosition + 'px ' + yPosition + 'px');
         
         // left, width 추가
-        var positionLeft = (x * widthPercent) + 90;
+        var positionLeft = (x * widthPercent) + 80;
         var postionWidth = (textWidth * widthPercent) + 10;
         
         $('#redZoomNemo').css('left',  positionLeft + 'px');
         $('#redZoomNemo').css('width', postionWidth + 'px');
 
         $('#redZoomNemo').css('height', ((textHeight * heightPercent) + 10) + 'px');
-        $('#redZoomNemo').css('top', '168px')
+        $('#redZoomNemo').css('top', '158px')
         $('#redZoomNemo').show();
 
         //$('#targetZoom').css('width', ((textWidth * widthPercent)) + 'px').css('height', ((textHeight * heightPercent)) + 'px')
