@@ -287,33 +287,37 @@ function findEntry(req, docTypeVal, docTopTypeVal, done) {
             }         
             
             //Multy entry search
-            var diffHeight = 200;
-            for (var j in req.data) {
-                var amount = req.data[j]["amount"];
-                if(typeof amount != "undefined" && amount == "multi" && typeof req.data[j]["first"] != "undefined" && req.data[j]["first"] == "Y") {
-                    //console.log(req.data[j]);
-                    var firstEntry = req.data[j];
-                    var preEntryHeight = req.data[j];
-                    // console.log("req.docCategory.DOCTYPE ==> " + req.docCategory.DOCTYPE);
-                    for (var k in req.data) {
-                        if (req.docCategory.DOCTYPE == "345"){
-                            var entryHeight = req.data[k]["location"].split(",");
-                            if (multiEntryCheck(firstEntry, req.data[k] , req.docCategory.DOCTYPE) && parseInt(entryHeight[1]) < 1800) {
-                                req.data[k]['entryLbl'] = firstEntry['entryLbl'];
-                                req.data[k]["amount"] = firstEntry['amount'];
-                                preEntryHeight = req.data[k];
-                            }
-                        } else if (multiEntryCheck(firstEntry, req.data[k] , req.docCategory.DOCTYPE) && entryHeightCheck(preEntryHeight, req.data[k], diffHeight)) {
-                            req.data[k]['entryLbl'] = firstEntry['entryLbl'];
-                            req.data[k]["amount"] = firstEntry['amount'];
-                            preEntryHeight = req.data[k];
-                        }
-                    }
-                }
-            }
+            // var diffHeight = 200;
+            // for (var j in req.data) {
+            //     var amount = req.data[j]["amount"];
+            //     if(typeof amount != "undefined" && amount == "multi" && typeof req.data[j]["first"] != "undefined" && req.data[j]["first"] == "Y") {
+            //         //console.log(req.data[j]);
+            //         var firstEntry = req.data[j];
+            //         var preEntryHeight = req.data[j];
+            //         // console.log("req.docCategory.DOCTYPE ==> " + req.docCategory.DOCTYPE);
+            //         for (var k in req.data) {
+            //             if (req.docCategory.DOCTYPE == "345"){
+            //                 var entryHeight = req.data[k]["location"].split(",");
+            //                 if (multiEntryCheck(firstEntry, req.data[k] , req.docCategory.DOCTYPE) && parseInt(entryHeight[1]) < 1800) {
+            //                     req.data[k]['entryLbl'] = firstEntry['entryLbl'];
+            //                     req.data[k]["amount"] = firstEntry['amount'];
+            //                     preEntryHeight = req.data[k];
+            //                 }
+            //             } else if (multiEntryCheck(firstEntry, req.data[k] , req.docCategory.DOCTYPE) && entryHeightCheck(preEntryHeight, req.data[k], diffHeight)) {
+            //                 req.data[k]['entryLbl'] = firstEntry['entryLbl'];
+            //                 req.data[k]["amount"] = firstEntry['amount'];
+            //                 preEntryHeight = req.data[k];
+            //             }
+            //         }
+            //     }
+            // }
             
             // Add single entry text
-            req.data = sync.await(addEntryTextOfLabel(req.data, sync.defer()));        
+            req.data = sync.await(addEntryTextOfLabel(req.data,req.docCategory.DOCTOPTYPE, sync.defer()));        
+
+            console.log("addEntryTextOfLabel addEntryTextOfLabel addEntryTextOfLabel");
+            console.log(req.docCategory.DOCTYPE);
+
 
             //예외처리 등록
             for(var j in req.data)
@@ -490,111 +494,112 @@ function findEntry(req, docTypeVal, docTopTypeVal, done) {
                         }
                         
                     }
-                } else if (req.docCategory.DOCTOPTYPE == 51) {
-                    //품목명 예외처리
-                    if(req.data[j]["entryLbl"] == 504 || req.data[j]["entryLbl"] == 505 || req.data[j]["entryLbl"] == 506 ||req.data[j]["entryLbl"] == 543) {
-                        if(req.data[j]["text"].indexOf("품명및") !== -1 || req.data[j]["text"].indexOf("이하여백") !== -1 || req.data[j]["text"].indexOf("***") !== -1 || req.data[j]["text"].indexOf("이여") !== -1 || req.data[j]["text"].indexOf("*하백") !== -1 || req.data[j]["text"].indexOf("**") !== -1)
-                        {
-                            delete req.data[j]["entryLbl"];
-                        }
+                } 
+                // else if (req.docCategory.DOCTOPTYPE == 51) {
+                //     //품목명 예외처리
+                //     if(req.data[j]["entryLbl"] == 504 || req.data[j]["entryLbl"] == 505 || req.data[j]["entryLbl"] == 506 ||req.data[j]["entryLbl"] == 543) {
+                //         if(req.data[j]["text"].indexOf("품명및") !== -1 || req.data[j]["text"].indexOf("이하여백") !== -1 || req.data[j]["text"].indexOf("***") !== -1 || req.data[j]["text"].indexOf("이여") !== -1 || req.data[j]["text"].indexOf("*하백") !== -1 || req.data[j]["text"].indexOf("**") !== -1)
+                //         {
+                //             delete req.data[j]["entryLbl"];
+                //         }
 
-                        if(req.data[j]["text"].indexOf("비고:") !== -1 || req.data[j]["text"].indexOf("계좌:") !== -1 || req.data[j]["text"].indexOf("TEL:") !== -1 || req.data[j]["text"].indexOf("여백**") !== -1 || req.data[j]["text"].indexOf("***이하") !== -1 || req.data[j]["text"].indexOf("품명") !== -1)
-                        {
-                            delete req.data[j]["entryLbl"];
-                        }
+                //         if(req.data[j]["text"].indexOf("비고:") !== -1 || req.data[j]["text"].indexOf("계좌:") !== -1 || req.data[j]["text"].indexOf("TEL:") !== -1 || req.data[j]["text"].indexOf("여백**") !== -1 || req.data[j]["text"].indexOf("***이하") !== -1 || req.data[j]["text"].indexOf("품명") !== -1)
+                //         {
+                //             delete req.data[j]["entryLbl"];
+                //         }
 
-                        if(req.data[j]["text"].indexOf("품 명 및 규 격") !== -1 || req.data[j]["text"].indexOf("하백") !== -1)
-                        {
-                            delete req.data[j]["entryLbl"];
-                        }
-                    }
-                    // 540 공급자 받는자
-                    if(req.data[j]["entryLbl"] == 540)
-                    {
-                        if(req.data[j]["text"] == "호(주)통광")
-                        {
-                            req.data[j]["text"] = "(주)통광";
-                        }
+                //         if(req.data[j]["text"].indexOf("품 명 및 규 격") !== -1 || req.data[j]["text"].indexOf("하백") !== -1)
+                //         {
+                //             delete req.data[j]["entryLbl"];
+                //         }
+                //     }
+                //     // 540 공급자 받는자
+                //     if(req.data[j]["entryLbl"] == 540)
+                //     {
+                //         if(req.data[j]["text"] == "호(주)통광")
+                //         {
+                //             req.data[j]["text"] = "(주)통광";
+                //         }
 
-                        if(req.data[j]["text"] == "대림에스엠(주)성")
-                        {
-                            req.data[j]["text"] = "대림에스엠(주)";
-                        }
+                //         if(req.data[j]["text"] == "대림에스엠(주)성")
+                //         {
+                //             req.data[j]["text"] = "대림에스엠(주)";
+                //         }
 
-                        if(req.data[j]["text"] == "호(주)대유스틸")
-                        {
-                            req.data[j]["text"] = "(주)대유스틸";
-                        }      
-                        if(req.data[j]["text"] == "호대림산업(주)" || req.data[j]["text"] == "상호대림산업(주)" || req.data[j]["text"] == "대림산업주)(" || req.data[j]["text"] == "독번역편한세상캐슬대림산업(주)" || req.data[j]["text"] == "호주)대림산업(")
-                        {
-                            req.data[j]["text"] = "대림산업(주)";
-                        }                  
-                    }
-                    // 541 현장명
-                    if(req.data[j]["entryLbl"] == 541)
-                    {
-                        if(req.data[j]["text"] == "명녹번역e편한세상")
-                        {
-                            req.data[j]["text"] = "녹번역e편한세상";
-                        }
+                //         if(req.data[j]["text"] == "호(주)대유스틸")
+                //         {
+                //             req.data[j]["text"] = "(주)대유스틸";
+                //         }      
+                //         if(req.data[j]["text"] == "호대림산업(주)" || req.data[j]["text"] == "상호대림산업(주)" || req.data[j]["text"] == "대림산업주)(" || req.data[j]["text"] == "독번역편한세상캐슬대림산업(주)" || req.data[j]["text"] == "호주)대림산업(")
+                //         {
+                //             req.data[j]["text"] = "대림산업(주)";
+                //         }                  
+                //     }
+                //     // 541 현장명
+                //     if(req.data[j]["entryLbl"] == 541)
+                //     {
+                //         if(req.data[j]["text"] == "명녹번역e편한세상")
+                //         {
+                //             req.data[j]["text"] = "녹번역e편한세상";
+                //         }
                         
-                        if(req.data[j]["text"] == "독번") {
-                            req.data[j]["text"] = "녹번";
-                        }
+                //         if(req.data[j]["text"] == "독번") {
+                //             req.data[j]["text"] = "녹번";
+                //         }
 
-                        if(req.data[j]["text"] == "독번역e-편한세상") {
-                            req.data[j]["text"] = "녹번역e-편한세상";
-                        }  
-                    }
-                    // 502 공급자
-                    if(req.data[j]["entryLbl"] == 502)
-                    {
-                        if(req.data[j]["text"] == "호광일볼트")
-                        {
-                            req.data[j]["text"] = "광일볼트상사";
-                        }
+                //         if(req.data[j]["text"] == "독번역e-편한세상") {
+                //             req.data[j]["text"] = "녹번역e-편한세상";
+                //         }  
+                //     }
+                //     // 502 공급자
+                //     if(req.data[j]["entryLbl"] == 502)
+                //     {
+                //         if(req.data[j]["text"] == "호광일볼트")
+                //         {
+                //             req.data[j]["text"] = "광일볼트상사";
+                //         }
 
-                        if(req.data[j]["text"] == "대림산업(주)녹번역편한세상캐슬" || req.data[j]["text"] == "Tot대림산업(주)" || req.data[j]["text"] == "호대림산업(주)")
-                        {
-                            req.data[j]["text"] = "대림산업(주)";
-                        }
+                //         if(req.data[j]["text"] == "대림산업(주)녹번역편한세상캐슬" || req.data[j]["text"] == "Tot대림산업(주)" || req.data[j]["text"] == "호대림산업(주)")
+                //         {
+                //             req.data[j]["text"] = "대림산업(주)";
+                //         }
 
-                        if(req.data[j]["text"] == ")백광도시개발군")
-                        {
-                            req.data[j]["text"] = "백광도시개발";
-                        }
+                //         if(req.data[j]["text"] == ")백광도시개발군")
+                //         {
+                //             req.data[j]["text"] = "백광도시개발";
+                //         }
 
-                        if(req.data[j]["text"] == "대치가설산업경기도여주시" || req.data[j]["text"] == "대치가설산업여주시경기도")
-                        {
-                            req.data[j]["text"] = "대치가설산업";
-                        }
+                //         if(req.data[j]["text"] == "대치가설산업경기도여주시" || req.data[j]["text"] == "대치가설산업여주시경기도")
+                //         {
+                //             req.data[j]["text"] = "대치가설산업";
+                //         }
 
-                        if(req.data[j]["text"] == "대림에스엠(주)성" || req.data[j]["text"] == "대림에스엠()주" || req.data[j]["text"] == "대림에스엠()성주" || req.data[j]["text"] == "대림(주)성에스엠" || req.data[j]["text"] == "대림에스엠)(주" || req.data[j]["text"] == "대림에스엠)성(주")
-                        {
-                            req.data[j]["text"] = "대림에스엠(주)";
-                        }
+                //         if(req.data[j]["text"] == "대림에스엠(주)성" || req.data[j]["text"] == "대림에스엠()주" || req.data[j]["text"] == "대림에스엠()성주" || req.data[j]["text"] == "대림(주)성에스엠" || req.data[j]["text"] == "대림에스엠)(주" || req.data[j]["text"] == "대림에스엠)성(주")
+                //         {
+                //             req.data[j]["text"] = "대림에스엠(주)";
+                //         }
 
-                        if(req.data[j]["text"] == ")웍스코퍼레이성(" || req.data[j]["text"] == ")웍스코퍼레이성" || req.data[j]["text"] == ")웍스코퍼레이션퍼레이션성")
-                        {
-                            req.data[j]["text"] = "웍스코퍼레이션";
-                        }
+                //         if(req.data[j]["text"] == ")웍스코퍼레이성(" || req.data[j]["text"] == ")웍스코퍼레이성" || req.data[j]["text"] == ")웍스코퍼레이션퍼레이션성")
+                //         {
+                //             req.data[j]["text"] = "웍스코퍼레이션";
+                //         }
 
-                        if(req.data[j]["text"] == "우신케이판미")
-                        {
-                            req.data[j]["text"] = "우신케이블판매";
-                        }
+                //         if(req.data[j]["text"] == "우신케이판미")
+                //         {
+                //             req.data[j]["text"] = "우신케이블판매";
+                //         }
 
-                        if(req.data[j]["text"] == "(광지세이프티주)" || req.data[j]["text"] == "호)광지세이프티(주" || req.data[j]["text"] == "호(주)광지세이프티")
-                        {
-                            req.data[j]["text"] = "광지세이프티(주)";
-                        }
+                //         if(req.data[j]["text"] == "(광지세이프티주)" || req.data[j]["text"] == "호)광지세이프티(주" || req.data[j]["text"] == "호(주)광지세이프티")
+                //         {
+                //             req.data[j]["text"] = "광지세이프티(주)";
+                //         }
 
-                        req.data[j]["text"].replace("명독","녹");
+                //         req.data[j]["text"].replace("명독","녹");
 
-                    }
+                //     }
 
                     
-                }
+                // }
                 
             }
 
@@ -612,7 +617,7 @@ function findEntry(req, docTypeVal, docTopTypeVal, done) {
 	});
 }
 
-function addEntryTextOfLabel(data, done) {
+function addEntryTextOfLabel(data, docTopType, done) {
     sync.fiber(function () {
         try {           
             for (var i = 0; i < data.length; i++) {
@@ -677,50 +682,56 @@ function addEntryTextOfLabel(data, done) {
                                 i--;
                                 break;
                             }
-                        } else if (data[i]["amount"] == "multi" && data[j]["amount"] == "multi") { // 멀티
-                            var yGap = ((Number(targetLoc[1]) - Number(compareLoc[1])) > 0) ? (Number(targetLoc[1]) - Number(compareLoc[1])) : -(Number(targetLoc[1]) - Number(compareLoc[1]));
+                        } 
+                        // else if (data[i]["amount"] == "multi" && data[j]["amount"] == "multi") { // 멀티
+                        //     var yGap = ((Number(targetLoc[1]) - Number(compareLoc[1])) > 0) ? (Number(targetLoc[1]) - Number(compareLoc[1])) : -(Number(targetLoc[1]) - Number(compareLoc[1]));
 
-                            // 텍스트와 위치 데이터 가공                        
-                            if (Number(targetLoc[0]) < Number(compareLoc[0]) && yGap < 7) {                               
-                                // 붙여진 text 정보를 확인하기 위한 용도 (텍스트가 붙여지면 entryLbls로는 확인이 어려움)
+                        //     // 텍스트와 위치 데이터 가공                        
+                        //     if (Number(targetLoc[0]) < Number(compareLoc[0]) && yGap < 7) {                               
+                        //         // 붙여진 text 정보를 확인하기 위한 용도 (텍스트가 붙여지면 entryLbls로는 확인이 어려움)
+                        //         if (data[i]["addItem"]) {
+                        //             data[i]["addItem"].push(JSON.parse(JSON.stringify(data[j])));
+                        //         } else {
+                        //             data[i]["addItem"] = [JSON.parse(JSON.stringify(data[i])), JSON.parse(JSON.stringify(data[j]))];
+                        //             delete data[i]["entryLbls"];
+                        //         }
+                                
+                        //         data[i]["text"] += data[j]["text"];
+                        //         data[i]["location"] = targetLoc[0] + ',' + targetLoc[1]
+                        //             + ',' + (Number(compareLoc[0]) + Number(compareLoc[2]) - Number(targetLoc[0]))
+                        //             + ',' + ((Number(targetLoc[3]) > Number(compareLoc[3])) ? targetLoc[3] : compareLoc[3])
+                        //         data.splice(j, 1);
+                        //         i--;
+                        //         break;
+                        //     }
+                        // } 
+                        else if (data[i]["entryLbl"] == "760" || data[i]["entryLbl"] == "761" || data[i]["entryLbl"] == "502") {
+                        } else {
+                            if(docTopType == "58")
+                            {
                                 if (data[i]["addItem"]) {
                                     data[i]["addItem"].push(JSON.parse(JSON.stringify(data[j])));
                                 } else {
                                     data[i]["addItem"] = [JSON.parse(JSON.stringify(data[i])), JSON.parse(JSON.stringify(data[j]))];
                                     delete data[i]["entryLbls"];
                                 }
-                                
-                                data[i]["text"] += data[j]["text"];
-                                data[i]["location"] = targetLoc[0] + ',' + targetLoc[1]
-                                    + ',' + (Number(compareLoc[0]) + Number(compareLoc[2]) - Number(targetLoc[0]))
-                                    + ',' + ((Number(targetLoc[3]) > Number(compareLoc[3])) ? targetLoc[3] : compareLoc[3])
+    
+                                if (Number(targetLoc[0]) < Number(compareLoc[0])) {
+                                    data[i]["text"] += data[j]["text"];
+                                    data[i]["location"] = targetLoc[0] + ',' + targetLoc[1]
+                                        + ',' + (Number(compareLoc[0]) + Number(compareLoc[2]) - Number(targetLoc[0]))
+                                        + ',' + ((Number(targetLoc[3]) > Number(compareLoc[3])) ? targetLoc[3] : compareLoc[3])
+                                } else {
+                                    data[i]["text"] = data[j]["text"] + data[i]["text"];
+                                    data[i]["location"] = compareLoc[0] + ',' + compareLoc[1]
+                                        + ',' + (Number(targetLoc[0]) + Number(targetLoc[2]) - Number(compareLoc[0]))
+                                        + ',' + ((Number(targetLoc[3]) > Number(compareLoc[3])) ? targetLoc[3] : compareLoc[3])
+                                }
                                 data.splice(j, 1);
                                 i--;
                                 break;
                             }
-                        } else if (data[i]["entryLbl"] == "760" || data[i]["entryLbl"] == "761" || data[i]["entryLbl"] == "502") {
-                        } else {
-                            if (data[i]["addItem"]) {
-                                data[i]["addItem"].push(JSON.parse(JSON.stringify(data[j])));
-                            } else {
-                                data[i]["addItem"] = [JSON.parse(JSON.stringify(data[i])), JSON.parse(JSON.stringify(data[j]))];
-                                delete data[i]["entryLbls"];
-                            }
-
-                            if (Number(targetLoc[0]) < Number(compareLoc[0])) {
-                                data[i]["text"] += data[j]["text"];
-                                data[i]["location"] = targetLoc[0] + ',' + targetLoc[1]
-                                    + ',' + (Number(compareLoc[0]) + Number(compareLoc[2]) - Number(targetLoc[0]))
-                                    + ',' + ((Number(targetLoc[3]) > Number(compareLoc[3])) ? targetLoc[3] : compareLoc[3])
-                            } else {
-                                data[i]["text"] = data[j]["text"] + data[i]["text"];
-                                data[i]["location"] = compareLoc[0] + ',' + compareLoc[1]
-                                    + ',' + (Number(targetLoc[0]) + Number(targetLoc[2]) - Number(compareLoc[0]))
-                                    + ',' + ((Number(targetLoc[3]) > Number(compareLoc[3])) ? targetLoc[3] : compareLoc[3])
-                            }
-                            data.splice(j, 1);
-                            i--;
-                            break;
+                            
                         }                        
                     }
                 }
