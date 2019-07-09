@@ -329,7 +329,7 @@ function apiCall(apiData, done) {
             for (var i = 0; i < apiData.length; i++) reqParams.data.push({});
             for (var i = 0; i < apiData.length; i++) {
                 var fileName = apiData[i].data.FILENAME.substring(apiData[i].data.FILENAME.lastIndexOf('/')+1, apiData[i].data.FILENAME.length);
-                var senedFileName = apiData[i].data.FILENAME.substring(0,req.body.data[i].fileName.lastIndexOf('/')+1)+"org_"+apiData[i].data.FILENAME.substring(req.body.data[i].fileName.lastIndexOf('/')+1);
+                var senedFileName = apiData[i].data.FILENAME.substring(0,apiData[i].data.FILENAME.lastIndexOf('/')+1)+"org_"+apiData[i].data.FILENAME.substring(apiData[i].data.FILENAME.lastIndexOf('/')+1);
                 reqParams.data[i]["inviceType"] = apiData[i].data.ENGNM;
                 reqParams.data[i]["sequence"] = apiData[i].data.SEQ;
                 // reqParams.data[i]["fileName"] = apiData[i].data.FILENAME.replace('.pdf', '-0.jpg').replace('/uploads/','/img/');
