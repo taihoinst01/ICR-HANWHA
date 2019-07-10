@@ -23,6 +23,8 @@ var sync = require('../util/sync.js');
 var difflib = require('difflib');
 var predRegionConfig = require(appRoot + '/config/predRegionConfig');
 
+var numeral = require('numeral');
+
 //PKS 여기서부터 새로 시작
 
 
@@ -239,7 +241,7 @@ function findEntry(req, docTypeVal, docTopTypeVal, done) {
                     else
                     {
                         // if (entryTrainRows[k].CLASS != "760" && entryTrainRows[k].CLASS != "761" && entryTrainRows[k].CLASS != "502") {
-                            if (entryTrainRows[k].CLASS != "760" && entryTrainRows[k].CLASS != "761") {
+                            if (entryTrainRows[k].CLASS != "760" && entryTrainRows[k].CLASS != "761" && entryTrainRows[k].CLASS != "422") {
                             if (predictionColumn(req.docCategory, req.data[j], entryTrainRows[k], 'E') && isValid(labelRows, entryTrainRows[k].CLASS, req.data[j]["text"])) {
                                 if (!req.data[j]["entryLbls"]) {
                                     req.data[j]["entryLbls"] = [entryTrainRows[k]];
@@ -287,38 +289,38 @@ function findEntry(req, docTypeVal, docTopTypeVal, done) {
             }         
             
             //Multy entry search
-            // var diffHeight = 200;
-            // for (var j in req.data) {
-            //     var amount = req.data[j]["amount"];
-            //     if(typeof amount != "undefined" && amount == "multi" && typeof req.data[j]["first"] != "undefined" && req.data[j]["first"] == "Y") {
-            //         //console.log(req.data[j]);
-            //         var firstEntry = req.data[j];
-            //         var preEntryHeight = req.data[j];
-            //         // console.log("req.docCategory.DOCTYPE ==> " + req.docCategory.DOCTYPE);
-            //         for (var k in req.data) {
-            //             if (req.docCategory.DOCTYPE == "345"){
-            //                 var entryHeight = req.data[k]["location"].split(",");
-            //                 if (multiEntryCheck(firstEntry, req.data[k] , req.docCategory.DOCTYPE) && parseInt(entryHeight[1]) < 1800) {
-            //                     req.data[k]['entryLbl'] = firstEntry['entryLbl'];
-            //                     req.data[k]["amount"] = firstEntry['amount'];
-            //                     preEntryHeight = req.data[k];
-            //                 }
-            //             } else if (multiEntryCheck(firstEntry, req.data[k] , req.docCategory.DOCTYPE) && entryHeightCheck(preEntryHeight, req.data[k], diffHeight)) {
-            //                 req.data[k]['entryLbl'] = firstEntry['entryLbl'];
-            //                 req.data[k]["amount"] = firstEntry['amount'];
-            //                 preEntryHeight = req.data[k];
-            //             }
-            //         }
-            //     }
-            // }
+            var diffHeight = 200;
+            for (var j in req.data) {
+                var amount = req.data[j]["amount"];
+                if(typeof amount != "undefined" && amount == "multi" && typeof req.data[j]["first"] != "undefined" && req.data[j]["first"] == "Y") {
+                    //console.log(req.data[j]);
+                    var firstEntry = req.data[j];
+                    var preEntryHeight = req.data[j];
+                    // console.log("req.docCategory.DOCTYPE ==> " + req.docCategory.DOCTYPE);
+                    for (var k in req.data) {
+                        // if (req.docCategory.DOCTYPE == "422"){
+                        //     var entryHeight = req.data[k]["location"].split(",");
+                        //     if (multiEntryCheck(firstEntry, req.data[k] , req.docCategory.DOCTYPE) && parseInt(entryHeight[1]) < 1800) {
+                        //         req.data[k]['entryLbl'] = firstEntry['entryLbl'];
+                        //         req.data[k]["amount"] = firstEntry['amount'];
+                        //         preEntryHeight = req.data[k];
+                        //     }
+                        // } 
+                        // else 
+                        // if (multiEntryCheck(firstEntry, req.data[k] , req.docCategory.DOCTYPE) && entryHeightCheck(preEntryHeight, req.data[k], diffHeight)) {
+                        if (multiEntryCheck(firstEntry, req.data[k] , req.docCategory.DOCTYPE)) {
+                            req.data[k]['entryLbl'] = firstEntry['entryLbl'];
+                            req.data[k]["amount"] = firstEntry['amount'];
+                            preEntryHeight = req.data[k];
+                        }
+                    }
+                }
+            }
             
             // Add single entry text
             req.data = sync.await(addEntryTextOfLabel(req.data,req.docCategory.DOCTOPTYPE, sync.defer()));        
 
-            console.log("addEntryTextOfLabel addEntryTextOfLabel addEntryTextOfLabel");
-            console.log(req.docCategory.DOCTYPE);
-
-
+            var regExp = /[\{\}\[\]\/?.,;:|\)*~`!^\-_+<>@\#$%&\\\=\(\'\"]/gi;
             //예외처리 등록
             for(var j in req.data)
             {
@@ -494,7 +496,38 @@ function findEntry(req, docTypeVal, docTopTypeVal, done) {
                         }
                         
                     }
-                } 
+                }
+                else if (req.docCategory.DOCTOPTYPE == 61) 
+                {
+                    if(req.docCategory.DOCTYPE == 422 ){
+                        if(req.data[j]["entryLbl"] == "877"){
+                            var entry877 = "";
+                            entry877 = req.data[j].text.replace(regExp,"");
+                            if(entry877.substring(entry877.length-3, entry877.length) == "000"){
+                                // console.log(numeral(entry877.substring(0,entry877.length-3)).format('0,0')+".000");
+                                req.data[j].text = numeral(entry877.substring(0,entry877.length-3)).format('0,0')+".000";
+                            }
+                        }
+                        else if(req.data[j]["entryLbl"] == "873"){
+                            var entry873 = "";
+                            entry873 = req.data[j].text.replace(regExp,"");
+                            if(entry873.length == 14)
+                            {
+                                if(entry873.substring(entry873.length-6, entry873.length) == "000000"){
+                                    entry873 = entry873.substring(0,entry873.length-6);
+                                    console.log(entry873.substring(0,4) + "-" +entry873.substring(4,6)+ "-" +entry873.substring(6,8));
+                                    req.data[j].text = entry873.substring(0,4) + "-" +entry873.substring(4,6)+ "-" +entry873.substring(6,8);
+                                }
+                            }
+                            else if(entry873.length == 8)
+                            {
+                                console.log(entry873.substring(0,4) + "-" +entry873.substring(4,6)+ "-" +entry873.substring(6,8));
+                                req.data[j].text = entry873.substring(0,4) + "-" +entry873.substring(4,6)+ "-" +entry873.substring(6,8);
+                            }
+                        }
+                    }
+                    
+                }
                 // else if (req.docCategory.DOCTOPTYPE == 51) {
                 //     //품목명 예외처리
                 //     if(req.data[j]["entryLbl"] == 504 || req.data[j]["entryLbl"] == 505 || req.data[j]["entryLbl"] == 506 ||req.data[j]["entryLbl"] == 543) {
@@ -705,7 +738,7 @@ function addEntryTextOfLabel(data, docTopType, done) {
                         //         break;
                         //     }
                         // } 
-                        else if (data[i]["entryLbl"] == "760" || data[i]["entryLbl"] == "761" || data[i]["entryLbl"] == "502") {
+                        else if (data[i]["entryLbl"] == "760" || data[i]["entryLbl"] == "761" || data[i]["entryLbl"] == "502" || data[i]["entryLbl"] == "422") {
                         } else {
                             if(docTopType == "58")
                             {
@@ -751,9 +784,23 @@ function entryHeightCheck(data1, data2, diffHeight) {
     data2 = data2['location'].split(',');
     var res = parseInt(data2[1]) - parseInt(data1[1]);
 
+    // if(docType == 422)
+    // {
+    //     if (res < 600) {
+    //         check = true;
+    //     }
+    // }
+    // else
+    // {
+    //     if (res < diffHeight) {
+    //         check = true;
+    //     }
+    // }
+
     if (res < diffHeight) {
         check = true;
     }
+    
 
     return check;
 }
@@ -766,138 +813,186 @@ function multiEntryCheck(firstEntry, entry, doctype) {
     // console.log("multiEntryCheck doctype===>" + doctype);
     // console.log("multiEntryCheck firstEntry===>" + firstEntry['entryLbl']);
     
-    if(doctype == 340) {
-        // 504 품목명
-        if(firstEntry['entryLbl'] == 504 && verticalCheck(firstLoc, entryLoc, 50, -100) && locationCheck(firstLoc[1], entryLoc[1], 0, -2000)){
-            check = true;
-        } else if (verticalCheck(firstLoc, entryLoc, 100, -100) && locationCheck(firstLoc[1], entryLoc[1], 0, -2000)) {
-            check = true;
-        }
-    } else if(doctype == 341) {
-        // 504 품목명
-        if(firstEntry['entryLbl'] == 504 && verticalCheck(firstLoc, entryLoc, 80, -100) && locationCheck(firstLoc[1], entryLoc[1], 0, -2000)){
-            check = true;
-        } else if (firstEntry['entryLbl'] == 505 && verticalCheck(firstLoc, entryLoc, 10, -10) && locationCheck(firstLoc[1], entryLoc[1], 0, -2000)) {
-            check = true;
-        } else if (firstEntry['entryLbl'] == 543 && verticalCheck(firstLoc, entryLoc, 80, -100) && locationCheck(firstLoc[1], entryLoc[1], 0, -2000)) {
-            check = true;
-        } else if (firstEntry['entryLbl'] == 506 && verticalCheck(firstLoc, entryLoc, 50, -50) && locationCheck(firstLoc[1], entryLoc[1], 0, -2000)) {
-            check = true;
-        }else if (verticalCheck(firstLoc, entryLoc, 100, -100) && locationCheck(firstLoc[1], entryLoc[1], 0, -2000)) {
-            check = true;
-        }
-    // 일반송자_광일볼트상사
-    }else if(doctype == 348){
-        // 504 품목명
-        if(firstEntry['entryLbl'] == 504 && verticalCheck(firstLoc, entryLoc, 100, -300) && locationCheck(firstLoc[1], entryLoc[1], 0, -2000)){
-            check = true;
-        }else if(firstEntry['entryLbl'] == 506 && verticalCheck(firstLoc, entryLoc, 100, -50) && locationCheck(firstLoc[1], entryLoc[1], 0, -2000)){
-            check = true;
-        }else if (verticalCheck(firstLoc, entryLoc, 100, -100) && locationCheck(firstLoc[1], entryLoc[1], 0, -2000)) {
-            check = true;
-        }
+    // if(doctype == 340) {
+    //     // 504 품목명
+    //     if(firstEntry['entryLbl'] == 504 && verticalCheck(firstLoc, entryLoc, 50, -100) && locationCheck(firstLoc[1], entryLoc[1], 0, -2000)){
+    //         check = true;
+    //     } else if (verticalCheck(firstLoc, entryLoc, 100, -100) && locationCheck(firstLoc[1], entryLoc[1], 0, -2000)) {
+    //         check = true;
+    //     }
+    // } else if(doctype == 341) {
+    //     // 504 품목명
+    //     if(firstEntry['entryLbl'] == 504 && verticalCheck(firstLoc, entryLoc, 80, -100) && locationCheck(firstLoc[1], entryLoc[1], 0, -2000)){
+    //         check = true;
+    //     } else if (firstEntry['entryLbl'] == 505 && verticalCheck(firstLoc, entryLoc, 10, -10) && locationCheck(firstLoc[1], entryLoc[1], 0, -2000)) {
+    //         check = true;
+    //     } else if (firstEntry['entryLbl'] == 543 && verticalCheck(firstLoc, entryLoc, 80, -100) && locationCheck(firstLoc[1], entryLoc[1], 0, -2000)) {
+    //         check = true;
+    //     } else if (firstEntry['entryLbl'] == 506 && verticalCheck(firstLoc, entryLoc, 50, -50) && locationCheck(firstLoc[1], entryLoc[1], 0, -2000)) {
+    //         check = true;
+    //     }else if (verticalCheck(firstLoc, entryLoc, 100, -100) && locationCheck(firstLoc[1], entryLoc[1], 0, -2000)) {
+    //         check = true;
+    //     }
+    // // 일반송자_광일볼트상사
+    // }else if(doctype == 348){
+    //     // 504 품목명
+    //     if(firstEntry['entryLbl'] == 504 && verticalCheck(firstLoc, entryLoc, 100, -300) && locationCheck(firstLoc[1], entryLoc[1], 0, -2000)){
+    //         check = true;
+    //     }else if(firstEntry['entryLbl'] == 506 && verticalCheck(firstLoc, entryLoc, 100, -50) && locationCheck(firstLoc[1], entryLoc[1], 0, -2000)){
+    //         check = true;
+    //     }else if (verticalCheck(firstLoc, entryLoc, 100, -100) && locationCheck(firstLoc[1], entryLoc[1], 0, -2000)) {
+    //         check = true;
+    //     }
         
-    // 355 일반송장_남양씨피엠
-    }else if(doctype == 355){
-        // 504 품목명
-        if(firstEntry['entryLbl'] == 504 && verticalCheck(firstLoc, entryLoc, 150, -300) && locationCheck(firstLoc[1], entryLoc[1], 0, -2000)){
-            check = true;
-        }else if (verticalCheck(firstLoc, entryLoc, 100, -100) && locationCheck(firstLoc[1], entryLoc[1], 0, -2000)) {
-            check = true;
-        }
-    // 358 대림에스엠
-    }else if(doctype == 358){        
-        if(firstEntry['entryLbl'] == 504 && verticalCheck(firstLoc, entryLoc, 10, -10) && locationCheck(firstLoc[1], entryLoc[1], 0, -2000)){
-            check = true;
-        }else if (verticalCheck(firstLoc, entryLoc, 100, -100) && locationCheck(firstLoc[1], entryLoc[1], 0, -2000)) {
-            check = true;
-        }
-    }else if(doctype == 363) {
-        // 504 품목명
-        if(firstEntry['entryLbl'] == 505 && verticalCheck(firstLoc, entryLoc, 20, -20) && locationCheck(firstLoc[1], entryLoc[1], 0, -2000)){
-            check = true;
-        }
-    // 364 대유스틸
-    }else if(doctype == 364){        
-        if(firstEntry['entryLbl'] == 504 && verticalCheck(firstLoc, entryLoc, 100, -100) && locationCheck(firstLoc[1], entryLoc[1], 0, -2000)){
-            check = true;
-        }else if (verticalCheck(firstLoc, entryLoc, 100, -100) && locationCheck(firstLoc[1], entryLoc[1], 0, -2000)) {
-            check = true;
-        }
+    // // 355 일반송장_남양씨피엠
+    // }else if(doctype == 355){
+    //     // 504 품목명
+    //     if(firstEntry['entryLbl'] == 504 && verticalCheck(firstLoc, entryLoc, 150, -300) && locationCheck(firstLoc[1], entryLoc[1], 0, -2000)){
+    //         check = true;
+    //     }else if (verticalCheck(firstLoc, entryLoc, 100, -100) && locationCheck(firstLoc[1], entryLoc[1], 0, -2000)) {
+    //         check = true;
+    //     }
+    // // 358 대림에스엠
+    // }else if(doctype == 358){        
+    //     if(firstEntry['entryLbl'] == 504 && verticalCheck(firstLoc, entryLoc, 10, -10) && locationCheck(firstLoc[1], entryLoc[1], 0, -2000)){
+    //         check = true;
+    //     }else if (verticalCheck(firstLoc, entryLoc, 100, -100) && locationCheck(firstLoc[1], entryLoc[1], 0, -2000)) {
+    //         check = true;
+    //     }
+    // }else if(doctype == 363) {
+    //     // 504 품목명
+    //     if(firstEntry['entryLbl'] == 505 && verticalCheck(firstLoc, entryLoc, 20, -20) && locationCheck(firstLoc[1], entryLoc[1], 0, -2000)){
+    //         check = true;
+    //     }
+    // // 364 대유스틸
+    // }else if(doctype == 364){        
+    //     if(firstEntry['entryLbl'] == 504 && verticalCheck(firstLoc, entryLoc, 100, -100) && locationCheck(firstLoc[1], entryLoc[1], 0, -2000)){
+    //         check = true;
+    //     }else if (verticalCheck(firstLoc, entryLoc, 100, -100) && locationCheck(firstLoc[1], entryLoc[1], 0, -2000)) {
+    //         check = true;
+    //     }
 
-    // 367 대치가설산업
-    }else if(doctype == 367){        
-        if(firstEntry['entryLbl'] == 504 && verticalCheck(firstLoc, entryLoc, 10, -10) && locationCheck(firstLoc[1], entryLoc[1], 0, -2000)){
-            check = true;
-        }else if (verticalCheck(firstLoc, entryLoc, 100, -100) && locationCheck(firstLoc[1], entryLoc[1], 0, -2000)) {
-            check = true;
-        }    
-    // 355 삼성에스앤에이치
-    }else if(doctype == 355){        
-        if(firstEntry['entryLbl'] == 504 && verticalCheck(firstLoc, entryLoc, 10, -100) && locationCheck(firstLoc[1], entryLoc[1], 0, -2000)){
-            check = true;
-        }else if (verticalCheck(firstLoc, entryLoc, 100, -100) && locationCheck(firstLoc[1], entryLoc[1], 0, -2000)) {
-            check = true;
-        }
-    // 380 광지세이프티02
-    }else if(doctype == 380){        
-        if(firstEntry['entryLbl'] == 504 && verticalCheck(firstLoc, entryLoc, 10, -150) && locationCheck(firstLoc[1], entryLoc[1], 0, -2000)){
-            check = true;
-        }else if(firstEntry['entryLbl'] == 505 && verticalCheck(firstLoc, entryLoc, 100, -50) && locationCheck(firstLoc[1], entryLoc[1], 0, -2000)){
-            check = true;
-        }
-        else if (verticalCheck(firstLoc, entryLoc, 100, -100) && locationCheck(firstLoc[1], entryLoc[1], 0, -2000)) {
-            check = true;
-        }
+    // // 367 대치가설산업
+    // }else if(doctype == 367){        
+    //     if(firstEntry['entryLbl'] == 504 && verticalCheck(firstLoc, entryLoc, 10, -10) && locationCheck(firstLoc[1], entryLoc[1], 0, -2000)){
+    //         check = true;
+    //     }else if (verticalCheck(firstLoc, entryLoc, 100, -100) && locationCheck(firstLoc[1], entryLoc[1], 0, -2000)) {
+    //         check = true;
+    //     }    
+    // // 355 삼성에스앤에이치
+    // }else if(doctype == 355){        
+    //     if(firstEntry['entryLbl'] == 504 && verticalCheck(firstLoc, entryLoc, 10, -100) && locationCheck(firstLoc[1], entryLoc[1], 0, -2000)){
+    //         check = true;
+    //     }else if (verticalCheck(firstLoc, entryLoc, 100, -100) && locationCheck(firstLoc[1], entryLoc[1], 0, -2000)) {
+    //         check = true;
+    //     }
+    // // 380 광지세이프티02
+    // }else if(doctype == 380){        
+    //     if(firstEntry['entryLbl'] == 504 && verticalCheck(firstLoc, entryLoc, 10, -150) && locationCheck(firstLoc[1], entryLoc[1], 0, -2000)){
+    //         check = true;
+    //     }else if(firstEntry['entryLbl'] == 505 && verticalCheck(firstLoc, entryLoc, 100, -50) && locationCheck(firstLoc[1], entryLoc[1], 0, -2000)){
+    //         check = true;
+    //     }
+    //     else if (verticalCheck(firstLoc, entryLoc, 100, -100) && locationCheck(firstLoc[1], entryLoc[1], 0, -2000)) {
+    //         check = true;
+    //     }
     
-    // 380 광지세이프티02
-    }else if(doctype == 383){        
-        if(firstEntry['entryLbl'] == 504 && verticalCheck(firstLoc, entryLoc, 200, -100) && locationCheck(firstLoc[1], entryLoc[1], 0, -2000)){
-            check = true;
-        }else if(firstEntry['entryLbl'] == 505 && verticalCheck(firstLoc, entryLoc, 100, -50) && locationCheck(firstLoc[1], entryLoc[1], 0, -2000)){
-            check = true;
-        }
-        else if (verticalCheck(firstLoc, entryLoc, 100, -100) && locationCheck(firstLoc[1], entryLoc[1], 0, -2000)) {
-            check = true;
-        }
+    // // 380 광지세이프티02
+    // }else if(doctype == 383){        
+    //     if(firstEntry['entryLbl'] == 504 && verticalCheck(firstLoc, entryLoc, 200, -100) && locationCheck(firstLoc[1], entryLoc[1], 0, -2000)){
+    //         check = true;
+    //     }else if(firstEntry['entryLbl'] == 505 && verticalCheck(firstLoc, entryLoc, 100, -50) && locationCheck(firstLoc[1], entryLoc[1], 0, -2000)){
+    //         check = true;
+    //     }
+    //     else if (verticalCheck(firstLoc, entryLoc, 100, -100) && locationCheck(firstLoc[1], entryLoc[1], 0, -2000)) {
+    //         check = true;
+    //     }
     
-    // 387 미래테크
-    }else if(doctype == 387){        
-        if(firstEntry['entryLbl'] == 504 && verticalCheck(firstLoc, entryLoc, 100, -150) && locationCheck(firstLoc[1], entryLoc[1], 0, -2000)){
-            check = true;
-        }else if(firstEntry['entryLbl'] == 505 && verticalCheck(firstLoc, entryLoc, 100, -50) && locationCheck(firstLoc[1], entryLoc[1], 0, -2000)){
-            check = true;
-        }
-    // 343 대림씨엔에스
-    }else if(doctype == 343){        
-        if(firstEntry['entryLbl'] == 504 && verticalCheck(firstLoc, entryLoc, 100, -150) && locationCheck(firstLoc[1], entryLoc[1], 0, -2000)){
-            check = true;
-        }else if(firstEntry['entryLbl'] == 541 && verticalCheck(firstLoc, entryLoc, 100, -150) && locationCheck(firstLoc[1], entryLoc[1], 0, -2000)){
-            check = true;
-        }
-    // 343 광지세이프티01
-    }else if(doctype == 344){        
-        if(firstEntry['entryLbl'] == 504 && verticalCheck(firstLoc, entryLoc, 100, -100) && locationCheck(firstLoc[1], entryLoc[1], 0, -2000)){
-            check = true;
-        }else if(firstEntry['entryLbl'] == 541 && verticalCheck(firstLoc, entryLoc, 100, -150) && locationCheck(firstLoc[1], entryLoc[1], 0, -2000)){
-            check = true;
-        }    
+    // // 387 미래테크
+    // }else if(doctype == 387){        
+    //     if(firstEntry['entryLbl'] == 504 && verticalCheck(firstLoc, entryLoc, 100, -150) && locationCheck(firstLoc[1], entryLoc[1], 0, -2000)){
+    //         check = true;
+    //     }else if(firstEntry['entryLbl'] == 505 && verticalCheck(firstLoc, entryLoc, 100, -50) && locationCheck(firstLoc[1], entryLoc[1], 0, -2000)){
+    //         check = true;
+    //     }
+    // // 343 대림씨엔에스
+    // }else if(doctype == 343){        
+    //     if(firstEntry['entryLbl'] == 504 && verticalCheck(firstLoc, entryLoc, 100, -150) && locationCheck(firstLoc[1], entryLoc[1], 0, -2000)){
+    //         check = true;
+    //     }else if(firstEntry['entryLbl'] == 541 && verticalCheck(firstLoc, entryLoc, 100, -150) && locationCheck(firstLoc[1], entryLoc[1], 0, -2000)){
+    //         check = true;
+    //     }
+    // // 343 광지세이프티01
+    // }else if(doctype == 344){        
+    //     if(firstEntry['entryLbl'] == 504 && verticalCheck(firstLoc, entryLoc, 100, -100) && locationCheck(firstLoc[1], entryLoc[1], 0, -2000)){
+    //         check = true;
+    //     }else if(firstEntry['entryLbl'] == 541 && verticalCheck(firstLoc, entryLoc, 100, -150) && locationCheck(firstLoc[1], entryLoc[1], 0, -2000)){
+    //         check = true;
+    //     }    
     
-    // 336 대림에스엠
-    }else if(doctype == 336){        
-        if(firstEntry['entryLbl'] == 504 && verticalCheck(firstLoc, entryLoc, 50, -100) && locationCheck(firstLoc[1], entryLoc[1], 0, -2000)){
-            check = true;
-        } else if(verticalCheck(firstLoc, entryLoc, 100, -100) && locationCheck(firstLoc[1], entryLoc[1], 0, -2000)) {
-            check = true;
-        } 
+    // // 336 대림에스엠
+    // }else if(doctype == 336){        
+    //     if(firstEntry['entryLbl'] == 504 && verticalCheck(firstLoc, entryLoc, 50, -100) && locationCheck(firstLoc[1], entryLoc[1], 0, -2000)){
+    //         check = true;
+    //     } else if(verticalCheck(firstLoc, entryLoc, 100, -100) && locationCheck(firstLoc[1], entryLoc[1], 0, -2000)) {
+    //         check = true;
+    //     } 
+    // }
+    if(doctype == 422) {
+        // var deleteY =0;
+        // if(entry["text"] == "TOTAL" && Number(entryLoc[1]) > 2000)
+        // {
+        //     console.log(entry["text"]);
+        //     console.log(entryLoc[1]);
+        //     deleteY = Number(entryLoc[1]);
+        // }
+        // else
+        // {
+        //     deleteY = 5000
+        // }
+        if(entry["text"] != "TOTAL" && entry["text"] != "인수확인자" && entry["text"] != "제품의포장" && entry["text"] != "(인)")
+        // if(Number(entryLoc[1]) < deleteY)
+        {
+            if (verticalCheck(firstLoc, entryLoc, 100, -100) && locationCheck(firstLoc[1], entryLoc[1], 0, -2000)) {
+                check = true;
+            }
+        }
     }
-
     else if (verticalCheck(firstLoc, entryLoc, 100, -100) && locationCheck(firstLoc[1], entryLoc[1], 0, -2000)) {
         check = true;
     }
 
     return check;
 }
+
+
+function multiDeleteEntryCheck(deleteEntry, entry, doctype) {
+    var check = false;
+    var firstLoc = firstEntry['location'].split(',');
+    var entryLoc = entry['location'].split(',');
+
+    if(doctype == 422) {
+        console.log(entry["text"]);
+        if(entry["text"] != "TOTAL" && entry["text"] != "인수확인자" && entry["text"] != "제품의포장" && entry["text"] != "(인)")
+        {
+            console.log("11111111");
+            if (verticalCheck(firstLoc, entryLoc, 100, -100) && locationCheck(firstLoc[1], entryLoc[1], 0, -2000)) {
+                check = true;
+            }
+        }
+        // else
+        // {
+        //     console.log("2222222");
+        //     check = false;
+        // }
+    }
+    else if (verticalCheck(firstLoc, entryLoc, 100, -100) && locationCheck(firstLoc[1], entryLoc[1], 0, -2000)) {
+        check = true;
+    }
+
+    return check;
+}
+
 
 // function verticalCheck(data1, data2, plus, minus) {
 //     var check = false;
