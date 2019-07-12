@@ -217,7 +217,7 @@ function appendMLData(docLabelList, docDataList) {
     var docTopType = $('#docTopTypeSelect').val();
 
     var totalHTML = '';
-    if (docTopType == 51) { // 일반송장
+    if (docTopType == 51 || docTopType == 61) { // 일반송장 || 철근송장
         appendMultiHTML(docLabelList, docDataList);
     } else {
         totalHTML = appendSingleHTML(docDataList);
