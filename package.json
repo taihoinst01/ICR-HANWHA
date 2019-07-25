@@ -57,7 +57,7 @@
     "step": "^1.0.0",
     "sync-exec": "^0.6.2",
     "sync-request": "^6.0.0",
-    "winston": "^3.0.0",
+    "winston": "^3.2.1",
     "winston-daily-rotate-file": "^3.3.0",
     "xlsx": "^0.13.3",
     "xml2js": "^0.4.19"

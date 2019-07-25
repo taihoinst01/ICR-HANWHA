@@ -58,7 +58,7 @@ module.exports = {
                 }
 
                 //retDataList.push(req);
-
+                req = sync.await(editOcrTextTypos(req, sync.defer()));
 				return done(null, req);
 			} catch (e) {
 				console.log(e);
@@ -332,9 +332,19 @@ function findEntry(req, docTypeVal, docTopTypeVal, done) {
                             req.data[j]["text"] = "615-81-456575"
                         }
                     }
+                    else if(req.data[j]["entryLbl"] == 852)
+                    {
+                        
+                        req.data[j]["text"] = "대림산업(주)"
+                        
+                    }
+                    
+
                     //납품용적
                     if(req.data[j]["entryLbl"] == 767)
                     {
+                        var regex= /[^0-9]/g;
+                        req.data[j]["text"] = req.data[j]["text"].replace(regex,"");
                         if(req.data[j]["text"].indexOf(",") !== -1)
                         {
                             req.data[j]["text"] = req.data[j]["text"].replace(",","");
@@ -350,6 +360,10 @@ function findEntry(req, docTypeVal, docTopTypeVal, done) {
                             {
                                 req.data[j]["text"] = req.data[j]["text"].substring(0, req.data[j]["text"].length-2) + "."+req.data[j]["text"].substring(req.data[j]["text"].length, req.data[j]["text"].length-2);
                             }
+                        }
+                        if(req.data[j]["text"].substring(req.data[j]["text"].length-1) == ".")
+                        {
+                            req.data[j]["text"] = req.data[j]["text"] +"00";
                         }
                     }
 
@@ -394,6 +408,9 @@ function findEntry(req, docTypeVal, docTopTypeVal, done) {
                     //누계
                     if(req.data[j]["entryLbl"] == 768)
                     {
+                        var regex= /[^0-9]/g;
+                        req.data[j]["text"] = req.data[j]["text"].replace(regex,"");
+
                         if(req.data[j]["text"].indexOf(",") !== -1)
                         {
                             req.data[j]["text"] = req.data[j]["text"].replace(",","");
@@ -409,6 +426,10 @@ function findEntry(req, docTypeVal, docTopTypeVal, done) {
                             {
                                 req.data[j]["text"] = req.data[j]["text"].substring(0, req.data[j]["text"].length-2) + "."+req.data[j]["text"].substring(req.data[j]["text"].length, req.data[j]["text"].length-2);
                             }
+                        }
+                        if(req.data[j]["text"].substring(req.data[j]["text"].length-1) == ".")
+                        {
+                            req.data[j]["text"] = req.data[j]["text"] +"00";
                         }
                     }
 
@@ -433,7 +454,7 @@ function findEntry(req, docTypeVal, docTopTypeVal, done) {
                         {
                             req.data[j]["text"] = req.data[j]["text"].replace("mm","");
                         }
-                        if(req.data[j]["text"] == "125" || req.data[j]["text"] == "25방배합" || req.data[j]["text"] == "25.방" || req.data[j]["text"] == "25방배합" || req.data[j]["text"] == "방25배합" || req.data[j]["text"] == "125.")
+                        if(req.data[j]["text"] == "125" || req.data[j]["text"] == "25방배합" || req.data[j]["text"] == "25.방" || req.data[j]["text"] == "25방배합" || req.data[j]["text"] == "방25배합" || req.data[j]["text"] == "125." || req.data[j]["text"] == "2")
                         {
                             req.data[j]["text"] = "25";
                         }
@@ -452,7 +473,7 @@ function findEntry(req, docTypeVal, docTopTypeVal, done) {
                         {
                             req.data[j]["text"] = req.data[j]["text"].substring(0,req.data[j]["text"].length-1 );
                         }
-                        if(req.data[j]["text"] == "121" || req.data[j]["text"] == "21/")
+                        if(req.data[j]["text"] == "121" || req.data[j]["text"] == "21/" || req.data[j]["text"] == "1")
                         {
                             req.data[j]["text"] = "21";
                         }
@@ -466,7 +487,7 @@ function findEntry(req, docTypeVal, docTopTypeVal, done) {
                             req.data[j]["text"] = req.data[j]["text"].replace("mm","");
                         }
 
-                        if(req.data[j]["text"] == "1500")
+                        if(req.data[j]["text"] == "1500" || req.data[j]["text"] == "1150" || req.data[j]["text"] == "1501" || req.data[j]["text"] == "15")
                         {
                             req.data[j]["text"] = "150";
                         }
