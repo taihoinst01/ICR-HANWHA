@@ -556,6 +556,7 @@ function btnSaveClick() {
     $('#btn_header_userPop_save').click(function () {
         if ($('#docTopTypeSelect').val() != 0) {
             var saveDataArr = [];
+            var typoDataArr = [];
             var filePath = $('#PopupImg').attr('src').replace('-0.jpg', '.pdf').replace('img','uploads');
             var TrNum;
             $('.originalTr').each(function (i, e) {
@@ -577,6 +578,19 @@ function btnSaveClick() {
                     if (labels[j].AMOUNT == 'multi') saveDataArr[j].value.push($('#popTableContent tr').eq(i + 1).find('input').eq(j).val());
                 }
             }
+
+            for (var i = 0; i < $('#popTableContent tr').length; i++) {
+                
+                for ( var j = 0; j < $('#popTableContent tr td').length; j++) {
+                    var orgText = $('#popTableContent tr').eq(i).find('input').eq(j).attr('data-originalvalue');
+                    var updText = $('#popTableContent tr').eq(i).find('input').eq(j).val();
+   
+                    if (orgText != updText) {
+                        typoDataArr.push({ 'orgText': orgText, 'updText': updText });
+
+                    }
+                }
+            }
             /*
             var seq = $('.originalTr').eq(TrNum).find('input[name="seq"]').val();
             if ($('.multiTr_' + seq).length > 0) {
@@ -592,7 +606,9 @@ function btnSaveClick() {
 
             var saveJson = {
                 'filePath': filePath,
-                'data': saveDataArr
+                'data': saveDataArr,
+                'typoData': typoDataArr,
+                'docTopType': $('#docTopTypeSelect').val()
             };
 
             $.ajax({

@@ -5341,3 +5341,45 @@ exports.updateBatchPoMlExport = function (filePath, saveData, done) {
         }
     });
 };
+
+exports.insertIcrSymspell = function (typoData, docTopType, done) {
+    return new Promise(async function (resolve, reject) {
+        let conn;
+        let result;
+        try {
+            conn = await oracledb.getConnection(dbConfig);
+            var updSymspell = "UPDATE TBL_ICR_SYMSPELL SET KEYWORD = :updText where ICRWORD = :orgText";
+            var insSymspell = "INSERT INTO TBL_ICR_SYMSPELL VALUES(SEQ_ICR_SYMSPELL.NEXTVAL, :updText, 1, :orgText, :docTopType)";
+            var selSymspell = "SELECT ICRWORD FROM TBL_ICR_SYMSPELL WHERE DOCTOPTYPE = :docTopType";
+            var resSelSymspell = await conn.execute(selSymspell, [docTopType]);
+
+            for (var i = 0; i < typoData.length; i++) {
+                var bool = true;
+
+                for (var j = 0; j < resSelSymspell.rows.length; j++) {
+                    if (typoData[i].updText == resSelSymspell.rows[j]["ICRWORD"]) {
+                        await conn.execute(updSymspell, [typoData[i].updText, typoData[i].orgText]);
+                        bool = false;
+                        break;
+                    }
+                }
+
+                if (bool) {
+                    await conn.execute(insSymspell, [typoData[i].updText, typoData[i].orgText, docTopType]);
+                }
+            }            
+
+            return done(null, null);
+        } catch (err) { // catches errors in getConnection and the query
+            reject(err);
+        } finally {
+            if (conn) {   // the conn assignment worked, must release
+                try {
+                    await conn.release();
+                } catch (e) {
+                    console.error(e);
+                }
+            }
+        }
+    });
+};

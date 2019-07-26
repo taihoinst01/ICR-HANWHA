@@ -37,7 +37,6 @@ module.exports = {
                 // mappingSid 추출
                 var retReq = req;
 
-                req = sync.await(editOcrTextTypos(req, sync.defer())); //ocrtext 오타수정
                 req = sync.await(getMappingSid(req, sync.defer()));
                 if(req.docCategory.DOCTOPTYPE == 0)
                 {
@@ -58,7 +57,7 @@ module.exports = {
                 }
 
                 //retDataList.push(req);
-
+                req = sync.await(editOcrTextTypos(req, sync.defer())); //ocrtext 오타수정
 				return done(null, req);
 			} catch (e) {
 				console.log(e);

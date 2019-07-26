@@ -110,6 +110,8 @@ router.post('/updateBatchPoMlExport', function (req, res) {
             var filePath = req.body.filePath;
             var data = req.body.data;
             var saveData = '[';
+            var typoData = req.body.typoData;
+            var docTopType = req.body.docTopType;
             var returnJson;
             //var exportData = sync.await(oracle.selectSingleBatchPoMlExportFromFilePath(filePath, sync.defer()));
             //exportData = exportData.replace(/[\[\]\"]/gi, '');
@@ -141,8 +143,8 @@ router.post('/updateBatchPoMlExport', function (req, res) {
             }
             saveData = saveData.slice(0, -1);
             saveData += ']';
+            sync.await(oracle.insertIcrSymspell(typoData, docTopType, sync.defer()));
             sync.await(oracle.updateBatchPoMlExport(filePath, saveData, sync.defer()));
-
             returnJson = { 'data': saveData };
         } catch (e) {
             console.log(e);
