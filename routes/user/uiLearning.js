@@ -22,6 +22,8 @@ var ocrUtil = require('../util/ocr.js');
 var ocrJs = require('../util/ocr.js');
 var propertiesConfig = require(appRoot + '/config/propertiesConfig.js');
 
+const winston = require('../util/winston')
+
 const upload = multer({
     storage: multer.diskStorage({
         destination: function (req, file, cb) {
@@ -127,7 +129,7 @@ function uiLearnTraining_new(filepath, isAuto, callback) {
                             if(retData.data[ii]["entryLbl"] == labelData.rows[jj].SEQNUM) {
                                 var re = new RegExp(labelData.rows[jj].VALID,'gi');   
                                 var keyParts = retData.data[ii]["text"].match(re); 
-                                if(keyParts != null)
+                                if(keyParts != null && labelData.rows[jj].SEQNUM !="877")
                                 {
                                     retData.data[ii]["text"] = keyParts.toString().replace(/,/gi,'');
                                 }
@@ -142,7 +144,34 @@ function uiLearnTraining_new(filepath, isAuto, callback) {
                 };
 
                 retDataList.push(retData);
-            }        
+            }
+            // winston.info("\n"+filepath.split("/")[3]);
+            // for(var n=0; n < retData.data.length; n++)
+            // {
+            //     if(retData.data[n]["entryLbl"])
+            //     {
+            //         if(retData.data[n].addItem)
+            //         {
+            //             var additems = "";
+            //             // console.log(retData.data[n].addItem);
+            //             for(var i =0; i < retData.data[n].addItem.length; i++)
+            //             {
+            //                 additems = additems + retData.data[n].addItem[i]["text"]+",";
+            //             }
+            //             // console.log(additems.substring(0,additems.length-1));
+            //             // console.log(additems.substring(0,additems.length-1) +"@@@"+ retData.data[n]["text"]);
+            //             winston.info(additems.substring(0,additems.length-1) + "    "+retData.data[n]["entryLbl"]);
+            //         }
+            //         else
+            //         {
+            //             winston.info(retData.data[n]["text"]+ "    "+retData.data[n]["entryLbl"]);
+            //         }
+                    
+            //     }
+                
+            // }
+
+
             console.log("for end");
             console.log(retDataList);
             // resPyArr = sync.await(transPantternVar.trans(resPyArr, sync.defer()));
