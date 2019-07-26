@@ -454,7 +454,7 @@ function findEntry(req, docTypeVal, docTopTypeVal, done) {
                         {
                             req.data[j]["text"] = req.data[j]["text"].replace("mm","");
                         }
-                        if(req.data[j]["text"] == "125" || req.data[j]["text"] == "25방배합" || req.data[j]["text"] == "25.방" || req.data[j]["text"] == "25방배합" || req.data[j]["text"] == "방25배합" || req.data[j]["text"] == "125." || req.data[j]["text"] == "2")
+                        if(req.data[j]["text"] == "125" || req.data[j]["text"] == "25방배합" || req.data[j]["text"] == "25.방" || req.data[j]["text"] == "25방배합" || req.data[j]["text"] == "방25배합" || req.data[j]["text"] == "125." || req.data[j]["text"] == "2" || req.data[j]["text"] == "255" || req.data[j]["text"] == "05")
                         {
                             req.data[j]["text"] = "25";
                         }
