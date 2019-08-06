@@ -9,14 +9,14 @@ var propertiesConfig = {
 
     },
     icrRest: {
-        serverUrl: 'http://13.78.61.168:5000'
+        serverUrl: 'http://52.141.4.167:5000'
     },
     batchLearning: {
 
     },
     ocr: {
         uri: 'https://japaneast.api.cognitive.microsoft.com/vision/v1.0/ocr',
-        subscriptionKey: '8dbe688c24a04c3992825e1a68644b82',
+        subscriptionKey: '6ea0ec2bf7e9470098b8aca034c06596',
     },
     filepath: {
         uploadsPath: 'C:\\ICR\\uploads\\',
