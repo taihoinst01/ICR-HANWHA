@@ -103,7 +103,7 @@ function uiLearnTraining_new(filepath, isAuto, callback) {
             var retDataList = [];
             var docCategory = {};
             for (var i in resPyArr) {
-                //sync.await(ocrUtil.downloadRestSaveImg(resPyArr[i].fileName, sync.defer()));
+                sync.await(ocrUtil.downloadRestSaveImg(resPyArr[i].convertFileName, sync.defer()));
                 if (i == 0) {
                     docCategory = resPyArr[i].docCategory;
                 }
@@ -139,6 +139,7 @@ function uiLearnTraining_new(filepath, isAuto, callback) {
                 }
 
                 retData.fileinfo = {
+                    // filepath: propertiesConfig.auto.ftpFileUrl + resPyArr[i].originFileName,
                     filepath: propertiesConfig.auto.ftpFileUrl + resPyArr[i].originFileName,
                     convertFilepath: propertiesConfig.auto.ftpFileUrl + resPyArr[i].convertFileName
                 };

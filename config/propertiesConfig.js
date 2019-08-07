@@ -49,8 +49,9 @@ var propertiesConfig = {
         ftpFilePath: 'ScanFiles/',
         localFilePath: 'C:/ICR/uploadFiles/',
         destFtpFilePath: 'uploads/',
-        ftpFileUrl: 'http://104.41.171.244/uploads/'
-
+        // ftpFileUrl: 'http://104.41.171.244/uploads/'
+        // ftp 사용 x
+        ftpFileUrl: 'http://localhost/img/'
     },
     ftp: {
         host: '104.41.171.244',
