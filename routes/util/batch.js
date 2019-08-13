@@ -10,7 +10,7 @@ var execSync = require('child_process').execSync;
 var pythonConfig = require(appRoot + '/config/pythonConfig');
 var propertiesConfig = require(appRoot + '/config/propertiesConfig');
 var ftp = require('ftp');
-
+var request = require('request');
 var ftpConfig = propertiesConfig.ftp;
 
 exports.insertDoctypeMapping = function (req, done) {
@@ -188,13 +188,36 @@ function copyFile(src, docType) {
             if (e.code != 'EEXIST') throw e;
         }
         //execSync('module\\imageMagick\\convert.exe -density 800x800 ' + src + ' ' + (convertedFilepath + '/' + docType + '.jpg'));
-        sync.await(downloadFtpFileToSampleImg(src, sampleImagePath, sync.defer()));
+
+        //한화 ftp 사용 x
+        //sync.await(downloadFtpFileToSampleImg(src, sampleImagePath, sync.defer()));
+        originFile = src.substring(src.lastIndexOf('/') + 1);
+        sync.await(downloadSampleImg(originFile, sampleImagePath, sync.defer()));
+
         sync.await(oracle.updateDocCategoryToFilePath(['/' + (convertedFilepath.split('/')[2] + '/' + docType + '.jpg'), docType], sync.defer()));
 
         return (convertedFilepath + '/' + docType + '.jpg');
     } catch (e) {
         throw e;
     }
+}
+
+function downloadSampleImg(originFile, sampleImagePath, done) {
+    sync.fiber(function() {
+        try {
+            request.get({ url: propertiesConfig.icrRest.serverUrl + '/fileDown?fileName=' + originFile}, function (err, httpRes, body) {
+                if (err) return done(null, err);
+                let binaryData = new Buffer(body, 'base64').toString('binary');
+                fs.writeFile(sampleImagePath, binaryData, 'binary', function() {
+                    if (err) throw err
+                    console.log('File saved.')
+                })
+                return done(null, null);
+            }) 
+        } catch(e) {
+            throw e;
+        }
+    })
 }
 
 function downloadFtpFileToSampleImg(src, sampleImagePath, done) {

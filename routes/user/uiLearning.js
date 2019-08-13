@@ -1413,7 +1413,7 @@ router.post('/insertDoctypeMapping', function (req, res) {
         radioType: req.body.radioType,
         textList: req.body.textList
     }
-    
+
     sync.fiber(function () {
         try {
             var regExp = /[\{\}\[\]\/?.,;:|\)*~`!^\-_+<>@\#$%&\\\=\(\'\"]/gi;
